@@ -16,6 +16,7 @@ type Post = {
 
 const Post = ({ data, content }: Post) => {
   console.log(data);
+
   return (
     <>
       <div className="max-w-2xl mx-auto">
