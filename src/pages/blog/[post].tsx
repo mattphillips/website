@@ -7,6 +7,7 @@ import { join } from "path";
 import fs from "fs";
 import { remark } from "remark";
 import html from "remark-html";
+import prism from "remark-prism";
 
 type Post = {
   data: any;
@@ -16,18 +17,24 @@ type Post = {
 const Post = ({ data, content }: Post) => {
   console.log(data);
   return (
-    <div className="max-w-2xl mx-auto">
-      <article className="prose lg:prose-xl">
-        <div dangerouslySetInnerHTML={{ __html: content }} />
-      </article>
-    </div>
+    <>
+      <div className="max-w-2xl mx-auto">
+        <article className="prose lg:prose-xl">
+          <div dangerouslySetInnerHTML={{ __html: content }} />
+        </article>
+      </div>
+    </>
   );
 };
 
 const postsDirectory = join(process.cwd(), "src/", "posts");
 
 async function markdownToHtml(markdown) {
-  const result = await remark().use(html).process(markdown);
+  const result = await remark()
+    .use(html, { sanitize: false })
+    // @ts-ignore
+    .use(prism)
+    .process(markdown);
   return result.toString();
 }
 
