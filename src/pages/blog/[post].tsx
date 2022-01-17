@@ -1,4 +1,4 @@
-import { GetStaticProps } from "next";
+import { GetStaticPaths, GetStaticProps } from "next";
 import Head from "next/head";
 import React, { createElement } from "react";
 import matter from "gray-matter";
@@ -8,15 +8,13 @@ import fs from "fs";
 import { remark } from "remark";
 import html from "remark-html";
 import prism from "remark-prism";
+import { Article } from "src/articles/Articles";
+import { FsArticles } from "src/articles/FsArticles";
+import { IO, UIO } from "ts-prelude/IO/fluent";
+import { fromSerialisable, toSerialisable, ToSerialisable } from "ts-prelude/Serialisable";
 
-type Post = {
-  data: any;
-  content: string;
-};
-
-const Post = ({ data, content }: Post) => {
-  console.log(data);
-
+const Post = (props: ToSerialisable<Article>) => {
+  const { content } = fromSerialisable<Article>(props);
   return (
     <>
       <div className="max-w-2xl mx-auto">
@@ -28,43 +26,27 @@ const Post = ({ data, content }: Post) => {
   );
 };
 
-const postsDirectory = join(process.cwd(), "src/", "posts");
+const markdownToHtml = (markdown: string): UIO<string> =>
+  IO.fromPromiseOrDie(() =>
+    remark()
+      .use(html, { sanitize: false })
+      // @ts-ignore
+      .use(prism)
+      .process(markdown)
+  ).map((file) => file.toString());
 
-async function markdownToHtml(markdown) {
-  const result = await remark()
-    .use(html, { sanitize: false })
-    // @ts-ignore
-    .use(prism)
-    .process(markdown);
-  return result.toString();
-}
+export const getStaticProps: GetStaticProps<ToSerialisable<Article>> = (ctx) =>
+  new FsArticles()
+    .findBySlug(`${ctx.params.post.toString()}.md`)
+    .flatMapW(IO.fromMaybe(new Error("Slug not found")))
+    .orDie()
+    .flatMap((article) => markdownToHtml(article.content).map((html) => ({ ...article, content: html })))
+    .map((props) => ({ props: toSerialisable(props) }))
+    .toPromise();
 
-export const getStaticProps: GetStaticProps<Post> = async (ctx) => {
-  const slug = ctx.params.post.toString();
-
-  const realSlug = slug.replace(/\.md$/, "");
-  const fullPath = join(postsDirectory, `${realSlug}.md`);
-  const fileContents = fs.readFileSync(fullPath, "utf8");
-  const { data, content } = matter(fileContents);
-
-  const html = await markdownToHtml(content);
-
-  return { props: { data, content: html } };
-};
-
-export const getStaticPaths = async () => {
-  const posts = fs.readdirSync(postsDirectory);
-
-  return {
-    paths: posts.map((post) => {
-      return {
-        params: {
-          post: post.replace(".md", ""),
-        },
-      };
-    }),
-    fallback: false,
-  };
-};
+export const getStaticPaths: GetStaticPaths = new FsArticles().list
+  .map((articles) => articles.map((a) => a.slug))
+  .map((slugs) => slugs.map((slug) => ({ params: { post: slug } })))
+  .map((slugs) => ({ paths: slugs, fallback: false })).toPromise;
 
 export default Post;
