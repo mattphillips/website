@@ -1,15 +1,33 @@
 import * as t from "io-ts";
 import * as tt from "io-ts-types";
 import matter from "gray-matter";
-
 import { IO, UIO } from "ts-prelude/IO/fluent";
 import { Maybe, MaybeC } from "ts-prelude/Maybe";
 import { eitherToResult } from "ts-prelude/fp-ts-interop";
+import { Refined } from "ts-prelude/Refined";
+import { SimpleNominal } from "ts-prelude/Nominal";
 
 import fs from "fs";
 import path from "path";
 
-import { Articles, Article } from "./Articles";
+import { Articles, Article, Title, Description, Src, Alt, Name, Url, Slug } from "./Articles";
+import { TagUnion } from "ts-prelude/match";
+import { Markdown, toHtml } from "src/Markdown";
+
+// TODO: Move to ts-prelude
+const IterableToCodec = <A extends SimpleNominal<unknown>>(refinement: Refined<A, TagUnion>): t.Type<A> =>
+  new t.Type(
+    "ToCodec",
+    refinement.is,
+    (input, context) =>
+      Symbol.iterator in Object(input)
+        ? refinement.from(input).fold(
+            (e) => t.failure(input, context, e.tag),
+            (a) => t.success(a)
+          )
+        : t.failure(input, context, "Not iterable"),
+    t.identity
+  );
 
 // TODO: Move to ts-prelude
 const fromNullable = <A>(a: t.Type<A>) =>
@@ -32,17 +50,17 @@ const fromNullable = <A>(a: t.Type<A>) =>
   );
 
 const article = t.type({
-  content: t.string,
+  markdown: IterableToCodec(Markdown),
   date: tt.DateFromISOString,
-  title: t.string,
-  description: t.string,
+  title: IterableToCodec(Title),
+  description: IterableToCodec(Description),
   image: fromNullable(
     t.type({
-      src: t.string,
-      alt: t.string,
+      src: IterableToCodec(Src),
+      alt: IterableToCodec(Alt),
       credit: t.type({
-        name: t.string,
-        url: t.string,
+        name: IterableToCodec(Name),
+        url: IterableToCodec(Url),
       }),
     })
   ),
@@ -64,10 +82,26 @@ export class FsArticles implements Articles {
 
   findBySlug = (slug: string): UIO<Maybe<Article>> =>
     readFile(path.join(postsDirectory, slug), "utf-8")
+      .orDie()
       .map(matter)
-      .flatMapW(({ data, content }) => IO.fromResult(eitherToResult(article.decode({ ...data, content }))))
-      .fold(
-        () => Maybe.nothing,
-        (a) => Maybe.just({ ...a, slug: slug.replace(".md", "") })
-      );
+      .flatMapW(({ data, content }) => IO.fromResult(eitherToResult(article.decode({ ...data, markdown: content }))))
+      .tapError((es) =>
+        console.log(
+          "Unable to parse:",
+          slug,
+          "\nErrors at:\n ",
+          es.map((e) => e.context.map((c) => c.key).join(".") + `: ${e.message}`).join("\n  ")
+        )
+      )
+      .flatMap((article) =>
+        toHtml(article.markdown).map<Article>((html) => ({
+          html,
+          date: article.date,
+          description: article.description,
+          image: article.image,
+          slug: Slug.unsafeFrom(slug.replace(".md", "")),
+          title: article.title,
+        }))
+      )
+      .fold(() => Maybe.nothing, Maybe.just);
 }
