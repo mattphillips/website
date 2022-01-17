@@ -1,0 +1,107 @@
+.post {
+  font-size: 19px;
+  line-height: 1.6;
+}
+
+.post blockquote {
+  border-left: solid 4px;
+  padding-left: 1rem;
+  font-style: italic;
+  border-left-width: 0.25rem;
+  margin-left: -1.5rem;
+}
+
+.post ol,
+.post ul {
+  list-style: none;
+  margin-left: 1rem;
+}
+
+.post li::before {
+  content: "-";
+  display: inline-block;
+  position: absolute;
+  margin-left: -25px;
+}
+
+.post blockquote,
+.post dd,
+.post dl,
+.post figure,
+.post h1,
+.post h2,
+.post h3,
+.post h4,
+.post h5,
+.post h6,
+.post p,
+.post pre,
+.post ul,
+.post ol {
+  margin-bottom: 2rem;
+}
+
+.post hr {
+  border: none;
+  font-size: 28px;
+  font-weight: 400;
+  margin-bottom: 2rem;
+  margin-top: 1rem;
+  text-align: center;
+  font-family: serif;
+}
+.post hr::before {
+  content: "...";
+  line-height: 1.4;
+  letter-spacing: 0.6em;
+}
+
+.post li {
+  margin-bottom: 0.5rem;
+}
+
+.post li:last-child {
+  margin-bottom: 0;
+}
+
+.post a {
+  text-decoration: none;
+  color: #0074de;
+}
+
+.post img {
+  height: 100%;
+  width: 100%;
+}
+
+.container {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
+
+.title {
+  font-size: 36px !important;
+  margin: 0 !important;
+}
+
+.date {
+  font-size: 14px;
+}
+
+.bioImage {
+  border-radius: 99999px;
+  height: 6rem !important;
+  width: 6rem !important;
+  margin-right: 1rem;
+}
+
+.bioContainer {
+  border-top: 2px solid #efefef;
+  border-bottom: 2px solid #efefef;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  margin-bottom: 1rem;
+  padding: 1rem 0;
+}

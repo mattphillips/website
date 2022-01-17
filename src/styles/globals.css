@@ -9,6 +9,12 @@ h6 {
 
 body {
   font-family: "Open Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  height: 100%;
 }
 
 @tailwind base;
