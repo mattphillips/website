@@ -78,11 +78,11 @@ const Post = (props: ToSerialisable<Article>) => {
           </div>
         </div>
 
-        <div className="flex flex-row flex-wrap items-center  p-6 md:px-0 ">
+        <div className="flex flex-row flex-wrap items-center p-6 md:px-0 ">
           {/* Extract this */}
           <img
-            className="rounded-full w-[200px] h-[200px] mb-4 md:mb-0 md:mr-4 "
-            src="/profile.jpg"
+            className="w-[200px] h-[200px] mb-4 md:mb-0 md:mr-4 md:rounded-full"
+            src="/profile.png"
             alt="Matt Phillips"
           />
           <div className="md:w-2/3">

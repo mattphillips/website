@@ -21,9 +21,9 @@ export default function Home(props: Home) {
         <title>Matt Phillips</title>
       </Head>
       <Layout>
-        <div className="p-6 md:py-10 bg-gray-50">
-          <div className="max-w-5xl mx-auto flex flex-col-reverse md:flex-row items-center">
-            <div className="mt-4 md:mt-0 md:mr-10">
+        <div className="bg-gray-50">
+          <div className="p-6 md:py-10 xl:px-0 md:relative max-w-5xl mx-auto flex flex-col-reverse md:flex-row items-center min-h-[500px]">
+            <div className="mt-4 md:mt-0 md:mr-10 md:w-1/2">
               <span className="text-2xl md:text-5xl font-display">Hi 👋, I'm </span>
               <h1 className="text-3xl md:text-7xl mt-4 mb-4 md:mb-8">Matt Phillips</h1>
               <p className="font-body text-xl md:text-2xl">
@@ -32,8 +32,8 @@ export default function Home(props: Home) {
               </p>
             </div>
             <img
-              className="rounded-full w-[200px] h-[200px] md:w-[400px] md:h-[400px] "
-              src="/profile.jpg"
+              className="rounded-full md:rounded-none w-[300px] h-[300px] md:w-[350px] md:h-[350px] lg:w-[500px] lg:h-[500px] md:absolute md:bottom-0 md:right-[24px]"
+              src="/profile.png"
               alt="Matt Phillips"
             />
           </div>
