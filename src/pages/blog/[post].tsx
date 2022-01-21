@@ -7,14 +7,16 @@ import { IO, UIO } from "ts-prelude/IO/fluent";
 import { fromSerialisable, toSerialisable, ToSerialisable } from "ts-prelude/Serialisable";
 
 const Post = (props: ToSerialisable<Article>) => {
-  const { html, title, date } = fromSerialisable<Article>(props);
+  const { html, title, date, duration } = fromSerialisable<Article>(props);
   return (
     <>
       <div className="max-w-2xl mx-auto">
         {/* <article className="post"> */}
         <article className="prose prose-img:rounded-xl prose-headings:underline prose-a:text-blue-600 prose-a:no-underline">
           <h1 className="title">{title}</h1>
-          <span className="date">{date.toDateString()}</span>
+          <span className="date">
+            {date.toDateString()} • {duration}
+          </span>
           <div dangerouslySetInnerHTML={{ __html: html }} />
         </article>
       </div>

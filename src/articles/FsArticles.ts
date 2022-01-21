@@ -1,6 +1,7 @@
 import * as t from "io-ts";
 import * as tt from "io-ts-types";
 import matter from "gray-matter";
+import reading from "reading-time";
 import { IO, UIO } from "ts-prelude/IO/fluent";
 import { Maybe, MaybeC } from "ts-prelude/Maybe";
 import { eitherToResult } from "ts-prelude/fp-ts-interop";
@@ -10,7 +11,7 @@ import { SimpleNominal } from "ts-prelude/Nominal";
 import fs from "fs";
 import path from "path";
 
-import { Articles, Article, Title, Description, Src, Alt, Name, Url, Slug } from "./Articles";
+import { Articles, Article, Title, Description, Src, Alt, Name, Url, Slug, Duration } from "./Articles";
 import { TagUnion } from "ts-prelude/match";
 import { Markdown, toHtml } from "src/Markdown";
 
@@ -101,6 +102,7 @@ export class FsArticles implements Articles {
           image: article.image,
           slug: Slug.unsafeFrom(slug.replace(".md", "")),
           title: article.title,
+          duration: Duration(reading(article.markdown).text),
         }))
       )
       .fold(() => Maybe.nothing, Maybe.just);

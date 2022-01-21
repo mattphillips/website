@@ -65,7 +65,7 @@ export default function Home(props: Home) {
       </header>
       <div className="max-w-2xl mx-auto">
         <ul className="list-none p-0 m-0">
-          {posts.map(({ date, slug, title, description, image }) => (
+          {posts.map(({ date, slug, title, description, image, duration }) => (
             <li className="my-10 pb-6 border-b border-solid border-gray-200 last:border-0" key={slug}>
               <Link passHref={true} href={`/blog/${slug}`}>
                 <a className="no-underline">
@@ -82,7 +82,9 @@ export default function Home(props: Home) {
                       </figure>
                     ))}
                     <h2 className="text-3xl font-display font-semibold mb-4 tracking-wider leading-9">{title}</h2>
-                    <div className="text-sm text-gray-600">{date.toDateString()}</div>
+                    <div className="text-sm text-gray-600">
+                      {date.toDateString()} • {duration}
+                    </div>
                     <p className="my-4 text-lg">{description}</p>
                   </article>
                 </a>

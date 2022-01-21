@@ -33,6 +33,9 @@ export const Title = Refined.Iterable.MinLength.refinement<Title>(2);
 export type Description = Nominal<string, { readonly Description: unique symbol }>;
 export const Description = Refined.Iterable.MinLength.refinement<Description>(0);
 
+export type Duration = Nominal<string, { readonly Duration: unique symbol }>;
+export const Duration = Nominal<Duration>();
+
 type Image = {
   src: Src;
   alt: Alt;
@@ -48,5 +51,6 @@ export type Article = {
   date: Date;
   title: Title;
   description: Description;
+  duration: Duration;
   image: Maybe<Image>;
 };
