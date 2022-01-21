@@ -21,41 +21,47 @@ export default function Home(props: Home) {
         <title>Matt Phillips</title>
       </Head>
       <header className="">
-        <nav className="max-w-5xl mx-auto py-6 flex flex-row justify-between items-center">
-          <Link passHref href="/">
-            <a title="mattphillips.io">
-              <span className="font-display text-2xl tracking-wider uppercase">Matt Phillips</span>
-            </a>
-          </Link>
-          <div className="flex flex-row">
-            <a href="https://twitter.com/mattphillipsio" target="_blank" title="Twitter" rel="noopener">
-              <div className="mr-6">
-                <Twitter />
-              </div>
-            </a>
-            <a href="https://github.com/mattphillips" target="_blank" title="Github" rel="noopener">
-              <div className="mr-6">
-                <Github />
-              </div>
-            </a>
-            <a href="https://linkedin.com/in/mattphillipsio" target="_blank" title="Linked" rel="noopener">
-              <div className="mr-6">
-                <LinkedIn />
-              </div>
-            </a>
+        <nav className="p-6">
+          <div className="max-w-5xl mx-auto flex flex-row justify-between items-center bg-white">
+            <Link passHref href="/">
+              <a title="mattphillips.io">
+                <span className="font-display text-xl md:text-2xl tracking-wider uppercase ">Matt Phillips</span>
+              </a>
+            </Link>
+            <div className="flex flex-row">
+              <a href="https://twitter.com/mattphillipsio" target="_blank" title="Twitter" rel="noopener">
+                <div className="mr-6">
+                  <Twitter />
+                </div>
+              </a>
+              <a href="https://github.com/mattphillips" target="_blank" title="Github" rel="noopener">
+                <div className="mr-6">
+                  <Github />
+                </div>
+              </a>
+              <a href="https://linkedin.com/in/mattphillipsio" target="_blank" title="Linked" rel="noopener">
+                <div className="">
+                  <LinkedIn />
+                </div>
+              </a>
+            </div>
           </div>
         </nav>
-        <div className=" py-20 bg-gray-50">
-          <div className="max-w-5xl mx-auto flex flex-row items-center">
-            <div className="mr-10">
-              <span className="text-5xl font-display">Hi 👋, I'm </span>
-              <h1 className="text-7xl mt-4 mb-8">Matt Phillips</h1>
-              <p className="font-body text-2xl mb-8">
+        <div className="p-6 md:py-10 bg-gray-50">
+          <div className="max-w-5xl mx-auto flex flex-col-reverse md:flex-row items-center">
+            <div className="md:mr-10">
+              <span className="text-2xl md:text-5xl font-display">Hi 👋, I'm </span>
+              <h1 className="text-3xl md:text-7xl mt-4 mb-4 md:mb-8">Matt Phillips</h1>
+              <p className="font-body text-xl md:text-2xl">
                 Welcome to my site where I write on all things related to code and careers in tech with a focus on
                 Typescript, Testing and Functional Programming.
               </p>
             </div>
-            <img className="rounded-full w-[400px] h-[400px]" src="/profile.jpg" alt="Matt Phillips" />
+            <img
+              className="rounded-full w-[200px] h-[200px] md:w-[400px] md:h-[400px] "
+              src="/profile.jpg"
+              alt="Matt Phillips"
+            />
           </div>
         </div>
       </header>
@@ -75,16 +81,18 @@ export default function Home(props: Home) {
                         <img
                           src={src}
                           alt={alt}
-                          className="rounded-lg object-cover object-center max-h-[336px] w-full"
+                          className="md:rounded-lg object-cover object-center max-h-[336px] w-full"
                         />
                         <figcaption className="text-xs text-gray-600 mt-2">Photo by: {credit.name}</figcaption>
                       </figure>
                     ))}
-                    <h2 className="text-3xl font-display font-semibold mb-4 tracking-wider leading-9">{title}</h2>
-                    <div className="text-sm text-gray-600">
-                      {date.toDateString()} • {duration}
+                    <div className="px-6 md:px-0">
+                      <h2 className="text-3xl font-display font-semibold mb-4 tracking-wider leading-9">{title}</h2>
+                      <div className="text-sm text-gray-600 mb-4">
+                        {date.toDateString()} • {duration}
+                      </div>
+                      <p className="text-lg">{description}</p>
                     </div>
-                    <p className="my-4 text-lg">{description}</p>
                   </article>
                 </a>
               </Link>
@@ -92,26 +100,26 @@ export default function Home(props: Home) {
           ))}
         </ul>
       </main>
-      <footer className="bg-white">
-        <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 md:flex md:items-center md:justify-between lg:px-8">
+      <footer className="bg-white p-4 sm:p-6">
+        <div className="max-w-5xl mx-auto md:flex md:items-center md:justify-between">
           <div className="flex justify-center space-x-6 md:order-2">
             <a href="https://twitter.com/mattphillipsio" target="_blank" title="Twitter" rel="noopener">
-              <div className="border-2 border-solid border-black rounded-full p-3 mr-6">
+              <div className=" mr-6">
                 <Twitter />
               </div>
             </a>
             <a href="https://github.com/mattphillips" target="_blank" title="Github" rel="noopener">
-              <div className="border-2 border-solid border-black rounded-full p-3 mr-6">
+              <div className=" mr-6">
                 <Github />
               </div>
             </a>
             <a href="https://linkedin.com/in/mattphillipsio" target="_blank" title="Linked" rel="noopener">
-              <div className="border-2 border-solid border-black rounded-full p-3 mr-6">
+              <div className="">
                 <LinkedIn />
               </div>
             </a>
           </div>
-          <div className="mt-8 md:mt-0 md:order-1">
+          <div className="mt-4 md:mt-0 md:order-1">
             <p className="text-center text-base text-gray-400">&copy; 2022 Matt Phillips. All rights reserved.</p>
           </div>
         </div>
