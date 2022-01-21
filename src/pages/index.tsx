@@ -15,10 +15,21 @@ type Home = {
 export default function Home(props: Home) {
   const posts = fromSerialisable<Array<Article>>(props.posts);
 
+  const description =
+    "Personal site by Matt Phillips where he write on all things related to code and careers in tech with a focus on Typescript, Testing and Functional Programming.";
   return (
     <>
       <Head>
         <title>Matt Phillips</title>
+        <meta name="description" content={description} />
+        <meta name="og:url" content="https://mattphillips.io" />
+        <meta name="og:title" content="Matt Phillips" />
+        <meta name="og:description" content={description} />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:creator" content="mattphillipsio" />
+        <meta name="twitter:description" content={description} />
+        <meta property="og:image" content="https://mattphillips.io/profile.jpg" />
+        <meta property="twitter:image" content="https://mattphillips.io/profile.jpg" />
       </Head>
       <Layout>
         <div className="bg-gray-50">
