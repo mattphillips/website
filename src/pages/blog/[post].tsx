@@ -29,6 +29,12 @@ const Post = (props: ToSerialisable<Article>) => {
           </div>
           <article className="post">
             <div dangerouslySetInnerHTML={{ __html: html }} />
+            <p>
+              Don’t miss out on on future posts, projects and products I’m building. Follow me over on Twitter{" "}
+              <a href="https://twitter.com/mattphillipsio" target="_blank" title="Twitter" rel="noopener">
+                @mattphillipsio
+              </a>
+            </p>
           </article>
         </div>
 
@@ -44,6 +50,7 @@ const Post = (props: ToSerialisable<Article>) => {
           >
             <span className="font-display font-semibold text-lg text-gray-600">Tweet this article</span>
           </a>
+
           <div className="flex flex-row items-center">
             <a
               href={`https://twitter.com/search?${new URLSearchParams({
