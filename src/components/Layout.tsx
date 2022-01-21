@@ -18,7 +18,7 @@ export const Layout: React.FC = ({ children }) => (
     <footer className="bg-white p-4 sm:p-6 border-t border-solid border-gray-200">
       <div className="max-w-5xl mx-auto md:flex md:items-center md:justify-between">
         <div className="order-2">
-          <SocialLinks />
+          <SocialLinks className="fill-gray-400" />
         </div>
         <div className="mt-4 md:mt-0 md:order-1">
           <p className="text-center text-base text-gray-400">&copy; 2022 Matt Phillips. All rights reserved.</p>
