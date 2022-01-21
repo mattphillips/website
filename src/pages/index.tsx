@@ -31,13 +31,13 @@ export default function Home(props: Home) {
           <li className="font-semibold">Contact</li>
         </ul>
       </nav>
-      <header className="py-20 mb-10 bg-gray-50">
+      <header className="py-20  bg-gray-50">
         <div className="max-w-5xl mx-auto py-6">
           <div className="flex flex-row items-start">
             <div className="mr-8">
-              <span className="text-4xl font-display">Hi I'm </span>
+              <span className="text-5xl font-display">Hi 👋, I'm </span>
               <h1 className="text-7xl my-4">Matt Phillips</h1>
-              <p className="font-body text-xl mb-8">
+              <p className="font-body text-2xl mb-8">
                 Welcome to my site where I write on all things related to code and careers in tech with a focus on
                 Typescript, Testing and Functional Programming.
               </p>
@@ -63,36 +63,30 @@ export default function Home(props: Home) {
           </div>
         </div>
       </header>
-      <div className="max-w-2xl mx-auto">
-        <ul className="list-none p-0 m-0">
-          {posts.map(({ date, slug, title, description, image, duration }) => (
-            <li className="my-10 pb-6 border-b border-solid border-gray-200 last:border-0" key={slug}>
-              <Link passHref={true} href={`/blog/${slug}`}>
-                <a className="no-underline">
-                  <article className="flex flex-col w-full">
-                    {image.fold(null, ({ alt, src, credit }) => (
-                      <figure className="mb-4 flex flex-col items-center">
-                        {/* TODO: Look into Next image here */}
-                        <img
-                          src={src}
-                          alt={alt}
-                          className="rounded-lg object-cover object-center max-h-[336px] w-full"
-                        />
-                        <figcaption className="text-xs text-gray-600 mt-2">Photo by: {credit.name}</figcaption>
-                      </figure>
-                    ))}
-                    <h2 className="text-3xl font-display font-semibold mb-4 tracking-wider leading-9">{title}</h2>
-                    <div className="text-sm text-gray-600">
-                      {date.toDateString()} • {duration}
-                    </div>
-                    <p className="my-4 text-lg">{description}</p>
-                  </article>
-                </a>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <ul className="list-none p-0 m-0">
+        {posts.map(({ date, slug, title, description, image, duration }) => (
+          <li className="py-10 hover:shadow-[0_5px_40px_rgb(0,0,0,0.04)] border-b border-solid border-200" key={slug}>
+            <Link passHref={true} href={`/blog/${slug}`}>
+              <a className="no-underline">
+                <article className="max-w-2xl mx-auto flex flex-col w-full ">
+                  {image.fold(null, ({ alt, src, credit }) => (
+                    <figure className="mb-4 flex flex-col items-center">
+                      {/* TODO: Look into Next image here */}
+                      <img src={src} alt={alt} className="rounded-lg object-cover object-center max-h-[336px] w-full" />
+                      <figcaption className="text-xs text-gray-600 mt-2">Photo by: {credit.name}</figcaption>
+                    </figure>
+                  ))}
+                  <h2 className="text-3xl font-display font-semibold mb-4 tracking-wider leading-9">{title}</h2>
+                  <div className="text-sm text-gray-600">
+                    {date.toDateString()} • {duration}
+                  </div>
+                  <p className="my-4 text-lg">{description}</p>
+                </article>
+              </a>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </>
   );
 }
