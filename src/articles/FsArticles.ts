@@ -78,7 +78,11 @@ export class FsArticles implements Articles {
     readDir(postsDirectory)
       .orDie()
       .flatMap(IO.traverse(this.findBySlug))
-      .map((as) => as.reduce<Array<Article>>((acc, a) => a.fold(acc, (a) => acc.concat(a)), []))
+      .map((as) =>
+        as
+          .reduce<Array<Article>>((acc, a) => a.fold(acc, (a) => acc.concat(a)), [])
+          .sort((a, b) => b.date.getTime() - a.date.getTime())
+      )
   );
 
   findBySlug = (slug: string): UIO<Maybe<Article>> =>
