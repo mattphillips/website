@@ -35,8 +35,8 @@ export default function Home(props: Home) {
         <div className="bg-gray-50">
           <div className="p-6 md:py-10 xl:px-0 md:relative max-w-5xl mx-auto flex flex-col-reverse md:flex-row items-center min-h-[500px]">
             <div className="mt-4 md:mt-0 md:mr-10 md:w-1/2">
-              <span className="text-2xl md:text-5xl font-display">Hi 👋, I'm </span>
-              <h1 className="text-3xl md:text-7xl mt-4 mb-4 md:mb-8">Matt Phillips</h1>
+              <span className="text-3xl md:text-5xl font-display">Hi 👋, I'm </span>
+              <h1 className="text-5xl md:text-7xl mt-4 mb-4 md:mb-8">Matt Phillips</h1>
               <p className="font-body text-xl md:text-2xl">
                 Welcome to my site where I write on all things related to code and careers in tech with a focus on
                 Typescript, Testing and Functional Programming.
