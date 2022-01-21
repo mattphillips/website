@@ -41,7 +41,7 @@ export default function Home(props: Home) {
         <ul className="list-none p-0 m-0">
           {posts.map(({ date, slug, title, description, image, duration }) => (
             <li
-              className="py-10 transition-all hover:shadow-[0_5px_40px_rgb(0,0,0,0.04)] border-b border-solid border-200"
+              className="py-10 transition-all hover:shadow-[0_5px_40px_rgb(0,0,0,0.04)] border-b border-solid border-200 last:border-0"
               key={slug}
             >
               <Link passHref={true} href={`/blog/${slug}`}>
@@ -59,7 +59,7 @@ export default function Home(props: Home) {
                       </figure>
                     ))}
                     <div className="px-6 md:px-0">
-                      <h2 className="text-3xl font-display font-semibold mb-4 tracking-wider leading-9">{title}</h2>
+                      <h2 className="text-4xl font-display font-semibold mb-4 tracking-wider">{title}</h2>
                       <div className="text-sm text-gray-600 mb-4">
                         {date.toDateString()} • {duration}
                       </div>
