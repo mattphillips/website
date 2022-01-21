@@ -57,5 +57,3 @@ Feel free to contribute by sending a pull request for any of the issues that are
 Each new matcher should be beginner friendly and I’m more than happy to help out if you get stuck, so no excuses not to get involved 😜. A good place to start is the [contributing]() guide.
 
 I look forward to seeing you over in the [**repo**]()!
-
-If you liked this please give it a clap and subscribe. You can also find me online at: [Twitter](), [GitHub]() and [mattphillips.io]()

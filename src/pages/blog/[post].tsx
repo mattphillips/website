@@ -9,7 +9,7 @@ import { Layout } from "src/components/Layout";
 
 const Post = (props: ToSerialisable<Article>) => {
   // TODO: Move `fromSerialisable` to _app
-  const { html, title, date, duration, image } = fromSerialisable<Article>(props);
+  const { html, title, date, duration, image, slug } = fromSerialisable<Article>(props);
   return (
     <Layout>
       <div className="max-w-2xl mx-auto py-10">
@@ -30,6 +30,39 @@ const Post = (props: ToSerialisable<Article>) => {
           <article className="post">
             <div dangerouslySetInnerHTML={{ __html: html }} />
           </article>
+        </div>
+
+        <div className="border-y border-solid border-gray-200 py-4 flex flex-row items-center justify-between">
+          {/* Create external link component */}
+          <a
+            href={`https://twitter.com/intent/tweet?${new URLSearchParams({
+              url: `https://mattphillips.io/blog/${slug}`,
+              text: `I just read ${title} by @mattphillipsio\n\n`,
+            })}`}
+            target="_blank"
+            rel="noopener"
+          >
+            <span className="font-display font-semibold text-lg text-gray-600">Tweet this article</span>
+          </a>
+          <div className="flex flex-row items-center">
+            <a
+              href={`https://twitter.com/search?${new URLSearchParams({
+                q: `https://mattphillips.io/blog/${slug}`,
+              })}`}
+              target="_blank"
+              rel="noopener"
+            >
+              <span className="font-display font-semibold text-lg text-gray-600">Discuss on Twitter</span>
+            </a>
+            <span className="mx-6">•</span>
+            <a
+              href={`https://github.com/mattphillips/website/edit/main/src/posts/${slug}.md`}
+              target="_blank"
+              rel="noopener"
+            >
+              <span className="font-display font-semibold text-lg text-gray-600">Edit on Github</span>
+            </a>
+          </div>
         </div>
       </div>
     </Layout>
