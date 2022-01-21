@@ -23,7 +23,7 @@ export default function Home(props: Home) {
       <Layout>
         <div className="p-6 md:py-10 bg-gray-50">
           <div className="max-w-5xl mx-auto flex flex-col-reverse md:flex-row items-center">
-            <div className="md:mr-10">
+            <div className="mt-4 md:mt-0 md:mr-10">
               <span className="text-2xl md:text-5xl font-display">Hi 👋, I'm </span>
               <h1 className="text-3xl md:text-7xl mt-4 mb-4 md:mb-8">Matt Phillips</h1>
               <p className="font-body text-xl md:text-2xl">

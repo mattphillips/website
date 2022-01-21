@@ -12,7 +12,7 @@ const Post = (props: ToSerialisable<Article>) => {
   const { html, title, date, duration, image, slug } = fromSerialisable<Article>(props);
   return (
     <Layout>
-      <div className="max-w-2xl mx-auto py-10">
+      <div className="max-w-2xl mx-auto pt-10">
         {/* Extract into a component */}
         {image.fold(null, ({ alt, src, credit }) => (
           <figure className="mb-4 flex flex-col items-center">
@@ -31,14 +31,20 @@ const Post = (props: ToSerialisable<Article>) => {
             <div dangerouslySetInnerHTML={{ __html: html }} />
             <p>
               Don’t miss out on on future posts, projects and products I’m building. Follow me over on Twitter{" "}
-              <a href="https://twitter.com/mattphillipsio" target="_blank" title="Twitter" rel="noopener">
+              <a
+                href="https://twitter.com/mattphillipsio"
+                target="_blank"
+                title="Twitter"
+                rel="noopener"
+                className="font-bold"
+              >
                 @mattphillipsio
               </a>
             </p>
           </article>
         </div>
 
-        <div className="border-y border-solid border-gray-200 py-4 flex flex-row items-center justify-between">
+        <div className="border-y border-solid border-gray-200 p-6 md:px-0 flex flex-row flex-wrap items-center justify-between">
           {/* Create external link component */}
           <a
             href={`https://twitter.com/intent/tweet?${new URLSearchParams({
@@ -48,10 +54,10 @@ const Post = (props: ToSerialisable<Article>) => {
             target="_blank"
             rel="noopener"
           >
-            <span className="font-display font-semibold text-lg text-gray-600">Tweet this article</span>
+            <div className="font-body font-semibold text-lg text-gray-600 mb-4 md:mb-0">Tweet this article</div>
           </a>
 
-          <div className="flex flex-row items-center">
+          <div className="flex flex-row items-center flex-wrap">
             <a
               href={`https://twitter.com/search?${new URLSearchParams({
                 q: `https://mattphillips.io/blog/${slug}`,
@@ -59,16 +65,32 @@ const Post = (props: ToSerialisable<Article>) => {
               target="_blank"
               rel="noopener"
             >
-              <span className="font-display font-semibold text-lg text-gray-600">Discuss on Twitter</span>
+              <div className="font-body font-semibold text-lg text-gray-600">Discuss on Twitter</div>
             </a>
-            <span className="mx-6">•</span>
+            <span className="mx-4">•</span>
             <a
               href={`https://github.com/mattphillips/website/edit/main/src/posts/${slug}.md`}
               target="_blank"
               rel="noopener"
             >
-              <span className="font-display font-semibold text-lg text-gray-600">Edit on Github</span>
+              <div className="font-body font-semibold text-lg text-gray-600">Edit on Github</div>
             </a>
+          </div>
+        </div>
+
+        <div className="flex flex-row flex-wrap items-center  p-6 md:px-0 ">
+          {/* Extract this */}
+          <img
+            className="rounded-full w-[200px] h-[200px] mb-4 md:mb-0 md:mr-4 "
+            src="/profile.jpg"
+            alt="Matt Phillips"
+          />
+          <div className="md:w-2/3">
+            <div className="font-display text-2xl text-gray-600 mb-4">Written by Matt Phillips</div>
+            <p className="font-body text-lg">
+              Experienced software engineer, Jest maintainer, OSS publisher. Writing about founding products, teaching
+              with code and building in public.
+            </p>
           </div>
         </div>
       </div>
