@@ -20,74 +20,79 @@ export default function Home(props: Home) {
       <Head>
         <title>Matt Phillips</title>
       </Head>
-      <nav className="max-w-2xl mx-auto py-6">
-        <ul className="flex flex-row justify-evenly list-none">
-          <li className="font-semibold">Home</li>
-          <li className="font-semibold">About</li>
-          <li className="font-semibold">Services</li>
-          <li className="font-semibold">Products</li>
-          <li className="font-semibold">Projects</li>
-          <li className="font-semibold">Blog</li>
-          <li className="font-semibold">Contact</li>
-        </ul>
-      </nav>
-      <header className="py-20  bg-gray-50">
-        <div className="max-w-5xl mx-auto py-6">
-          <div className="flex flex-row items-start">
-            <div className="mr-8">
+      <header className="">
+        <nav className="max-w-5xl mx-auto py-6 flex flex-row justify-between items-center">
+          <Link passHref href="/">
+            <a title="mattphillips.io">
+              <span className="font-display text-2xl tracking-wider uppercase">Matt Phillips</span>
+            </a>
+          </Link>
+          <div className="flex flex-row">
+            <a href="https://twitter.com/mattphillipsio" target="_blank" title="Twitter" rel="noopener">
+              <div className="mr-6">
+                <Twitter />
+              </div>
+            </a>
+            <a href="https://github.com/mattphillips" target="_blank" title="Github" rel="noopener">
+              <div className="mr-6">
+                <Github />
+              </div>
+            </a>
+            <a href="https://linkedin.com/in/mattphillipsio" target="_blank" title="Linked" rel="noopener">
+              <div className="mr-6">
+                <LinkedIn />
+              </div>
+            </a>
+          </div>
+        </nav>
+        <div className=" py-20 bg-gray-50">
+          <div className="max-w-5xl mx-auto flex flex-row items-center">
+            <div className="mr-10">
               <span className="text-5xl font-display">Hi 👋, I'm </span>
-              <h1 className="text-7xl my-4">Matt Phillips</h1>
+              <h1 className="text-7xl mt-4 mb-8">Matt Phillips</h1>
               <p className="font-body text-2xl mb-8">
                 Welcome to my site where I write on all things related to code and careers in tech with a focus on
                 Typescript, Testing and Functional Programming.
               </p>
-              <div className="flex flex-row">
-                <a href="https://twitter.com/mattphillipsio" target="_blank" title="Twitter" rel="noopener">
-                  <div className="border-2 border-solid border-black rounded-full p-3 mr-6">
-                    <Twitter />
-                  </div>
-                </a>
-                <a href="https://github.com/mattphillips" target="_blank" title="Github" rel="noopener">
-                  <div className="border-2 border-solid border-black rounded-full p-3 mr-6">
-                    <Github />
-                  </div>
-                </a>
-                <a href="https://linkedin.com/in/mattphillipsio" target="_blank" title="Linked" rel="noopener">
-                  <div className="border-2 border-solid border-black rounded-full p-3 mr-6">
-                    <LinkedIn />
-                  </div>
-                </a>
-              </div>
             </div>
             <img className="rounded-full w-[400px] h-[400px]" src="/profile.jpg" alt="Matt Phillips" />
           </div>
         </div>
       </header>
-      <ul className="list-none p-0 m-0">
-        {posts.map(({ date, slug, title, description, image, duration }) => (
-          <li className="py-10 hover:shadow-[0_5px_40px_rgb(0,0,0,0.04)] border-b border-solid border-200" key={slug}>
-            <Link passHref={true} href={`/blog/${slug}`}>
-              <a className="no-underline">
-                <article className="max-w-2xl mx-auto flex flex-col w-full ">
-                  {image.fold(null, ({ alt, src, credit }) => (
-                    <figure className="mb-4 flex flex-col items-center">
-                      {/* TODO: Look into Next image here */}
-                      <img src={src} alt={alt} className="rounded-lg object-cover object-center max-h-[336px] w-full" />
-                      <figcaption className="text-xs text-gray-600 mt-2">Photo by: {credit.name}</figcaption>
-                    </figure>
-                  ))}
-                  <h2 className="text-3xl font-display font-semibold mb-4 tracking-wider leading-9">{title}</h2>
-                  <div className="text-sm text-gray-600">
-                    {date.toDateString()} • {duration}
-                  </div>
-                  <p className="my-4 text-lg">{description}</p>
-                </article>
-              </a>
-            </Link>
-          </li>
-        ))}
-      </ul>
-      <footer className="bg-gray-50">
+      <main>
+        <ul className="list-none p-0 m-0">
+          {posts.map(({ date, slug, title, description, image, duration }) => (
+            <li
+              className="py-10 transition-all hover:shadow-[0_5px_40px_rgb(0,0,0,0.04)] border-b border-solid border-200"
+              key={slug}
+            >
+              <Link passHref={true} href={`/blog/${slug}`}>
+                <a className="no-underline">
+                  <article className="max-w-2xl mx-auto flex flex-col w-full ">
+                    {image.fold(null, ({ alt, src, credit }) => (
+                      <figure className="mb-4 flex flex-col items-center">
+                        {/* TODO: Look into Next image here */}
+                        <img
+                          src={src}
+                          alt={alt}
+                          className="rounded-lg object-cover object-center max-h-[336px] w-full"
+                        />
+                        <figcaption className="text-xs text-gray-600 mt-2">Photo by: {credit.name}</figcaption>
+                      </figure>
+                    ))}
+                    <h2 className="text-3xl font-display font-semibold mb-4 tracking-wider leading-9">{title}</h2>
+                    <div className="text-sm text-gray-600">
+                      {date.toDateString()} • {duration}
+                    </div>
+                    <p className="my-4 text-lg">{description}</p>
+                  </article>
+                </a>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </main>
+      <footer className="bg-white">
         <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 md:flex md:items-center md:justify-between lg:px-8">
           <div className="flex justify-center space-x-6 md:order-2">
             <a href="https://twitter.com/mattphillipsio" target="_blank" title="Twitter" rel="noopener">
