@@ -8,7 +8,7 @@ export const Layout: React.FC = ({ children }) => (
       <div className="max-w-5xl mx-auto flex flex-row justify-between items-center bg-white">
         <Link passHref href="/">
           <a title="mattphillips.io">
-            <span className="font-display text-xl md:text-2xl tracking-wider uppercase ">Matt Phillips</span>
+            <span className="font-display bg-black text-2xl font-semibold p-2 rounded text-white">MP</span>
           </a>
         </Link>
         <SocialLinks />
