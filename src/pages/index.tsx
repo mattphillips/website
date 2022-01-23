@@ -42,8 +42,9 @@ export default function Home(props: Home) {
                 Typescript, Testing and Functional Programming.
               </p>
             </div>
+            {/* Aspect ratio of image is 1.25 */}
             <img
-              className="rounded-full md:rounded-none w-[300px] h-[300px] md:w-[350px] md:h-[350px] lg:w-[500px] lg:h-[500px] md:absolute md:bottom-0 md:right-[24px]"
+              className="rounded-full md:rounded-none object-cover w-[300px] h-[300px] md:w-[400px] md:h-[320px] lg:w-[550px] lg:h-[440px] md:absolute md:bottom-0 md:right-[24px]"
               src="/profile.png"
               alt="Matt Phillips"
             />
