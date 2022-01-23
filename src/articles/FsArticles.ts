@@ -69,13 +69,26 @@ const article = t.type({
 
 const readFile = IO.ioify<fs.PathLike, BufferEncoding, NodeJS.ErrnoException, string>(fs.readFile);
 const readDir = IO.ioify<fs.PathLike, NodeJS.ErrnoException, string[]>(fs.readdir);
+const readEnv = (key: string): IO<Error, string> =>
+  IO.suspend(() => IO.fromMaybe<Error, string>(new Error())(Maybe.fromNullable(process.env[key])));
+
+const isDevelopment: UIO<boolean> = readEnv("NODE_ENV").fold(
+  () => false,
+  (env) => env === "development"
+);
 
 // TODO: Inject this into the cap
 const postsDirectory = path.join("src", "posts");
+const draftsDirectory = path.join("src", "drafts");
 
 export class FsArticles implements Articles {
   list: UIO<Array<Article>> = IO.suspend(() =>
     readDir(postsDirectory)
+      .flatMap((posts) =>
+        isDevelopment.flatMapW((dev) =>
+          dev ? readDir(draftsDirectory).map((drafts) => posts.concat(drafts)) : IO.succeed(posts)
+        )
+      )
       .orDie()
       .flatMap(IO.traverse(this.findBySlug))
       .map((as) =>
@@ -87,6 +100,9 @@ export class FsArticles implements Articles {
 
   findBySlug = (slug: string): UIO<Maybe<Article>> =>
     readFile(path.join(postsDirectory, slug), "utf-8")
+      .catchError((e) =>
+        isDevelopment.flatMapW((dev) => (dev ? readFile(path.join(draftsDirectory, slug), "utf-8") : IO.fail(e)))
+      )
       .orDie()
       .map(matter)
       .flatMapW(({ data, content }) => IO.fromResult(eitherToResult(article.decode({ ...data, markdown: content }))))
