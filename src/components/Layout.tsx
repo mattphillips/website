@@ -4,7 +4,7 @@ import { SocialLinks } from "./SocialLinks";
 
 export const Layout: React.FC = ({ children }) => (
   <div className="flex flex-col h-full ">
-    <header className="p-6 border-b border-solid border-gray-200">
+    <header className="p-4 border-b border-solid border-gray-200">
       <div className="max-w-5xl mx-auto flex flex-row justify-between items-center bg-white">
         <Link passHref href="/">
           <a title="mattphillips.io">
@@ -18,10 +18,10 @@ export const Layout: React.FC = ({ children }) => (
     <footer className="bg-white p-4 sm:p-6 border-t border-solid border-gray-200">
       <div className="max-w-5xl mx-auto md:flex md:items-center md:justify-between">
         <div className="order-2">
-          <SocialLinks className="fill-gray-400" />
+          <SocialLinks className="fill-gray-500" />
         </div>
         <div className="mt-4 md:mt-0 md:order-1">
-          <p className="text-center text-base text-gray-400">&copy; 2022 Matt Phillips. All rights reserved.</p>
+          <p className="text-center text-base text-gray-500">&copy; 2022 Matt Phillips. All rights reserved.</p>
         </div>
       </div>
     </footer>
