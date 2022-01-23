@@ -102,7 +102,7 @@ const Post = (props: ToSerialisable<Article>) => {
             {/* Extract this */}
             <img
               className="w-[200px] h-[200px] object-cover mb-4 md:mb-0 md:mr-4 rounded-full"
-              src="/profile.png"
+              src="/profile.webp"
               alt="Matt Phillips"
             />
             <div className="md:w-2/3">
