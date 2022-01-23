@@ -3,7 +3,7 @@ import React from "react";
 import { SocialLinks } from "./SocialLinks";
 
 export const Layout: React.FC = ({ children }) => (
-  <>
+  <div className="flex flex-col h-full ">
     <header className="p-6 border-b border-solid border-gray-200">
       <div className="max-w-5xl mx-auto flex flex-row justify-between items-center bg-white">
         <Link passHref href="/">
@@ -14,7 +14,7 @@ export const Layout: React.FC = ({ children }) => (
         <SocialLinks />
       </div>
     </header>
-    <main>{children}</main>
+    <main className="flex-1">{children}</main>
     <footer className="bg-white p-4 sm:p-6 border-t border-solid border-gray-200">
       <div className="max-w-5xl mx-auto md:flex md:items-center md:justify-between">
         <div className="order-2">
@@ -25,5 +25,5 @@ export const Layout: React.FC = ({ children }) => (
         </div>
       </div>
     </footer>
-  </>
+  </div>
 );
