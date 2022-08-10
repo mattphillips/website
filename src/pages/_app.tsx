@@ -1,4 +1,5 @@
 import "../styles/globals.css";
+import "../styles/prism-line-numbers.css";
 import "../styles/github.css";
 import "../styles/post.css";
 

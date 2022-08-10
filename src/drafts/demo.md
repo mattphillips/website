@@ -90,6 +90,14 @@ const hi () => {
 }
 ```
 
+This is a code block with line numbers
+
+```js[class="line-numbers"]
+const hi () => {
+  console.log('hi');
+}
+```
+
 Footnotes:
 
 Here's a simple footnote,[^1] and here's a longer one.[^bignote]

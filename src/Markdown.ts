@@ -14,8 +14,9 @@ export const Html = Refined.Iterable.MinLength.refinement<Html>(0);
 export const toHtml = (markdown: Markdown): UIO<Html> =>
   IO.fromPromiseOrDie(() =>
     remark()
+      // https://github.com/sergioramos/remark-prism/issues/265
       .use(html, { sanitize: false })
       // @ts-ignore
-      .use(prism)
+      .use(prism, { plugins: ["line-numbers"] })
       .process(markdown)
   ).flatMap((file) => IO.fromResult(Html.from(file.toString())).orDie());
