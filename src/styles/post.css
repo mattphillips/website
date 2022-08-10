@@ -1,6 +1,44 @@
 .post {
-  font-size: 19px;
+  font-size: 18px;
   line-height: 1.6;
+  font-family: "Open Sans", sans-serif;
+}
+
+.post h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Playfair Display", sans-serif;
+}
+
+.post h1 {
+  font-size: 3em;
+  margin-top: 0;
+  margin-bottom: 0.666666em;
+  line-height: 1;
+}
+
+.post h2 {
+  font-size: 2em;
+  margin-top: 1.75em;
+  margin-bottom: 0.888888em;
+  line-height: 1.3333333;
+}
+
+.post h3 {
+  font-size: 1.5em;
+  margin-top: 0;
+  margin-bottom: 0.6666666em;
+  line-height: 1.75;
+}
+
+.post h4 {
+  font-size: 1.3333333em;
+  margin-top: 0;
+  margin-bottom: 0.5em;
+  line-height: 1.25;
 }
 
 .post blockquote {
@@ -28,12 +66,6 @@
 .post dd,
 .post dl,
 .post figure,
-.post h1,
-.post h2,
-.post h3,
-.post h4,
-.post h5,
-.post h6,
 .post p,
 .post pre,
 .post ul,

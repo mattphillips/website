@@ -7,6 +7,7 @@ import { fromSerialisable, ToSerialisable, toSerialisable } from "ts-prelude/Ser
 import { FsArticles } from "src/articles/FsArticles";
 import { Article } from "src/articles/Articles";
 import { Layout } from "src/components/Layout";
+import { format } from "date-fns";
 
 type Home = {
   posts: ToSerialisable<Array<Article>>;
@@ -36,8 +37,8 @@ export default function Home(props: Home) {
           <div className="p-6 md:py-10 xl:px-0 md:relative max-w-5xl mx-auto flex flex-col-reverse md:flex-row items-center min-h-[500px]">
             <div className="mt-4 md:mt-0 md:mr-10 md:w-1/2">
               <span className="text-3xl md:text-5xl font-display">Hi 👋, I'm </span>
-              <h1 className="text-5xl md:text-7xl mt-4 mb-4 md:mb-8">Matt Phillips</h1>
-              <p className="font-body text-xl md:text-2xl">
+              <h1 className="text-5xl md:text-7xl mt-4 mb-4 md:mb-8 font-display">Matt Phillips</h1>
+              <p className="font-body text-lg md:text-2xl">
                 Welcome to my site where I write on all things related to code and careers in tech with a focus on
                 Typescript, Testing and Functional Programming.
               </p>
@@ -50,39 +51,39 @@ export default function Home(props: Home) {
             />
           </div>
         </div>
-        <ul className="list-none p-0 m-0">
+        <div className="grid grid-cols-1 px-4 xl:px-0 md:grid-cols-2 xl:grid-cols-3 gap-6 max-w-7xl mx-auto py-16 bg-white">
           {posts.map(({ date, slug, title, description, image, duration }) => (
-            <li
-              className="py-10 transition-all hover:shadow-[0_5px_40px_rgb(0,0,0,0.04)] border-b border-solid border-200 last:border-0"
+            <article
+              className="transition-shadow duration-200 hover:shadow-xl p-4 rounded-lg flex justify-center"
               key={slug}
             >
-              <Link passHref={true} href={`/blog/${slug}`}>
-                <a className="no-underline">
-                  <article className="max-w-2xl mx-auto flex flex-col w-full ">
-                    {image.fold(null, ({ alt, src, credit }) => (
-                      <figure className="mb-4 flex flex-col items-center">
-                        {/* TODO: Look into Next image here */}
-                        <img
-                          src={src}
-                          alt={alt}
-                          className="md:rounded-lg object-cover object-center max-h-[336px] w-full"
-                        />
-                        <figcaption className="text-xs text-gray-600 mt-2">Photo by: {credit.name}</figcaption>
-                      </figure>
-                    ))}
-                    <div className="px-6 md:px-0">
-                      <h2 className="text-4xl font-display font-semibold mb-4 tracking-wider">{title}</h2>
-                      <div className="text-sm text-gray-600 mb-4">
-                        {date.toDateString()} • {duration}
+              <div className="max-w-lg">
+                <Link passHref={true} href={`/blog/${slug}`}>
+                  <a className="no-underline">
+                    <article className="">
+                      {image.fold(null, ({ alt, src, credit }) => (
+                        <figure className="mb-4">
+                          {/* TODO: Look into Next image here */}
+                          <img src={src} alt={alt} className="rounded-lg object-cover object-center w-full shadow-xl" />
+                          <figcaption className="hidden">Photo by: {credit.name}</figcaption>
+                        </figure>
+                      ))}
+                      <div className="">
+                        <div className="font-body text-sm text-gray-500 font-semibold text-center mb-4">
+                          <span>{format(date, "dd MMMM, yyyy")}</span>
+                          <span className="mx-4">•</span>
+                          <span>{duration}</span>
+                        </div>
+                        <h2 className="text-3xl font-display font-semibold mb-4">{title}</h2>
+                        <p className="text-lg font-body">{description}</p>
                       </div>
-                      <p className="text-lg">{description}</p>
-                    </div>
-                  </article>
-                </a>
-              </Link>
-            </li>
+                    </article>
+                  </a>
+                </Link>
+              </div>
+            </article>
           ))}
-        </ul>
+        </div>
       </Layout>
     </>
   );

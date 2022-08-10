@@ -6,7 +6,7 @@ pre {
   background-color: #f6f8fa !important;
   padding: 1rem;
   overflow: auto;
-  border-radius: 4px;
+  border-radius: 8px;
   margin: 2rem 0;
 }
 
@@ -19,7 +19,7 @@ code[class*="language-"] {
   white-space: pre;
   word-spacing: normal;
   word-break: normal;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.8;
 
   tab-size: 4;

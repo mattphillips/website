@@ -6,7 +6,8 @@
   "author": "Matt Phillips <matt@mattphillips.io>",
   "license": "MIT",
   "dependencies": {
-    "@tailwindcss/typography": "^0.5.0",
+    "@tailwindcss/typography": "^0.5.4",
+    "date-fns": "^2.29.1",
     "fp-ts": "^2.11.6",
     "gray-matter": "^4.0.3",
     "io-ts": "^2.2.16",
