@@ -1,9 +1,9 @@
 ---
-title: Hacktoberfest 🎃🃏 — get involved in OSS with jest-extended
+title: Hacktoberfest — get involved in OSS with jest-extended
 date: "2017-10-23T22:12:03.284Z"
 description: Want to get involved in open source software but don’t know where to begin? We’ve all been there!
 image:
-  src: https://images.unsplash.com/photo-1642548666500-7990b88e691f
+  src: /images/blog/hacktoberfest.jpg
   alt: "Mount tiede"
   credit:
     name: Meg Clark
