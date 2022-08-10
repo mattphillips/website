@@ -1,5 +1,6 @@
 import React from "react";
 import Head from "next/head";
+import Image from "next/future/image";
 import { GetStaticProps } from "next";
 import Link from "next/link";
 import { fromSerialisable, ToSerialisable, toSerialisable } from "ts-prelude/Serialisable";
@@ -51,10 +52,10 @@ export default function Home(props: Home) {
             />
           </div>
         </div>
-        <div className="grid grid-cols-1 px-4 xl:px-0 md:grid-cols-2 xl:grid-cols-3 gap-6 max-w-7xl mx-auto py-16 bg-white">
+        <div className="grid grid-cols-1 px-6 xl:px-0 md:grid-cols-2 xl:grid-cols-3 gap-12 max-w-7xl mx-auto py-16 bg-white">
           {posts.map(({ date, slug, title, description, image, duration }) => (
             <article
-              className="transition-shadow duration-200 hover:shadow-xl p-4 rounded-lg flex justify-center"
+              className="transition-shadow duration-200 group hover:shadow-xl  rounded-lg flex justify-center"
               key={slug}
             >
               <div className="max-w-lg">
@@ -63,19 +64,26 @@ export default function Home(props: Home) {
                     <article className="">
                       {image.fold(null, ({ alt, src, credit }) => (
                         <figure className="mb-4">
-                          {/* TODO: Look into Next image here */}
-                          <img src={src} alt={alt} className="rounded-lg object-cover object-center w-full shadow-xl" />
+                          <Image
+                            src={src}
+                            alt={alt}
+                            className="rounded-lg group-hover:rounded-b-none group-hover:shadow-none shadow-xl"
+                            width={1400}
+                            height={875}
+                          />
                           <figcaption className="hidden">Photo by: {credit.name}</figcaption>
                         </figure>
                       ))}
                       <div className="">
-                        <div className="font-body text-sm text-gray-500 font-semibold text-center mb-4">
+                        <div className="font-body text-sm text-gray-500 font-semibold text-center">
                           <span>{format(date, "dd MMMM, yyyy")}</span>
                           <span className="mx-4">•</span>
                           <span>{duration}</span>
                         </div>
-                        <h2 className="text-3xl font-display font-semibold mb-4">{title}</h2>
-                        <p className="text-lg font-body">{description}</p>
+                        <div className="p-4">
+                          <h2 className="text-3xl font-display font-semibold mb-4">{title}</h2>
+                          <p className="text-lg font-body">{description}</p>
+                        </div>
                       </div>
                     </article>
                   </a>

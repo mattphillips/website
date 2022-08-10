@@ -1,4 +1,5 @@
 import { GetStaticPaths, GetStaticProps } from "next";
+import Image from "next/future/image";
 import { format } from "date-fns";
 import React from "react";
 import { IO } from "ts-prelude/IO/fluent";
@@ -47,17 +48,12 @@ const Post = (props: ToSerialisable<Article>) => {
             {/* TODO: Image should be required */}
             {image.fold(null, ({ alt, src, credit }) => (
               <figure className="">
-                {/* TODO: Look into Next image here */}
-                <img
-                  src={src}
-                  alt={alt}
-                  className="rounded-lg object-cover object-center max-h-[500px] h-auto w-full shadow-2xl"
-                />
+                <Image src={src} alt={alt} className="rounded-lg shadow-2xl" width={3500} height={2403} />
                 <figcaption className="text-xs text-gray-600 mt-2 hidden">Photo by: {credit.name}</figcaption>
               </figure>
             ))}
 
-            <article className="post mt-12 max-w-3xl mx-auto">
+            <article className="post mt-12 max-w-4xl mx-auto md:px-6">
               <div dangerouslySetInnerHTML={{ __html: html }} />
             </article>
           </div>
