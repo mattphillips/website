@@ -1,6 +1,7 @@
 import { remark } from "remark";
 import html from "remark-html";
 import prism from "remark-prism";
+import externalLinks from "remark-external-links";
 import { IO, UIO } from "ts-prelude/IO/fluent";
 import { Nominal } from "ts-prelude/Nominal";
 import { Refined } from "ts-prelude/Refined";
@@ -16,6 +17,7 @@ export const toHtml = (markdown: Markdown): UIO<Html> =>
     remark()
       // https://github.com/sergioramos/remark-prism/issues/265
       .use(html, { sanitize: false })
+      .use(externalLinks)
       // @ts-ignore
       .use(prism, { plugins: ["line-numbers"] })
       .process(markdown)
