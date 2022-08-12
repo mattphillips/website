@@ -1,4 +1,6 @@
 .post {
+  @apply text-gray-800;
+
   font-size: 18px;
   line-height: 1.6;
   font-family: "Open Sans", sans-serif;

@@ -1,22 +1,19 @@
 import React from "react";
+import classnames from "classnames";
 import { Github, LinkedIn, Twitter } from "./icons";
 
+const links = [
+  { href: "https://twitter.com/mattphillipsio", title: "Twitter", icon: <Twitter /> },
+  { href: "https://github.com/mattphillips", title: "Github", icon: <Github /> },
+  { href: "https://linkedin.com/in/mattphillipsio", title: "LinkedIn", icon: <LinkedIn /> },
+];
+
 export const SocialLinks: React.FC<{ className?: string }> = ({ className }) => (
-  <div className="flex flex-row justify-center">
-    <a href="https://twitter.com/mattphillipsio" target="_blank" title="Twitter" rel="noopener">
-      <div className="p-3">
-        <Twitter className={className} />
-      </div>
-    </a>
-    <a href="https://github.com/mattphillips" target="_blank" title="Github" rel="noopener">
-      <div className="p-3">
-        <Github className={className} />
-      </div>
-    </a>
-    <a href="https://linkedin.com/in/mattphillipsio" target="_blank" title="Linked" rel="noopener">
-      <div className="p-3">
-        <LinkedIn className={className} />
-      </div>
-    </a>
+  <div className={classnames(className, "flex flex-row justify-center")}>
+    {links.map(({ href, icon, title }) => (
+      <a href={href} target="_blank" title={title} rel="noopener">
+        <div className="p-3 transition-transform transform hover:scale-125">{icon}</div>
+      </a>
+    ))}
   </div>
 );

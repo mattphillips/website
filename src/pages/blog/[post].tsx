@@ -138,8 +138,8 @@ const Post = (props: ToSerialisable<Article>) => {
               src="/profile.webp"
               alt="Matt Phillips"
             />
-            <div className="md:col-span-4">
-              <div className="font-display text-3xl text-gray-800 mb-4 font-semibold">Matt Phillips</div>
+            <div className="md:col-span-4 text-gray-800">
+              <div className="font-display text-3xl mb-4 font-semibold">Matt Phillips</div>
               <p className="font-body text-lg mb-4">
                 Experienced software engineer, Jest maintainer, OSS publisher. Writing about founding products, teaching
                 with code and building in public.

@@ -38,8 +38,8 @@ export default function Home(props: Home) {
           <div className="p-6 md:py-10 xl:px-0 md:relative max-w-5xl mx-auto flex flex-col-reverse md:flex-row items-center min-h-[500px]">
             <div className="mt-4 md:mt-0 md:mr-10 md:w-1/2">
               <span className="text-3xl md:text-5xl font-display">Hi 👋, I'm </span>
-              <h1 className="text-5xl md:text-7xl mt-4 mb-4 md:mb-8 font-display">Matt Phillips</h1>
-              <p className="font-body text-lg md:text-2xl">
+              <h1 className="text-5xl md:text-7xl mt-4 mb-4 md:mb-8 font-display text-gray-800">Matt Phillips</h1>
+              <p className="font-body text-lg md:text-2xl text-gray-800">
                 Welcome to my site where I write on all things related to code and careers in tech with a focus on
                 Typescript, Testing and Functional Programming.
               </p>
@@ -55,7 +55,7 @@ export default function Home(props: Home) {
         <div className="grid grid-cols-1 px-6 xl:px-0 md:grid-cols-2 xl:grid-cols-3 gap-12 max-w-7xl mx-auto py-16 bg-white">
           {posts.map(({ date, slug, title, description, image, duration }) => (
             <article
-              className="transition-shadow duration-200 group hover:shadow-xl  rounded-lg flex justify-center"
+              className="transition-transform transform hover:scale-105 rounded-lg flex justify-center"
               key={slug}
             >
               <div className="max-w-lg">
@@ -64,13 +64,7 @@ export default function Home(props: Home) {
                     <article className="">
                       {image.fold(null, ({ alt, src, credit }) => (
                         <figure className="mb-4">
-                          <Image
-                            src={src}
-                            alt={alt}
-                            className="rounded-lg group-hover:rounded-b-none group-hover:shadow-none shadow-xl"
-                            width={1400}
-                            height={875}
-                          />
+                          <Image src={src} alt={alt} className="rounded-lg shadow-xl" width={1400} height={875} />
                           <figcaption className="hidden">Photo by: {credit.name}</figcaption>
                         </figure>
                       ))}
@@ -81,8 +75,8 @@ export default function Home(props: Home) {
                           <span>{duration}</span>
                         </div>
                         <div className="p-4">
-                          <h2 className="text-3xl font-display font-semibold mb-4">{title}</h2>
-                          <p className="text-lg font-body">{description}</p>
+                          <h2 className="text-3xl font-display font-semibold mb-4 text-gray-800">{title}</h2>
+                          <p className="text-lg font-body text-gray-800">{description}</p>
                         </div>
                       </div>
                     </article>
