@@ -22,7 +22,7 @@ I recently found a feature of Jest that I thought was very cool!
 
 You can use `expect.extend` to add your own matchers (assertions) to Jest. For example, let’s say you wanted to check a value is `true`. You could abstract that into a `toBeTrue` matcher:
 
-```js{4,19}
+```js[class=line-numbers]
 expect.extend({
   toBeTrue(given) {
     const pass = given === true;

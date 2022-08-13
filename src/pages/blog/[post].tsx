@@ -74,7 +74,9 @@ const Post = (props: ToSerialisable<Article>) => {
         <div className="max-w-4xl mx-auto pt-16" ref={rootRef}>
           <div className="px-6 lg:px-0">
             {/* TODO: Extract this (same as homepage) */}
-            <h1 className="font-display text-6xl font-bold mb-8 leading-tight text-center text-gray-800">{title}</h1>
+            <h1 className="font-display text-5xl md:text-7xl font-bold mb-8 leading-tight text-center text-gray-800">
+              {title}
+            </h1>
             <div className="font-body text- text-gray-500 font-semibold text-center mb-12">
               <span>{format(date, "dd MMMM, yyyy")}</span>
               <span className="mx-4">•</span>
@@ -95,67 +97,68 @@ const Post = (props: ToSerialisable<Article>) => {
             </article>
           </div>
 
-          <div className="border-y border-solid border-gray-200 p-6 my-12 grid md:grid-cols-2 gap-4">
-            {/* Create external link component */}
-            <a
-              href={`https://twitter.com/intent/tweet?${new URLSearchParams({
-                url: `https://mattphillips.io/blog/${slug}`,
-                text: `I just read ${title} by @mattphillipsio\n\n`,
-              })}`}
-              target="_blank"
-              rel="noopener"
-            >
-              <div className="font-body font-semibold text-lg text-gray-600">Tweet this article</div>
-            </a>
-
-            <div className="flex flex-row md:justify-end items-center flex-wrap">
+          <div className="px-6 bg-white">
+            <div className="border-y border-solid border-gray-200 py-6 md:px-6 my-12 grid md:grid-cols-2 gap-4">
+              {/* Create external link component */}
               <a
-                href={`https://twitter.com/search?${new URLSearchParams({
-                  q: `https://mattphillips.io/blog/${slug}`,
+                href={`https://twitter.com/intent/tweet?${new URLSearchParams({
+                  url: `https://mattphillips.io/blog/${slug}`,
+                  text: `I just read ${title} by @mattphillipsio\n\n`,
                 })}`}
                 target="_blank"
                 rel="noopener"
               >
-                <div className="font-body font-semibold text-lg text-gray-600">Discuss on Twitter</div>
+                <div className="font-body font-semibold text-lg text-gray-600">Tweet this article</div>
               </a>
-              <span className="mx-2 md:mx-4">•</span>
-              <a
-                href={`https://github.com/mattphillips/website/edit/main/src/posts/${slug}.md`}
-                target="_blank"
-                rel="noopener"
-              >
-                <div className="font-body font-semibold text-lg text-gray-600">Edit on Github</div>
-              </a>
+
+              <div className="flex flex-row md:justify-end items-center flex-wrap">
+                <a
+                  href={`https://twitter.com/search?${new URLSearchParams({
+                    q: `https://mattphillips.io/blog/${slug}`,
+                  })}`}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <div className="font-body font-semibold text-lg text-gray-600">Discuss on Twitter</div>
+                </a>
+                <span className="mx-2 md:mx-4">•</span>
+                <a
+                  href={`https://github.com/mattphillips/website/edit/main/src/posts/${slug}.md`}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <div className="font-body font-semibold text-lg text-gray-600">Edit on Github</div>
+                </a>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="bg-gray-50 py-12 px-6 lg:px-0">
-          <div className="grid md:grid-cols-5 gap-4 items-center max-w-4xl mx-auto">
-            {/* Extract this */}
-            <img
-              className="md:col-span-1 w-[150px] h-[150px] object-cover rounded-full"
-              src="/profile.webp"
-              alt="Matt Phillips"
-            />
-            <div className="md:col-span-4 text-gray-800">
-              <div className="font-display text-3xl mb-4 font-semibold">Matt Phillips</div>
-              <p className="font-body text-lg mb-4">
-                Experienced software engineer, Jest maintainer, OSS publisher. Writing about founding products, teaching
-                with code and building in public.
-              </p>
-              <p className="font-body text-lg">
-                Don’t miss out on on future posts, projects and products I’m building. Follow me over on Twitter{" "}
-                <a
-                  href="https://twitter.com/mattphillipsio"
-                  target="_blank"
-                  title="Twitter"
-                  rel="noopener"
-                  className="font-bold"
-                >
-                  @mattphillipsio
-                </a>
-              </p>
+          <div className="px-6 bg-white">
+            <div className="pb-12 md:px-6 border-b border-gray-200 grid items-center gap-6 md:grid-flow-col">
+              <img
+                className="rounded-full object-cover object-center w-40 h-40"
+                src="/profile.webp"
+                alt="Matt Phillips"
+              />
+              <div className="text-gray-800 ">
+                <p className="text-4xl mb-4 font-display font-bold">Matt Phillips</p>
+                <p className="font-body text-lg mb-4">
+                  Experienced software engineer, Jest maintainer, OSS publisher. Writing about founding products,
+                  teaching with code and building in public.
+                </p>
+                <p className="font-body text-lg">
+                  Don’t miss out on on future posts, projects and products I’m building. Follow me over on Twitter{" "}
+                  <a
+                    href="https://twitter.com/mattphillipsio"
+                    target="_blank"
+                    title="Twitter"
+                    rel="noopener"
+                    className="font-bold"
+                  >
+                    @mattphillipsio
+                  </a>
+                </p>
+              </div>
             </div>
           </div>
         </div>
