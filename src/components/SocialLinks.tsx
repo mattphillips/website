@@ -11,7 +11,7 @@ const links = [
 export const SocialLinks: React.FC<{ className?: string }> = ({ className }) => (
   <div className={classnames(className, "flex flex-row justify-center")}>
     {links.map(({ href, icon, title }) => (
-      <a href={href} target="_blank" title={title} rel="noopener">
+      <a href={href} target="_blank" title={title} rel="noopener" key={title}>
         <div className="p-3 transition-transform transform hover:scale-125">{icon}</div>
       </a>
     ))}

@@ -53,14 +53,16 @@ const Post = (props: ToSerialisable<Article>) => {
     return () => cleanup.forEach((f) => f());
   }, []);
 
+  const seoTitle = `${title} | Matt Phillips`;
+
   return (
     <>
       <Head>
         {/* TODO: Extract this into a component and app config */}
-        <title>{title} | Matt Phillips</title>
+        <title>{seoTitle}</title>
         <meta name="description" content={description} />
         <meta name="og:url" content={`https://mattphillips.io/blog/${slug}`} />
-        <meta name="og:title" content={`${title} | Matt Phillips`} />
+        <meta name="og:title" content={seoTitle} />
         <meta name="og:description" content={description} />
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:creator" content="mattphillipsio" />
@@ -90,7 +92,7 @@ const Post = (props: ToSerialisable<Article>) => {
             {/* TODO: Image should be required */}
             {image.fold(null, ({ alt, src, credit }) => (
               <figure className="">
-                <Image src={src} alt={alt} className="rounded-lg shadow-2xl" width={3500} height={2403} />
+                <Image src={src} alt={alt} className="rounded-lg shadow-2xl" width={3500} height={2403} priority />
                 <figcaption className="text-xs text-gray-600 mt-2 hidden">Photo by: {credit.name}</figcaption>
               </figure>
             ))}
@@ -223,6 +225,7 @@ function createCopyButton(codeEl: Element) {
   <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
 </svg>`;
   button.innerHTML = copy;
+  button.ariaLabel = "Copy";
 
   button.addEventListener("click", () => {
     if (button.innerHTML === tick) {

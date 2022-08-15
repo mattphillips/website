@@ -18,9 +18,9 @@ I recently found a feature of Jest that I thought was very cool!
 
 ---
 
-### [`expect.extend(matchers)`](/)
+## Extending expect
 
-You can use `expect.extend` to add your own matchers (assertions) to Jest. For example, let’s say you wanted to check a value is `true`. You could abstract that into a `toBeTrue` matcher:
+You can use [`expect.extend`](https://jestjs.io/docs/expect#expectextendmatchers) to add your own matchers (assertions) to Jest. For example, let’s say you wanted to check a value is `true`. You could abstract that into a `toBeTrue` matcher:
 
 ```js[class=line-numbers]
 expect.extend({
@@ -50,10 +50,10 @@ test('true and false', () => {
 
 This `extend` API got me thinking that it would be cool to have more specific Jest matchers. So I’ve decided to open source jest-extended as a new project to accomplish this.
 
-In the spirit of Hacktoberfect I have created a series of [issues](/) for new matchers that I think would be useful to have as part of jest-extended but you can always raise an issue if you can think of others 🙂. I’ve labelled them with `New Matcher`, `Beginner Friendly` and `Hacktoberfest`.
+In the spirit of Hacktoberfect I have created a series of [issues](https://github.com/jest-community/jest-extended/issues) for new matchers that I think would be useful to have as part of jest-extended but you can always raise an issue if you can think of others 🙂. I’ve labelled them with `New Matcher`, `Beginner Friendly` and `Hacktoberfest`.
 
-Feel free to contribute by sending a pull request for any of the issues that aren’t already being worked on, just put a comment on the issue that you would like to work on it so that others don’t too. If you’re new to GitHub and sending pull requests, then I recommend you check out [Kent C. Dodds’s egghead course]() on contributing to open source projects.
+Feel free to contribute by sending a pull request for any of the issues that aren’t already being worked on, just put a comment on the issue that you would like to work on it so that others don’t too. If you’re new to GitHub and sending pull requests, then I recommend you check out [Kent C. Dodds’s egghead course](https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github) on contributing to open source projects.
 
-Each new matcher should be beginner friendly and I’m more than happy to help out if you get stuck, so no excuses not to get involved 😜. A good place to start is the [contributing]() guide.
+Each new matcher should be beginner friendly and I’m more than happy to help out if you get stuck, so no excuses not to get involved 😜. A good place to start is the [contributing](https://github.com/jest-community/jest-extended/blob/main/CONTRIBUTING.md) guide.
 
-I look forward to seeing you over in the [**repo**]()!
+I look forward to seeing you over in the [**repo**](https://github.com/jest-community/jest-extended)!
