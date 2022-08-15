@@ -5,9 +5,6 @@ description: Lorem Ipsum is simply dummy text of the printing and typesetting in
 image:
   src: /images/blog/demo.jpg
   alt: "Rocket"
-  credit:
-    name: Emre Öztürk
-    url: https://unsplash.com/photos/lfyKGQWEbew
 ---
 
 # Heading 1

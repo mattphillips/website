@@ -1,6 +1,5 @@
 import { format } from "date-fns";
 import Head from "next/head";
-import Image from "next/future/image";
 import { GetStaticProps } from "next";
 import Link from "next/link";
 import React from "react";
@@ -9,6 +8,7 @@ import { FsArticles } from "src/articles/FsArticles";
 import { Article } from "src/articles/Articles";
 import { Layout } from "src/components/Layout";
 import { Props } from "src/next/Props";
+import { Thumbnail } from "src/components/Thumbnail";
 
 type Home = {
   posts: Array<Article>;
@@ -60,13 +60,8 @@ export default function Home({ posts }: Home) {
                 <Link passHref={true} href={`/blog/${slug}`}>
                   <a className="no-underline">
                     <article className="">
-                      {image.fold(null, ({ alt, src, credit }) => (
-                        <figure className="mb-4">
-                          <Image src={src} alt={alt} className="rounded-lg shadow-xl" width={1400} height={875} />
-                          <figcaption className="hidden">Photo by: {credit.name}</figcaption>
-                        </figure>
-                      ))}
-                      <div className="">
+                      <Thumbnail src={image.src} alt={image.alt} />
+                      <div className="mt-4">
                         <div className="font-body text-sm text-gray-500 font-semibold text-center">
                           <span>{format(date, "dd MMMM, yyyy")}</span>
                           <span className="mx-4">•</span>
@@ -88,9 +83,6 @@ export default function Home({ posts }: Home) {
     </>
   );
 }
-
-// export const getStaticProps: GetStaticProps<Home> = async () =>
-// new FsArticles().list.map((posts) => ({ props: { posts: toSerialisable(posts) } })).toPromise();
 
 export const getStaticProps: GetStaticProps<Home> = Props.getStatic(() =>
   new FsArticles().list.map((posts) => ({ posts }))

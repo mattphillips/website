@@ -3,7 +3,7 @@ import * as tt from "io-ts-types";
 import matter from "gray-matter";
 import reading from "reading-time";
 import { IO, UIO } from "ts-prelude/IO/fluent";
-import { Maybe, MaybeC } from "ts-prelude/Maybe";
+import { Maybe } from "ts-prelude/Maybe";
 import { eitherToResult } from "ts-prelude/fp-ts-interop";
 import { Refined } from "ts-prelude/Refined";
 import { SimpleNominal } from "ts-prelude/Nominal";
@@ -30,41 +30,15 @@ const IterableToCodec = <A extends SimpleNominal<unknown>>(refinement: Refined<A
     t.identity
   );
 
-// TODO: Move to ts-prelude
-const fromNullable = <A>(a: t.Type<A>) =>
-  new t.Type<Maybe<A>, A | null, unknown>(
-    "fromNullable",
-    MaybeC(a).is,
-    (input, context) => {
-      if (input === null) {
-        return t.success(Maybe.nothing);
-      } else {
-        const result = a.validate(input, context);
-        if (result._tag === "Left") {
-          return result;
-        } else {
-          return t.success(Maybe.just(result.right));
-        }
-      }
-    },
-    (ma) => ma.map(a.encode).toNullable
-  );
-
 const article = t.type({
   markdown: IterableToCodec(Markdown),
   date: tt.DateFromISOString,
   title: IterableToCodec(Title),
   description: IterableToCodec(Description),
-  image: fromNullable(
-    t.type({
-      src: IterableToCodec(Src),
-      alt: IterableToCodec(Alt),
-      credit: t.type({
-        name: IterableToCodec(Name),
-        url: IterableToCodec(Url),
-      }),
-    })
-  ),
+  image: t.type({
+    src: IterableToCodec(Src),
+    alt: IterableToCodec(Alt),
+  }),
 });
 
 const readFile = IO.ioify<fs.PathLike, BufferEncoding, NodeJS.ErrnoException, string>(fs.readFile);

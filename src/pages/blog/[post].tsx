@@ -1,6 +1,5 @@
 import { format } from "date-fns";
 import { GetStaticPaths, GetStaticProps } from "next";
-import Image from "next/future/image";
 import Head from "next/head";
 import React from "react";
 import { IO } from "ts-prelude/IO/fluent";
@@ -9,6 +8,7 @@ import { Article, Slug } from "src/articles/Articles";
 import { FsArticles } from "src/articles/FsArticles";
 import { Layout } from "src/components/Layout";
 import { Paths, Props } from "src/next/Props";
+import { Thumbnail } from "src/components/Thumbnail";
 
 export default function Post({ html, title, date, duration, image, slug, description }: Article) {
   // Adapted from: https://css-tricks.com/syntax-highlighting-prism-on-a-next-js-site/
@@ -64,13 +64,8 @@ export default function Post({ html, title, date, duration, image, slug, descrip
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:creator" content="mattphillipsio" />
         <meta name="twitter:description" content={description} />
-
-        {image.fold(null, ({ src }) => (
-          <>
-            <meta property="og:image" content={src} />
-            <meta property="twitter:image" content={src} />
-          </>
-        ))}
+        <meta property="og:image" content={`https://mattphillips.io/blog/${image.src}`} />
+        <meta property="twitter:image" content={`https://mattphillips.io/blog/${image.src}`} />
       </Head>
       <Layout>
         <div className="max-w-4xl mx-auto pt-16" ref={rootRef}>
@@ -85,14 +80,7 @@ export default function Post({ html, title, date, duration, image, slug, descrip
               <span>{duration}</span>
             </div>
 
-            {/* Extract into a component */}
-            {/* TODO: Image should be required */}
-            {image.fold(null, ({ alt, src, credit }) => (
-              <figure className="">
-                <Image src={src} alt={alt} className="rounded-lg shadow-2xl" width={3500} height={2403} priority />
-                <figcaption className="text-xs text-gray-600 mt-2 hidden">Photo by: {credit.name}</figcaption>
-              </figure>
-            ))}
+            <Thumbnail src={image.src} alt={image.alt} priority />
 
             <article className="post mt-12 max-w-4xl mx-auto md:px-6">
               <div dangerouslySetInnerHTML={{ __html: html }} />

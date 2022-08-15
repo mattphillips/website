@@ -5,9 +5,6 @@ description: Here it is, my obligatory first blog post 🎉. Hey! I’m Matt Phi
 image:
   src: /images/blog/about.jpg
   alt: "Matt Phillips sitting on chair with latpop"
-  credit:
-    name: Matt Phillips
-    url: somewhere
 ---
 
 Here it is, my obligatory first blog post 🎉. Hey! I’m Matt Phillips an Open Source Software Engineer from London 🏙

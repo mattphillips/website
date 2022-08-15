@@ -5,9 +5,6 @@ description: Want to get involved in open source software but don’t know where
 image:
   src: /images/blog/hacktoberfest.jpg
   alt: "Mount tiede"
-  credit:
-    name: Meg Clark
-    url: somewhere
 ---
 
 Want to get involved in open source software but don’t know where to begin? We’ve all been there! Hacktoberfest is a great incentive for people to start contributing back to the OSS community and you can get yourself some free swag 👕. With the clock ticking down on Hacktoberfest — I’ve got a new open source project that you’re more than to contribute to! [jest-extended](https://github.com/mattphillips/jest-extended) 🎉
