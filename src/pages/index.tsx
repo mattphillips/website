@@ -1,15 +1,13 @@
 import { GetStaticProps } from "next";
-import Link from "next/link";
 import React from "react";
 
 import { FsArticles } from "src/articles/FsArticles";
 import { Article, Description, Src } from "src/articles/Articles";
 import { Layout } from "src/components/Layout";
 import { Props } from "src/next/Props";
-import { Thumbnail } from "src/components/Thumbnail";
 import { SEO } from "src/components/Seo";
 import { Maybe } from "ts-prelude/Maybe";
-import { PostMeta } from "src/components/PostMeta";
+import { Posts } from "src/components/Posts";
 
 type Home = { posts: Array<Article> };
 
@@ -43,31 +41,7 @@ export default function Home({ posts }: Home) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 px-6 xl:px-0 md:grid-cols-2 xl:grid-cols-3 gap-12 max-w-7xl mx-auto py-16 bg-white">
-          {posts.map(({ date, slug, title, description, image, duration }) => (
-            <article
-              className="transition-transform transform md:hover:scale-105 rounded-lg flex justify-center"
-              key={slug}
-            >
-              <div className="max-w-lg">
-                <Link passHref={true} href={`/blog/${slug}`}>
-                  <a className="no-underline">
-                    <article className="">
-                      <Thumbnail src={image.src} alt={image.alt} />
-                      <div className="mt-4">
-                        <PostMeta className="text-sm" duration={duration} date={date} />
-                        <div className="p-4">
-                          <h2 className="text-3xl font-display font-semibold mb-4 text-gray-800">{title}</h2>
-                          <p className="text-lg font-body text-gray-800">{description}</p>
-                        </div>
-                      </div>
-                    </article>
-                  </a>
-                </Link>
-              </div>
-            </article>
-          ))}
-        </div>
+        <Posts posts={posts} />
       </Layout>
     </>
   );
