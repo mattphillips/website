@@ -34,24 +34,24 @@ export default function Home(props: Home) {
         <meta property="twitter:image" content="https://mattphillips.io/profile.jpg" />
       </Head>
       <Layout>
-        <div className="bg-gray-50">
-          <div className="p-6 md:py-10 xl:px-0 md:relative max-w-5xl mx-auto flex flex-col-reverse md:flex-row items-center min-h-[500px]">
-            <div className="mt-4 md:mt-0 md:mr-10 md:w-1/2">
+        <div className="px-6 bg-white">
+          <div className="max-w-5xl mx-auto py-12 flex flex-col-reverse md:flex-row items-center justify-center border-b border-gray-200">
+            <div className="mt-4 md:mt-0 md:mr-8 md:w-1/2 text-gray-800">
               <span className="text-3xl md:text-5xl font-display">Hi 👋, I'm </span>
-              <h1 className="text-5xl md:text-7xl mt-4 mb-4 md:mb-8 font-display text-gray-800">Matt Phillips</h1>
-              <p className="font-body text-lg md:text-2xl text-gray-800">
+              <h1 className="text-5xl md:text-7xl mt-4 mb-4 md:mb-8 font-display">Matt Phillips</h1>
+              <p className="font-body text-lg md:text-xl">
                 Welcome to my site where I write on all things related to code and careers in tech with a focus on
                 Typescript, Testing and Functional Programming.
               </p>
             </div>
-            {/* Aspect ratio of image is 1.25 */}
             <img
-              className="rounded-full md:rounded-none object-cover w-[300px] h-[300px] md:w-[400px] md:h-[320px] lg:w-[550px] lg:h-[440px] md:absolute md:bottom-0 md:right-[24px]"
+              className="rounded-full object-cover object-center w-72 h-72"
               src="/profile.webp"
               alt="Matt Phillips"
             />
           </div>
         </div>
+
         <div className="grid grid-cols-1 px-6 xl:px-0 md:grid-cols-2 xl:grid-cols-3 gap-12 max-w-7xl mx-auto py-16 bg-white">
           {posts.map(({ date, slug, title, description, image, duration }) => (
             <article

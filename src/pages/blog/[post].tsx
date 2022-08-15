@@ -14,10 +14,10 @@ const Post = (props: ToSerialisable<Article>) => {
   // TODO: Move `fromSerialisable` to _app
   const { html, title, date, duration, image, slug, description } = fromSerialisable<Article>(props);
 
+  // Adapted from: https://css-tricks.com/syntax-highlighting-prism-on-a-next-js-site/
   const rootRef = React.useRef<HTMLDivElement>(null);
-
   React.useEffect(() => {
-    const allPres = rootRef.current.querySelectorAll("pre");
+    const allPres = rootRef.current!.querySelectorAll("pre");
     const cleanup: (() => void)[] = [];
 
     for (const pre of allPres) {
@@ -26,10 +26,10 @@ const Post = (props: ToSerialisable<Article>) => {
         continue;
       }
 
-      const language = [...pre.classList.values()].find((it) => /language-/.test(it));
+      const language = [...pre.classList.values()].find((it) => /language-/.test(it))?.replace(/language-/, "");
 
       pre.appendChild(createCopyButton(code));
-      pre.parentNode.prepend(createLanguageLabel(language.replace(/language-/, "")));
+      pre.parentNode.prepend(createLanguageLabel(language || ""));
 
       const highlightRanges = pre.dataset.line;
       const lineNumbersContainer = pre.querySelector(".line-numbers-rows");
@@ -180,7 +180,7 @@ export const getStaticPaths: GetStaticPaths = new FsArticles().list
 
 export default Post;
 
-function highlightCode(pre, highlightRanges, lineNumberRowsContainer) {
+function highlightCode(pre: HTMLPreElement, highlightRanges: string, lineNumberRowsContainer: Element) {
   const ranges = highlightRanges.split(",").filter((val) => val);
 
   console.log(pre);
@@ -201,7 +201,7 @@ function highlightCode(pre, highlightRanges, lineNumberRowsContainer) {
   }
 }
 
-function createCopyButton(codeEl) {
+function createCopyButton(codeEl: Element) {
   const button = document.createElement("button");
   button.classList.add("prism-copy-button");
   const copy = `

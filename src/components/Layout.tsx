@@ -4,7 +4,7 @@ import { SocialLinks } from "./SocialLinks";
 
 export const Layout: React.FC = ({ children }) => (
   <div className="flex flex-col h-full ">
-    <header className="p-4 borde-b border-solid border-gray-200">
+    <header className="p-4 borde-b border-solid border-gray-200 bg-white">
       <div className="max-w-5xl mx-auto flex flex-row justify-between items-center bg-white text-gray-800">
         <Link passHref href="/">
           <a title="mattphillips.io">
