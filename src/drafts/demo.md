@@ -82,12 +82,41 @@ This is an emoji inline 😆
 This is an image:
 ![Chinese Salty Egg](/example.jpeg "hello")
 
-This is a code block with js highlighting and line 2 highlighted
+This is a code block with js highlighting and multiple lines highlighted with no line numbers
 
-```javascript{2}
-const hi () => {
-  console.log('hi');
+```js[class="line-numbers"][class="hide-numbers"][data-line="3,8-10"]
+class Shape {
+  draw() {
+    console.log("Uhhh maybe override me");
+  }
 }
+
+class Circle {
+  draw() {
+    console.log("I'm a circle! :D");
+  }
+}
+```
+
+This is a code block with js highlighting and multiple lines highlighted with line numbers
+
+```typescript[class="line-numbers"][data-line="3,8-10"]
+interface User {
+  name: string;
+  id: number;
+}
+
+class UserAccount {
+  name: string;
+  id: number;
+
+  constructor(name: string, id: number) {
+    this.name = name;
+    this.id = id;
+  }
+}
+
+const user: User = new UserAccount("Murphy", 1);
 ```
 
 This is a code block with line numbers
@@ -98,15 +127,9 @@ const hi () => {
 }
 ```
 
-Footnotes:
+Haskell
 
-Here's a simple footnote,[^1] and here's a longer one.[^bignote]
-
-[^1]: This is the first footnote.
-[^bignote]: Here's one with multiple paragraphs and code.
-
-    Indent paragraphs to include them in the footnote.
-
-    `{ my code }`
-
-    Add as many paragraphs as you like.
+```haskell[class="line-numbers"]
+main :: IO ()
+main = putStrLn "Hello, World!"
+```

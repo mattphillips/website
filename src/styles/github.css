@@ -6,7 +6,9 @@ pre {
   background-color: #f6f8fa !important;
   padding: 1rem;
   overflow: auto;
-  border-radius: 8px;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+  border-bottom-left-radius: 8px;
   margin: 2rem 0;
 }
 
