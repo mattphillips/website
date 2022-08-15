@@ -1,14 +1,15 @@
 import { format } from "date-fns";
 import { GetStaticPaths, GetStaticProps } from "next";
-import Head from "next/head";
 import React from "react";
 import { IO } from "ts-prelude/IO/fluent";
+import { Maybe } from "ts-prelude/Maybe";
 
 import { Article, Slug } from "src/articles/Articles";
 import { FsArticles } from "src/articles/FsArticles";
 import { Layout } from "src/components/Layout";
 import { Paths, Props } from "src/next/Props";
 import { Thumbnail } from "src/components/Thumbnail";
+import { SEO } from "src/components/Seo";
 
 export default function Post({ html, title, date, duration, image, slug, description }: Article) {
   // Adapted from: https://css-tricks.com/syntax-highlighting-prism-on-a-next-js-site/
@@ -50,23 +51,9 @@ export default function Post({ html, title, date, duration, image, slug, descrip
     return () => cleanup.forEach((f) => f());
   }, []);
 
-  const seoTitle = `${title} | Matt Phillips`;
-
   return (
     <>
-      <Head>
-        {/* TODO: Extract this into a component and app config */}
-        <title>{seoTitle}</title>
-        <meta name="description" content={description} />
-        <meta name="og:url" content={`https://mattphillips.io/blog/${slug}`} />
-        <meta name="og:title" content={seoTitle} />
-        <meta name="og:description" content={description} />
-        <meta name="twitter:card" content="summary" />
-        <meta name="twitter:creator" content="mattphillipsio" />
-        <meta name="twitter:description" content={description} />
-        <meta property="og:image" content={`https://mattphillips.io/blog/${image.src}`} />
-        <meta property="twitter:image" content={`https://mattphillips.io/blog/${image.src}`} />
-      </Head>
+      <SEO title={Maybe.just(title)} slug={`/blog/${slug}`} description={description} image={image.src} />
       <Layout>
         <div className="max-w-4xl mx-auto pt-16" ref={rootRef}>
           <div className="px-6 lg:px-0">

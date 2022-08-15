@@ -1,11 +1,13 @@
 import React from "react";
 import classnames from "classnames";
+
+import { config } from "src/config";
 import { Github, LinkedIn, Twitter } from "./icons";
 
 const links = [
-  { href: "https://twitter.com/mattphillipsio", title: "Twitter", icon: <Twitter /> },
-  { href: "https://github.com/mattphillips", title: "Github", icon: <Github /> },
-  { href: "https://linkedin.com/in/mattphillipsio", title: "LinkedIn", icon: <LinkedIn /> },
+  { href: config.social.twitter, title: "Twitter", icon: <Twitter /> },
+  { href: config.social.github, title: "Github", icon: <Github /> },
+  { href: config.social.linkedIn, title: "LinkedIn", icon: <LinkedIn /> },
 ];
 
 export const SocialLinks: React.FC<{ className?: string }> = ({ className }) => (

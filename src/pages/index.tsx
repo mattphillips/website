@@ -1,36 +1,29 @@
 import { format } from "date-fns";
-import Head from "next/head";
 import { GetStaticProps } from "next";
 import Link from "next/link";
 import React from "react";
 
 import { FsArticles } from "src/articles/FsArticles";
-import { Article } from "src/articles/Articles";
+import { Article, Description, Src } from "src/articles/Articles";
 import { Layout } from "src/components/Layout";
 import { Props } from "src/next/Props";
 import { Thumbnail } from "src/components/Thumbnail";
+import { SEO } from "src/components/Seo";
+import { Maybe } from "ts-prelude/Maybe";
 
-type Home = {
-  posts: Array<Article>;
-};
+type Home = { posts: Array<Article> };
 
 export default function Home({ posts }: Home) {
   const description =
     "Personal site by Matt Phillips where he write on all things related to code and careers in tech with a focus on Typescript, Testing and Functional Programming.";
   return (
     <>
-      <Head>
-        <title>Matt Phillips</title>
-        <meta name="description" content={description} />
-        <meta name="og:url" content="https://mattphillips.io" />
-        <meta name="og:title" content="Matt Phillips" />
-        <meta name="og:description" content={description} />
-        <meta name="twitter:card" content="summary" />
-        <meta name="twitter:creator" content="mattphillipsio" />
-        <meta name="twitter:description" content={description} />
-        <meta property="og:image" content="https://mattphillips.io/profile.jpg" />
-        <meta property="twitter:image" content="https://mattphillips.io/profile.jpg" />
-      </Head>
+      <SEO
+        title={Maybe.nothing}
+        slug=""
+        description={Description.unsafeFrom(description)}
+        image={Src.unsafeFrom("/profile.jpg")}
+      />
       <Layout>
         <div className="px-6 bg-white">
           <div className="max-w-5xl mx-auto py-12 flex flex-col-reverse md:flex-row items-center justify-center border-b border-gray-200">
