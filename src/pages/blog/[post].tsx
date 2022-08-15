@@ -1,19 +1,16 @@
+import { format } from "date-fns";
 import { GetStaticPaths, GetStaticProps } from "next";
 import Image from "next/future/image";
-import { format } from "date-fns";
+import Head from "next/head";
 import React from "react";
 import { IO } from "ts-prelude/IO/fluent";
-import { fromSerialisable, toSerialisable, ToSerialisable } from "ts-prelude/Serialisable";
 
-import { Article } from "src/articles/Articles";
+import { Article, Slug } from "src/articles/Articles";
 import { FsArticles } from "src/articles/FsArticles";
 import { Layout } from "src/components/Layout";
-import Head from "next/head";
+import { Paths, Props } from "src/next/Props";
 
-const Post = (props: ToSerialisable<Article>) => {
-  // TODO: Move `fromSerialisable` to _app
-  const { html, title, date, duration, image, slug, description } = fromSerialisable<Article>(props);
-
+export default function Post({ html, title, date, duration, image, slug, description }: Article) {
   // Adapted from: https://css-tricks.com/syntax-highlighting-prism-on-a-next-js-site/
   const rootRef = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
@@ -170,28 +167,22 @@ const Post = (props: ToSerialisable<Article>) => {
       </Layout>
     </>
   );
-};
+}
 
-export const getStaticProps: GetStaticProps<ToSerialisable<Article>, { post: string }> = (ctx) =>
+export const getStaticProps: GetStaticProps<Article, { post: Slug }> = Props.getStatic((ctx) =>
   new FsArticles()
     .findBySlug(`${ctx.params!.post}.md`)
     .flatMapW(IO.fromMaybe(new Error("Slug not found")))
     .orDie()
-    // TODO: Create `Props` constructor that does `toSerialisable`
-    .map((props) => ({ props: toSerialisable(props) }))
-    .toPromise();
+);
 
-export const getStaticPaths: GetStaticPaths = new FsArticles().list
-  .map((articles) => articles.map((a) => a.slug))
-  .map((slugs) => slugs.map((slug) => ({ params: { post: slug } })))
-  .map((slugs) => ({ paths: slugs, fallback: false })).toPromise;
-
-export default Post;
+export const getStaticPaths: GetStaticPaths<{ post: Slug }> = Paths.getStatic(() =>
+  new FsArticles().list.map((articles) => articles.map((a) => ({ post: a.slug })))
+);
 
 function highlightCode(pre: HTMLPreElement, highlightRanges: string, lineNumberRowsContainer: Element) {
   const ranges = highlightRanges.split(",").filter((val) => val);
 
-  console.log(pre);
   const preWidth = pre.scrollWidth;
 
   for (const range of ranges) {

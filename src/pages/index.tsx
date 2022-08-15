@@ -1,22 +1,20 @@
-import React from "react";
+import { format } from "date-fns";
 import Head from "next/head";
 import Image from "next/future/image";
 import { GetStaticProps } from "next";
 import Link from "next/link";
-import { fromSerialisable, ToSerialisable, toSerialisable } from "ts-prelude/Serialisable";
+import React from "react";
 
 import { FsArticles } from "src/articles/FsArticles";
 import { Article } from "src/articles/Articles";
 import { Layout } from "src/components/Layout";
-import { format } from "date-fns";
+import { Props } from "src/next/Props";
 
 type Home = {
-  posts: ToSerialisable<Array<Article>>;
+  posts: Array<Article>;
 };
 
-export default function Home(props: Home) {
-  const posts = fromSerialisable<Array<Article>>(props.posts);
-
+export default function Home({ posts }: Home) {
   const description =
     "Personal site by Matt Phillips where he write on all things related to code and careers in tech with a focus on Typescript, Testing and Functional Programming.";
   return (
@@ -91,5 +89,9 @@ export default function Home(props: Home) {
   );
 }
 
-export const getStaticProps: GetStaticProps<Home> = async () =>
-  new FsArticles().list.map((posts) => ({ props: { posts: toSerialisable(posts) } })).toPromise();
+// export const getStaticProps: GetStaticProps<Home> = async () =>
+// new FsArticles().list.map((posts) => ({ props: { posts: toSerialisable(posts) } })).toPromise();
+
+export const getStaticProps: GetStaticProps<Home> = Props.getStatic(() =>
+  new FsArticles().list.map((posts) => ({ posts }))
+);
