@@ -21,12 +21,6 @@ export const Src = Refined.Iterable.MinLength.refinement<Src>(0);
 export type Alt = Nominal<string, { readonly Alt: unique symbol }>;
 export const Alt = Refined.Iterable.MinLength.refinement<Alt>(0);
 
-export type Name = Nominal<string, { readonly Name: unique symbol }>;
-export const Name = Refined.Iterable.MinLength.refinement<Name>(0);
-
-export type Url = Nominal<string, { readonly Url: unique symbol }>;
-export const Url = Refined.Iterable.MinLength.refinement<Url>(0);
-
 export type Title = Nominal<string, { readonly Title: unique symbol }>;
 export const Title = Refined.Iterable.MinLength.refinement<Title>(2);
 

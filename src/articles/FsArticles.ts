@@ -11,12 +11,13 @@ import { SimpleNominal } from "ts-prelude/Nominal";
 import fs from "fs";
 import path from "path";
 
-import { Articles, Article, Title, Description, Src, Alt, Name, Url, Slug, Duration } from "./Articles";
+import { Articles, Article, Title, Description, Src, Alt, Slug, Duration } from "./Articles";
 import { Markdown, toHtml } from "src/Markdown";
+import { TagUnion } from "ts-prelude/match";
 
-// TODO: Move to ts-prelude
-// TODO: any -> TagUnion
-const IterableToCodec = <A extends SimpleNominal<unknown>>(refinement: Refined<A, any>): t.Type<A> =>
+const IterableToCodec = <A extends SimpleNominal<unknown>, Tag extends TagUnion>(
+  refinement: Refined<A, Tag>
+): t.Type<A> =>
   new t.Type(
     "ToCodec",
     refinement.is,
