@@ -10,6 +10,8 @@ import { Paths, Props } from "src/next/Props";
 import { Thumbnail } from "src/components/Thumbnail";
 import { SEO } from "src/components/Seo";
 import { PostMeta } from "src/components/PostMeta";
+import { ExternalLink } from "src/components/ExternalLink";
+import { config } from "src/config";
 
 export default function Post({ html, title, date, duration, image, slug, description }: Article) {
   // Adapted from: https://css-tricks.com/syntax-highlighting-prism-on-a-next-js-site/
@@ -57,7 +59,6 @@ export default function Post({ html, title, date, duration, image, slug, descrip
       <Layout>
         <div className="max-w-4xl mx-auto pt-16" ref={rootRef}>
           <div className="px-6 lg:px-0">
-            {/* TODO: Extract this (same as homepage) */}
             <h1 className="font-display text-5xl md:text-7xl font-bold mb-8 leading-tight text-center text-gray-800">
               {title}
             </h1>
@@ -71,37 +72,12 @@ export default function Post({ html, title, date, duration, image, slug, descrip
           </div>
 
           <div className="px-6 bg-white">
-            <div className="border-y border-solid border-gray-200 py-6 md:px-6 my-12 grid md:grid-cols-2 gap-4">
-              {/* Create external link component */}
-              <a
-                href={`https://twitter.com/intent/tweet?${new URLSearchParams({
-                  url: `https://mattphillips.io/blog/${slug}`,
-                  text: `I just read ${title} by @mattphillipsio\n\n`,
-                })}`}
-                target="_blank"
-                rel="noopener"
-              >
-                <div className="font-body font-semibold text-lg text-gray-600">Tweet this article</div>
-              </a>
-
+            <div className="border-y border-solid border-gray-200 py-6 md:px-6 my-12 grid md:grid-cols-2 gap-4 font-body font-semibold text-lg text-gray-600">
+              <ExternalLink href={config.interact.share(slug, title)}>Tweet this article</ExternalLink>
               <div className="flex flex-row md:justify-end items-center flex-wrap">
-                <a
-                  href={`https://twitter.com/search?${new URLSearchParams({
-                    q: `https://mattphillips.io/blog/${slug}`,
-                  })}`}
-                  target="_blank"
-                  rel="noopener"
-                >
-                  <div className="font-body font-semibold text-lg text-gray-600">Discuss on Twitter</div>
-                </a>
+                <ExternalLink href={config.interact.discuss(slug)}>Discuss on Twitter</ExternalLink>
                 <span className="mx-2 md:mx-4">•</span>
-                <a
-                  href={`https://github.com/mattphillips/website/edit/main/src/posts/${slug}.md`}
-                  target="_blank"
-                  rel="noopener"
-                >
-                  <div className="font-body font-semibold text-lg text-gray-600">Edit on Github</div>
-                </a>
+                <ExternalLink href={config.interact.edit(slug)}>Edit on Github</ExternalLink>
               </div>
             </div>
           </div>
@@ -121,15 +97,9 @@ export default function Post({ html, title, date, duration, image, slug, descrip
                 </p>
                 <p className="font-body text-lg">
                   Don’t miss out on on future posts, projects and products I’m building. Follow me over on Twitter{" "}
-                  <a
-                    href="https://twitter.com/mattphillipsio"
-                    target="_blank"
-                    title="Twitter"
-                    rel="noopener"
-                    className="font-bold"
-                  >
+                  <ExternalLink className="font-bold" href={config.social.twitter}>
                     @mattphillipsio
-                  </a>
+                  </ExternalLink>
                 </p>
               </div>
             </div>
