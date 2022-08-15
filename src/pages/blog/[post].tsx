@@ -1,4 +1,3 @@
-import { format } from "date-fns";
 import { GetStaticPaths, GetStaticProps } from "next";
 import React from "react";
 import { IO } from "ts-prelude/IO/fluent";
@@ -10,6 +9,7 @@ import { Layout } from "src/components/Layout";
 import { Paths, Props } from "src/next/Props";
 import { Thumbnail } from "src/components/Thumbnail";
 import { SEO } from "src/components/Seo";
+import { PostMeta } from "src/components/PostMeta";
 
 export default function Post({ html, title, date, duration, image, slug, description }: Article) {
   // Adapted from: https://css-tricks.com/syntax-highlighting-prism-on-a-next-js-site/
@@ -61,11 +61,7 @@ export default function Post({ html, title, date, duration, image, slug, descrip
             <h1 className="font-display text-5xl md:text-7xl font-bold mb-8 leading-tight text-center text-gray-800">
               {title}
             </h1>
-            <div className="font-body text- text-gray-500 font-semibold text-center mb-12">
-              <span>{format(date, "dd MMMM, yyyy")}</span>
-              <span className="mx-4">•</span>
-              <span>{duration}</span>
-            </div>
+            <PostMeta className="mb-12" duration={duration} date={date} />
 
             <Thumbnail src={image.src} alt={image.alt} priority />
 

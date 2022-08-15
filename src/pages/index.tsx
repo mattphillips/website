@@ -1,4 +1,3 @@
-import { format } from "date-fns";
 import { GetStaticProps } from "next";
 import Link from "next/link";
 import React from "react";
@@ -10,6 +9,7 @@ import { Props } from "src/next/Props";
 import { Thumbnail } from "src/components/Thumbnail";
 import { SEO } from "src/components/Seo";
 import { Maybe } from "ts-prelude/Maybe";
+import { PostMeta } from "src/components/PostMeta";
 
 type Home = { posts: Array<Article> };
 
@@ -55,11 +55,7 @@ export default function Home({ posts }: Home) {
                     <article className="">
                       <Thumbnail src={image.src} alt={image.alt} />
                       <div className="mt-4">
-                        <div className="font-body text-sm text-gray-500 font-semibold text-center">
-                          <span>{format(date, "dd MMMM, yyyy")}</span>
-                          <span className="mx-4">•</span>
-                          <span>{duration}</span>
-                        </div>
+                        <PostMeta className="text-sm" duration={duration} date={date} />
                         <div className="p-4">
                           <h2 className="text-3xl font-display font-semibold mb-4 text-gray-800">{title}</h2>
                           <p className="text-lg font-body text-gray-800">{description}</p>
