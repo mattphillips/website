@@ -52,7 +52,6 @@ const isDevelopment: UIO<boolean> = readEnv("NODE_ENV").fold(
   (env) => env === "development"
 );
 
-// TODO: Inject this into the cap
 const postsDirectory = path.join("src", "posts");
 const draftsDirectory = path.join("src", "drafts");
 
