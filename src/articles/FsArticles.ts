@@ -12,11 +12,11 @@ import fs from "fs";
 import path from "path";
 
 import { Articles, Article, Title, Description, Src, Alt, Name, Url, Slug, Duration } from "./Articles";
-import { TagUnion } from "ts-prelude/match";
 import { Markdown, toHtml } from "src/Markdown";
 
 // TODO: Move to ts-prelude
-const IterableToCodec = <A extends SimpleNominal<unknown>>(refinement: Refined<A, TagUnion>): t.Type<A> =>
+// TODO: any -> TagUnion
+const IterableToCodec = <A extends SimpleNominal<unknown>>(refinement: Refined<A, any>): t.Type<A> =>
   new t.Type(
     "ToCodec",
     refinement.is,
@@ -114,7 +114,7 @@ export class FsArticles implements Articles {
           es.map((e) => e.context.map((c) => c.key).join(".") + `: ${e.message}`).join("\n  ")
         )
       )
-      .flatMap((article) =>
+      .flatMapW((article) =>
         toHtml(article.markdown).map<Article>((html) => ({
           html,
           date: article.date,

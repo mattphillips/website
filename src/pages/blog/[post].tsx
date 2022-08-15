@@ -29,7 +29,10 @@ const Post = (props: ToSerialisable<Article>) => {
       const language = [...pre.classList.values()].find((it) => /language-/.test(it))?.replace(/language-/, "");
 
       pre.appendChild(createCopyButton(code));
-      pre.parentNode.prepend(createLanguageLabel(language || ""));
+
+      if (pre.parentNode !== null) {
+        pre.parentNode.prepend(createLanguageLabel(language || ""));
+      }
 
       const highlightRanges = pre.dataset.line;
       const lineNumbersContainer = pre.querySelector(".line-numbers-rows");
@@ -167,9 +170,9 @@ const Post = (props: ToSerialisable<Article>) => {
   );
 };
 
-export const getStaticProps: GetStaticProps<ToSerialisable<Article>> = (ctx) =>
+export const getStaticProps: GetStaticProps<ToSerialisable<Article>, { post: string }> = (ctx) =>
   new FsArticles()
-    .findBySlug(`${ctx.params.post.toString()}.md`)
+    .findBySlug(`${ctx.params!.post}.md`)
     .flatMapW(IO.fromMaybe(new Error("Slug not found")))
     .orDie()
     // TODO: Create `Props` constructor that does `toSerialisable`
@@ -197,9 +200,11 @@ function highlightCode(pre: HTMLPreElement, highlightRanges: string, lineNumberR
     }
 
     for (let i = +start; i <= +end; i++) {
-      const lineNumberSpan: HTMLSpanElement = lineNumberRowsContainer.querySelector(`span:nth-child(${i})`);
-      lineNumberSpan.style.setProperty("--highlight-background", "rgb(100 100 100 / 0.1)");
-      lineNumberSpan.style.setProperty("--highlight-width", `${preWidth}px`);
+      const lineNumberSpan: HTMLSpanElement | null = lineNumberRowsContainer.querySelector(`span:nth-child(${i})`);
+      if (lineNumberSpan !== null) {
+        lineNumberSpan.style.setProperty("--highlight-background", "rgb(100 100 100 / 0.1)");
+        lineNumberSpan.style.setProperty("--highlight-width", `${preWidth}px`);
+      }
     }
   }
 }
