@@ -8,6 +8,7 @@ import { Props } from "src/next/Props";
 import { SEO } from "src/components/Seo";
 import { Maybe } from "ts-prelude/Maybe";
 import { Posts } from "src/components/Posts";
+import { ProfileAvatar } from "src/components/ProfileAvatar";
 
 type Home = { posts: Array<Article> };
 
@@ -33,11 +34,7 @@ export default function Home({ posts }: Home) {
                 Typescript, Testing and Functional Programming.
               </p>
             </div>
-            <img
-              className="rounded-full object-cover object-center w-72 h-72"
-              src="/profile.webp"
-              alt="Matt Phillips"
-            />
+            <ProfileAvatar className="rounded-full h-72 w-72" priority />
           </div>
         </div>
 

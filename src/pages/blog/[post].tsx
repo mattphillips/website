@@ -13,6 +13,7 @@ import { PostMeta } from "src/components/PostMeta";
 import { ExternalLink } from "src/components/ExternalLink";
 import { config } from "src/config";
 import { usePrism } from "src/hooks/usePrism";
+import { ProfileAvatar } from "src/components/ProfileAvatar";
 
 export default function Post({ html, title, date, duration, image, slug, description }: Article) {
   const prismRef = usePrism();
@@ -47,11 +48,7 @@ export default function Post({ html, title, date, duration, image, slug, descrip
 
           <div className="px-6 bg-white">
             <div className="pb-12 md:px-6 border-b border-gray-200 grid items-center gap-6 md:grid-flow-col">
-              <img
-                className="rounded-full object-cover object-center w-40 h-40"
-                src="/profile.webp"
-                alt="Matt Phillips"
-              />
+              <ProfileAvatar className="rounded-full h-40 w-40" />
               <div className="text-gray-800 ">
                 <p className="text-4xl mb-4 font-display font-bold">Matt Phillips</p>
                 <p className="font-body text-lg mb-4">
