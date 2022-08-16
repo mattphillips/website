@@ -54,7 +54,7 @@ export default function NotFound({ posts }: NotFound) {
             </div>
           </div>
         </div>
-        <div className="mt-12 max-w-4xl mx-auto">
+        <div className="mt-12 max-w-4xl mx-auto px-6">
           <h2 className="font-display text-4xl font-bold text-gray-800">Latest articles:</h2>
         </div>
         <Posts posts={posts} />
