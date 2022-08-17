@@ -7,11 +7,7 @@ import { Moon, Sun } from "./icons";
 import { SocialLinks } from "./SocialLinks";
 
 export const Layout: React.FC = ({ children }) => {
-  const [mounted, setMounted] = React.useState(false);
-
   const { resolvedTheme, setTheme } = useTheme();
-
-  React.useEffect(() => setMounted(true), []);
 
   return (
     <div className="flex flex-col h-full">
@@ -27,9 +23,12 @@ export const Layout: React.FC = ({ children }) => {
 
           <button
             onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-            className="p-2 bg-gray-100 dark:bg-gray-700 flex items-center justify-center rounded-lg transition-transform transform hover:scale-110"
+            className="bg-gray-100 dark:bg-gray-700 inline-flex items-center justify-center overflow-hidden rounded-lg p-2 md:transition-transform md:transform md:hover:scale-125"
           >
-            {mounted && (resolvedTheme === "dark" ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />)}
+            <div className="relative h-6 w-6">
+              <Sun className="absolute inset-0 rotate-90 transform transition-transform duration-700 dark:rotate-0 origin-[50%_40px]" />
+              <Moon className="absolute inset-0 rotate-0 transform transition-transform duration-700 dark:-rotate-90 origin-[50%_40px]" />
+            </div>
           </button>
           <SocialLinks className="hidden md:flex" />
         </div>
