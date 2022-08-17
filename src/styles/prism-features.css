@@ -70,7 +70,7 @@ pre[class*="language-"].line-numbers > code {
 
 /* Copy button */
 .prism-copy-button {
-  @apply bg-gray-200 text-gray-600;
+  @apply bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300;
 
   position: absolute;
   top: 12px;
@@ -95,9 +95,8 @@ pre[class*="language-"].line-numbers > code {
 }
 
 .prism-language-label {
-  @apply text-gray-600;
+  @apply text-gray-600 dark:text-gray-50 bg-[#f6f8fa] dark:bg-[rgb(1,_22,_39)];
 
-  background-color: #f6f8fa;
   position: absolute;
   top: -34px;
   font-size: 14px;
@@ -116,6 +115,13 @@ pre[class*="language-"].line-numbers > code {
   width: 1rem;
   height: 1rem;
   border-bottom-left-radius: 8px;
-  box-shadow: 0 0.5rem 0 0 #f6f8fa;
   content: "";
+}
+
+.light .prism-language-label::after {
+  box-shadow: 0 0.5rem 0 0 #f6f8fa;
+}
+
+.dark .prism-language-label::after {
+  box-shadow: 0 0.5rem 0 0 rgba(1, 22, 39);
 }

@@ -24,9 +24,9 @@ export default function Home({ posts }: Home) {
         image={Src.unsafeFrom("/profile.jpg")}
       />
       <Layout>
-        <div className="px-6 bg-white">
-          <div className="max-w-5xl mx-auto py-12 flex flex-col-reverse md:flex-row items-center justify-center border-b border-gray-200">
-            <div className="mt-4 md:mt-0 md:mr-8 md:w-1/2 text-gray-800">
+        <div className="px-6">
+          <div className="max-w-5xl mx-auto py-12 flex flex-col-reverse md:flex-row items-center justify-center border-b border-gray-200 dark:border-gray-500">
+            <div className="mt-4 md:mt-0 md:mr-8 md:w-1/2 text-gray-800 dark:text-gray-50">
               <span className="text-3xl md:text-5xl font-display font-bold">
                 Hi <span className="animate-wave inline-block origin-[70%_70%]">👋</span>, I'm
               </span>

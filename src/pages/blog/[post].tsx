@@ -23,7 +23,7 @@ export default function Post({ html, title, date, duration, image, slug, descrip
       <Layout>
         <div className="max-w-4xl mx-auto pt-16">
           <div className="px-6 lg:px-0">
-            <h1 className="font-display text-5xl md:text-7xl font-bold mb-8 leading-tight text-center text-gray-800">
+            <h1 className="font-display text-5xl md:text-7xl font-bold mb-8 leading-tight text-center text-gray-800 dark:text-gray-50">
               {title}
             </h1>
             <PostMeta className="mb-12" duration={duration} date={date} />
@@ -35,8 +35,8 @@ export default function Post({ html, title, date, duration, image, slug, descrip
             </article>
           </div>
 
-          <div className="px-6 bg-white">
-            <div className="border-y border-solid border-gray-200 py-6 md:px-6 my-12 grid md:grid-cols-2 gap-4 font-body font-semibold text-lg text-gray-600">
+          <div className="px-6">
+            <div className="border-y border-solid border-gray-200 dark:border-gray-500 py-6 md:px-6 my-12 grid md:grid-cols-2 gap-4 font-body font-semibold text-lg text-gray-600 dark:text-gray-300">
               <ExternalLink href={config.interact.share(slug, title)}>Tweet this article</ExternalLink>
               <div className="flex flex-row md:justify-end items-center flex-wrap">
                 <ExternalLink href={config.interact.discuss(slug)}>Discuss on Twitter</ExternalLink>
@@ -46,10 +46,10 @@ export default function Post({ html, title, date, duration, image, slug, descrip
             </div>
           </div>
 
-          <div className="px-6 bg-white">
-            <div className="pb-12 md:px-6 border-b border-gray-200 grid items-center gap-6 md:grid-flow-col">
+          <div className="px-6 bg-white dark:bg-gray-800">
+            <div className="pb-12 md:px-6 border-b border-gray-200 dark:border-gray-300 grid items-center gap-6 md:grid-flow-col">
               <ProfileAvatar className="rounded-full h-40 w-40" />
-              <div className="text-gray-800 ">
+              <div className="text-gray-800 dark:text-gray-50">
                 <p className="text-4xl mb-4 font-display font-bold">Matt Phillips</p>
                 <p className="font-body text-lg mb-4">
                   Experienced software engineer, Jest maintainer, OSS publisher. Writing about founding products,
