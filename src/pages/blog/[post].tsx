@@ -49,15 +49,18 @@ export default function Post({ html, title, date, duration, image, slug, descrip
               <ProfileAvatar className="rounded-full h-40 w-40" />
               <div>
                 <p className="text-4xl mb-4 font-display font-bold">Matt Phillips</p>
+
                 <p className="font-body text-lg mb-4">
-                  Experienced software engineer, Jest maintainer, OSS publisher. Writing about founding products,
-                  teaching with code and building in public.
+                  Open-source software engineer and tech founder with a passion for teaching all things software
+                  related, career development and building products.
                 </p>
                 <p className="font-body text-lg">
-                  Don’t miss out on on future posts, projects and products I’m building. Follow me over on Twitter{" "}
+                  Don’t miss out on on future posts, projects and products I’m working on by following me over on
+                  Twitter{" "}
                   <ExternalLink className="font-bold" href={config.social.twitter}>
                     @mattphillipsio
                   </ExternalLink>
+                  .
                 </p>
               </div>
             </div>

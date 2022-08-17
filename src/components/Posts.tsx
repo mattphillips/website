@@ -7,7 +7,7 @@ import { Thumbnail } from "./Thumbnail";
 type Posts = { posts: Array<Article> };
 
 export const Posts: React.FC<Posts> = ({ posts }) => (
-  <div className="grid grid-cols-1 px-6 xl:px-0 md:grid-cols-2 xl:grid-cols-3 gap-12 max-w-7xl mx-auto py-16">
+  <div className="grid grid-cols-1 px-6 xl:px-4 md:grid-cols-2 xl:grid-cols-3 gap-12 max-w-7xl mx-auto py-16">
     {posts.map(({ date, slug, title, description, image, duration }) => (
       <article
         className="transition-transform transform ease-in-out delay-75 md:hover:scale-110 rounded-lg flex justify-center"
