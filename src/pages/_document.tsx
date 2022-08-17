@@ -14,6 +14,7 @@ class MyDocument extends Document<{ theme: string }> {
             href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Open+Sans:wght@300;400;600;700&display=swap"
             rel="stylesheet"
           />
+          <link rel="alternate" type="application/rss+xml" href="/feed.xml" />
           <script
             dangerouslySetInnerHTML={{
               __html: `
