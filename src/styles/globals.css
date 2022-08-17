@@ -1,6 +1,7 @@
 @tailwind base;
 
 body {
+  @apply transition-colors duration-300 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-50;
   -webkit-font-smoothing: antialiased;
   height: 100%;
 }

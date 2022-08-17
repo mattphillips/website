@@ -1,6 +1,4 @@
 .post {
-  @apply text-gray-800 dark:text-gray-50;
-
   font-size: 18px;
   line-height: 1.6;
   font-family: "Open Sans", sans-serif;
@@ -12,7 +10,6 @@
 .post h4,
 .post h5,
 .post h6 {
-  @apply text-gray-800 dark:text-gray-50;
   font-family: "Playfair Display", sans-serif;
 }
 

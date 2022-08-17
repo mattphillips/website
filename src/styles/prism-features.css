@@ -70,7 +70,7 @@ pre[class*="language-"].line-numbers > code {
 
 /* Copy button */
 .prism-copy-button {
-  @apply bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300;
+  @apply bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300 transition-transform transform hover:scale-110;
 
   position: absolute;
   top: 12px;

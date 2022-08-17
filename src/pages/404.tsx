@@ -30,7 +30,7 @@ export default function NotFound({ posts }: NotFound) {
       />
       <Layout>
         <div className="max-w-4xl mx-auto pt-16">
-          <div className="px-6 lg:px-0 border-b border-gray-200 dark:border-gray-500 text-center text-gray-800 dark:text-gray-50">
+          <div className="px-6 lg:px-0 border-b border-gray-200 dark:border-gray-500 text-center">
             <h1 className="font-display text-5xl md:text-7xl font-bold mb-8">Page not found</h1>
 
             <p className="font-body text-lg md:text-xl mb-4">
@@ -55,7 +55,7 @@ export default function NotFound({ posts }: NotFound) {
           </div>
         </div>
         <div className="mt-12 max-w-4xl mx-auto px-6">
-          <h2 className="font-display text-4xl font-bold text-gray-800 dark:text-gray-50">Latest articles:</h2>
+          <h2 className="font-display text-4xl font-bold">Latest articles:</h2>
         </div>
         <Posts posts={posts} />
       </Layout>

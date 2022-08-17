@@ -26,7 +26,7 @@ export default function Home({ posts }: Home) {
       <Layout>
         <div className="px-6">
           <div className="max-w-5xl mx-auto py-12 flex flex-col-reverse md:flex-row items-center justify-center border-b border-gray-200 dark:border-gray-500">
-            <div className="mt-4 md:mt-0 md:mr-8 md:w-1/2 text-gray-800 dark:text-gray-50">
+            <div className="mt-4 md:mt-0 md:mr-8 md:w-1/2">
               <span className="text-3xl md:text-5xl font-display font-bold">
                 Hi <span className="animate-wave inline-block origin-[70%_70%]">👋</span>, I'm
               </span>
@@ -36,7 +36,7 @@ export default function Home({ posts }: Home) {
                 Typescript, Testing and Functional Programming.
               </p>
             </div>
-            <ProfileAvatar className="rounded-full h-72 w-72" priority />
+            <ProfileAvatar className="rounded-full h-56 w-56 md:h-72 md:w-72" priority />
           </div>
         </div>
 
