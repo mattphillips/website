@@ -22,6 +22,8 @@ export const Layout: React.FC = ({ children }) => {
           </Link>
 
           <button
+            aria-label="Toggle dark mode"
+            type="button"
             onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
             className="bg-gray-100 dark:bg-gray-700 inline-flex items-center justify-center overflow-hidden rounded-lg p-2 md:transition-transform md:transform md:hover:scale-125"
           >
