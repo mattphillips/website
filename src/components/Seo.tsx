@@ -18,6 +18,7 @@ export const SEO = ({ title, slug, description, image }: SEO) => {
     <Head>
       <title>{displayTitle}</title>
       <meta name="description" content={description} />
+      <meta name="robots" content="follow, index" />
 
       <meta property="og:url" content={url} />
       <meta property="og:title" content={displayTitle} />
