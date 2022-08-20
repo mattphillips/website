@@ -30,14 +30,51 @@ type Results = Array<File>;
 
 const SandpackTests: React.FC = () => {
   const [state, setState] = React.useState<any>({ state: "LOADING" });
-  const { sandpack, listen, dispatch } = useSandpack();
+  const { sandpack, listen } = useSandpack();
 
   const [files, setFiles] = React.useState<Results>([]);
   const [currentFile, setCurrentFile] = React.useState("");
   const [currentBlock, setCurrentBlock] = React.useState("");
 
+  const handler = React.useCallback(
+    (message: any) => {
+      console.log("Message", message);
+      // console.log("Files", file);
+      console.log("CurrentFile", currentFile);
+      // console.log("CurrentBlock", currentBlock);
+
+      if ((message.type = "action" && message.action === "clear-errors" && message.source === "jest")) {
+        setCurrentFile(message.path);
+      }
+
+      if (message.type === "test") {
+        if (message.event === "add_file") {
+          // setFiles((old) => [...old, { name: message.path, describes: [], tests: [] }]);
+        }
+
+        // if (message.event === "describe_start") {
+        //   setCurrentBlock(message.blockName);
+        //   const block: Describe = { name: message.blockName, tests: [] };
+
+        //   setFiles((old) =>
+        //     old.reduce<Array<File>>((acc, f) => {
+        //       if (f.name === currentFile) {
+        //         return acc.concat({ ...f, describes: f.describes.concat(block) });
+        //       } else {
+        //         return acc.concat(f);
+        //       }
+        //     }, [])
+        //   );
+        //   // TODO: set block on current file
+        // }
+      }
+    },
+    [currentFile]
+  );
+
   React.useEffect(() => {
     listen((message: any) => {
+      handler(message);
       /*
       // TODO: Handle show error messages from jest
         action: "show-error"
@@ -54,42 +91,51 @@ const SandpackTests: React.FC = () => {
         title: "Error"
         type: "action"
       */
-      console.log(message);
-      console.log(files);
+      // if ((message.type = "action" && message.action === "clear-errors" && message.source === "jest")) {
+      //   setCurrentFile(message.path);
+      // }
+
       if (message.type === "test") {
-        if (message.event === "add_file") {
-          setFiles((old) => [...old, { name: message.path, describes: [], tests: [] }]);
-        }
+        //   if (message.event === "add_file") {
+        //     setFiles((old) => [...old, { name: message.path, describes: [], tests: [] }]);
+        //   }
 
-        if (message.event === "clear-errors" && message.source === "jest") {
-          setCurrentFile(message.path);
-        }
+        // if (message.event === "describe_start") {
+        //   setCurrentBlock(message.blockName);
+        //   const block: Describe = { name: message.blockName, tests: [] };
 
-        if (message.event === "describe_start") {
-          setCurrentBlock(message.blockName);
-          // TODO: set block on current file
-        }
+        // setFiles((old) =>
+        //   old.reduce<Array<File>>((acc, f) => {
+        //     if (f.name === currentFile) {
+        //       return acc.concat({ ...f, describes: f.describes.concat(block) });
+        //     } else {
+        //       return acc.concat(f);
+        //     }
+        //   }, [])
+        // );
+        // TODO: set block on current file
+        // }
 
-        if (message.event === "add_test") {
-          const file = files.find((f) => f.name === currentFile)!;
+        // if (message.event === "add_test") {
+        //   const file = files.find((f) => f.name === currentFile)!;
 
-          // TODO: The test might actually not be in a block and goes straight on the file
-          const block = file.describes.find((b) => b.name === currentBlock)!;
+        //   // TODO: The test might actually not be in a block and goes straight on the file
+        //   const block = file.describes.find((b) => b.name === currentBlock)!;
 
-          const test: Test = {
-            name: message.testName,
-            status: "added",
-            errors: [],
-          };
+        //   const test: Test = {
+        //     name: message.testName,
+        //     status: "added",
+        //     errors: [],
+        //   };
 
-          const newBlock: Describe = { ...block, tests: block.tests.concat(test) };
-          // TODO: This would be easier if describes was a map of name -> test | describe
-          // Replace the existing block with the updated version instead of concating!
-          const newFile: File = { ...file, describes: file.describes.concat(newBlock), tests: [] };
+        //   const newBlock: Describe = { ...block, tests: block.tests.concat(test) };
+        //   // TODO: This would be easier if describes was a map of name -> test | describe
+        //   // Replace the existing block with the updated version instead of concating!
+        //   const newFile: File = { ...file, describes: file.describes.concat(newBlock), tests: [] };
 
-          // Replace the existing file with the updated version instead of concating!
-          setFiles((old) => old.concat(newFile));
-        }
+        //   // Replace the existing file with the updated version instead of concating!
+        //   setFiles((old) => old.concat(newFile));
+        // }
 
         // TODO: Hande file error events
         // error: {name: 'TypeError', message: 'test.skixp is not a function', stack: 'TypeError: test.skixp is not a function\n    at eva…sandbox~sandbox-startup.c2408ad6a.chunk.js:1:407)', matcherResult: false, mappedErrors: Array(23)}
@@ -134,7 +180,7 @@ const SandpackTests: React.FC = () => {
         }
       }
     });
-  }, []);
+  }, [currentFile]);
 
   const runAllTests = () => {
     setState({ state: "IDLE", results: [] });
@@ -262,6 +308,9 @@ test.skip('i should not run as im skipped', () => {
 `;
 
 export default function Playground() {
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
   return (
     <div className="max-w-7xl mx-auto flex flex-col h-full justify-center">
       <SandpackProvider
