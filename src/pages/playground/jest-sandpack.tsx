@@ -13,6 +13,7 @@ import immer from "immer";
 // @ts-ignore
 import ansiHTML from "ansi-html";
 import { set, get } from "lodash";
+import { Layout } from "src/components/Layout";
 
 // TODO: Check todos in sandpack.tsx
 
@@ -382,7 +383,7 @@ const SandpackTests: React.FC<{}> = ({}) => {
     );
 
   return (
-    <SandpackStack style={{ height: "70vh" }}>
+    <SandpackStack style={{ height: "40vh" }}>
       <iframe ref={iframeRef} className="hidden" />
       <div className="flex border-b border-solid border-[#44475a] min-h-[40px] px-4 py-2 justify-between">
         <button className="flex items-center bg-gray-700 text-gray-50 pl-1 pr-3 rounded-lg" onClick={runAllTests}>
@@ -593,31 +594,33 @@ export default function Playground() {
   React.useEffect(() => setMounted(true), []);
   if (!mounted) return null;
   return (
-    <div className="max-w-7xl mx-auto flex flex-col h-full justify-center">
-      <div className="">
-        <SandpackProvider
-          className="h-full"
-          theme={dracula}
-          customSetup={{
-            entry: "add.ts",
-            dependencies: {
-              "jest-extended": "*",
-            },
-          }}
-          files={{
-            "/add.test.ts": addTests,
-            "/add.ts": "export const add = (a: number, b: number): number => a + b;",
-            "/sub.ts": "export const sub = (a: number, b: number): number => a - b;",
-            "/sub.test.ts": subTests,
-            "/failing.test.ts": failingTests,
-          }}
-        >
-          <SandpackLayout className="">
-            <SandpackCodeEditor showLineNumbers style={{ height: "70vh" }} />
-            <SandpackTests />
-          </SandpackLayout>
-        </SandpackProvider>
+    <Layout>
+      <div className="max-w-7xl mx-auto flex flex-col h-full justify-center">
+        <div className="">
+          <SandpackProvider
+            className="h-full"
+            theme={dracula}
+            customSetup={{
+              entry: "add.ts",
+              dependencies: {
+                "jest-extended": "*",
+              },
+            }}
+            files={{
+              "/add.test.ts": addTests,
+              "/add.ts": "export const add = (a: number, b: number): number => a + b;",
+              "/sub.ts": "export const sub = (a: number, b: number): number => a - b;",
+              "/sub.test.ts": subTests,
+              "/failing.test.ts": failingTests,
+            }}
+          >
+            <SandpackLayout className="">
+              <SandpackCodeEditor showLineNumbers style={{ height: "40vh" }} />
+              <SandpackTests />
+            </SandpackLayout>
+          </SandpackProvider>
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 }
