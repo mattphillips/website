@@ -383,7 +383,7 @@ const SandpackTests: React.FC<{}> = ({}) => {
     );
 
   return (
-    <SandpackStack style={{ height: "100%" }}>
+    <SandpackStack style={{ height: "70vh" }}>
       <iframe ref={iframeRef} className="hidden" />
       <div className="flex border-b border-solid border-[#44475a] min-h-[40px] px-4 py-2 justify-between">
         <button className="flex items-center bg-gray-700 text-gray-50 pl-1 pr-3 rounded-lg" onClick={runAllTests}>
@@ -534,7 +534,7 @@ test('Root of file test', () => {
   expect(add(1, 2)).toBe(add(2, 1)); 
 })
 
-describe('jest-extended', () => {
+describe('extending expect', () => {
   describe('add', () => {
     test.skip('Skipped test', () => {
       expect(true).toBe(false);
@@ -544,24 +544,8 @@ describe('jest-extended', () => {
       expect(add(1, 2)).toBe(add(2, 1));
     });
 
-    test('adding two integers returns an integer', () => {
-      expect(add(1, 100)).toBeInteger();
-    });
-
-    test('positive numbers remain positive', () => {
-      expect(add(1, 1)).toBePositive();
-    });
-
-    test('negative numbers remain negative', () => {
-      expect(add(-1, -1)).toBeNegative();
-    });
-
-    test('adding two even numbers does not give an odd number', () => {
-      expect(add(1, 3)).not.toBeOdd();
-    });
-
     test('Slow test', async () => {
-      await new Promise(res => setTimeout(res, 3000));
+      await new Promise(res => setTimeout(res, 2000));
       expect(true).toBe(true);
     });
 
@@ -598,7 +582,7 @@ describe('Subtract', () => {
 `;
 
 const failingTests = `describe('Failing describe', () => {
-  test.skip('Failing test', () => {
+  test('Failing test', () => {
     expect(true).toBe(false);
   });
 });
@@ -610,8 +594,8 @@ export default function Playground() {
   React.useEffect(() => setMounted(true), []);
   if (!mounted) return null;
   return (
-    <div className="max-w-7xl mx-auto flex flex-col h-full ">
-      <div className="flex-1 ">
+    <div className="max-w-7xl mx-auto flex flex-col h-full justify-center">
+      <div className="">
         <SandpackProvider
           className="h-full"
           theme={dracula}
@@ -622,15 +606,15 @@ export default function Playground() {
             },
           }}
           files={{
-            "/add.ts": "export const add = (a: number, b: number): number => a + b;",
             "/add.test.ts": addTests,
+            "/add.ts": "export const add = (a: number, b: number): number => a + b;",
             "/sub.ts": "export const sub = (a: number, b: number): number => a - b;",
             "/sub.test.ts": subTests,
             "/failing.test.ts": failingTests,
           }}
         >
-          <SandpackLayout className="h-full">
-            <SandpackCodeEditor showLineNumbers style={{ height: "100%" }} />
+          <SandpackLayout className="">
+            <SandpackCodeEditor showLineNumbers style={{ height: "70vh" }} />
             <SandpackTests />
           </SandpackLayout>
         </SandpackProvider>
