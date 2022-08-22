@@ -427,7 +427,7 @@ const SandpackTests: React.FC<{}> = ({}) => {
                 ) : (
                   <span className="px-2 py-1 bg-green-500 mr-2 font-[Consolas,_Monaco,_monospace]">PASS</span>
                 ))}
-              <button className="mb-2 decoration-dotted underline" onClick={() => openFile(file.fileName)}>
+              <button className="mb-2 decoration-dotted underline text-white" onClick={() => openFile(file.fileName)}>
                 {file.fileName}
               </button>
 
@@ -517,7 +517,7 @@ const Test: React.FC<{ test: Test }> = ({ test }) => {
       {test.errors.map((e) => {
         return (
           <div
-            className="p-4 text-sm leading-[1.6] whitespace-pre-wrap"
+            className="p-4 text-sm leading-[1.6] whitespace-pre-wrap text-white"
             dangerouslySetInnerHTML={{ __html: formatDiffMessage(e, test.path) }}
           ></div>
         );
