@@ -1,164 +1,330 @@
 import React from "react";
-
 import {
   SandpackProvider,
   SandpackLayout,
   SandpackCodeEditor,
-  SandpackPreview,
   useSandpack,
   SandpackStack,
   RunIcon,
+  useSandpackTheme,
 } from "@codesandbox/sandpack-react";
 import { dracula } from "@codesandbox/sandpack-themes";
 import classNames from "classnames";
-import { TaggedUnion } from "ts-prelude/TaggedUnion";
+import immer from "immer";
+// @ts-ignore
+import ansiHTML from "ansi-html";
 
 // TODO: Check todos in sandpack.tsx
-type Test = {
-  name: string;
-  status: "added" | "running" | "pass" | "fail";
-  errors: Array<string>;
-  duration?: number;
-};
-type Describe = { name: string; tests: Array<Test> };
-type File = { name: string; describes: Array<Describe>; tests: Array<Test> };
-type Results = Array<File>;
 
-const handler = (state: string, message: any): string => {
-  if ((message.type = "action" && message.action === "clear-errors" && message.source === "jest")) {
-    return message.path;
+const generateRandomId = (): string => Math.floor(Math.random() * 10000).toString();
+export function escapeHtml(unsafe: string) {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+const formatDiffMessage = (error: TestError, path: string) => {
+  let finalMessage: string = "";
+  if (error.matcherResult) {
+    finalMessage = `<span>${escapeHtml(error.message)
+      .replace(/(expected)/m, `<span style="color:green">$1</span>`)
+      .replace(/(received)/m, `<span style="color:red">$1</span>`)
+      .replace(/(Difference:)/m, `<span>$1</span>`)
+      .replace(/(Expected.*\n)(.*)/m, `<span>$1</span><span style="color:green">$2</span>`)
+      .replace(/(Received.*\n)(.*)/m, `<span>$1</span><span style="color:red">$2</span>`)
+      .replace(/^(-.*)/gm, `<span style="color:red">$1</span>`)
+      .replace(/^(\+.*)/gm, `<span style="color:green">$1</span>`)}</span>`;
+  } else {
+    finalMessage = escapeHtml(error.message + "\n\n" + error.stack);
   }
 
-  return state;
+  finalMessage = ansiHTML(finalMessage);
+
+  if (
+    error.mappedErrors &&
+    error.mappedErrors[0] &&
+    error.mappedErrors[0].fileName.endsWith(path) &&
+    error.mappedErrors[0]._originalScriptCode
+  ) {
+    const mappedError = error.mappedErrors[0] as any;
+
+    const widestNumber =
+      Math.max(...mappedError._originalScriptCode.map((code: any) => (code.lineNumber + "").length)) + 2;
+    const margin = Array.from({ length: widestNumber }).map(() => " ");
+
+    finalMessage += "<br />";
+    finalMessage += "<br />";
+    finalMessage += "<div>";
+    mappedError._originalScriptCode
+      .filter((x: any) => x.content.trim())
+      .forEach((code: any) => {
+        const currentLineMargin = (code.lineNumber + "").length;
+        const newMargin = [...margin];
+        newMargin.length -= currentLineMargin;
+        if (code.highlight) {
+          newMargin.length -= 2;
+        }
+
+        finalMessage +=
+          `<div ${code.highlight ? `style="font-weight:900;"` : ``}>` +
+          (code.highlight ? `<span style="color:red;">></span> ` : "") +
+          newMargin.join("") +
+          escapeHtml("" + code.lineNumber) +
+          " | " +
+          escapeHtml(code.content) +
+          "</div>";
+      });
+    finalMessage += "</div>";
+  }
+
+  return finalMessage.replace(/(?:\r\n|\r|\n)/g, "<br />");
 };
 
-type State = TaggedUnion<{
-  idle: {};
-  running: { tests: Array<Test>; blocks: Map<string, Array<Test>> };
-  complete: { tests: Array<Test> };
-}>;
-const State = TaggedUnion<State>(["complete", "idle", "running"]);
+export type Status = "idle" | "running" | "pass" | "fail";
+
+export type TestError = Error & {
+  matcherResult?: boolean;
+  mappedErrors?: Array<{
+    fileName: string;
+    _originalFunctionName: string;
+    _originalColumnNumber: number;
+    _originalLineNumber: number;
+    _originalScriptCode: Array<{
+      lineNumber: number;
+      content: string;
+      highlight: boolean;
+    }> | null;
+  }>;
+};
+
+export type Test = {
+  testName: string[];
+  status: Status;
+  running: boolean;
+  path: string;
+  errors: TestError[];
+  duration?: number | undefined;
+};
+
+export type File = {
+  fileName: string;
+  fileError?: TestError;
+  tests: {
+    [testName: string]: Test;
+  };
+};
+
+type State = {
+  selectedFilePath: string | null;
+  files: {
+    [path: string]: File;
+  };
+  running: boolean;
+  watching: boolean;
+};
+
+const INITIAL_STATE: State = {
+  files: {},
+  selectedFilePath: null,
+  running: false,
+  watching: false,
+};
 
 // Sandbox wrapper of jest-cirucs: https://github.com/codesandbox/codesandbox-client/blob/master/packages/app/src/sandbox/eval/tests/jest-lite.ts
-
-// This is the sandbox component impl:
-// https://github.com/codesandbox/codesandbox-client/blob/389073613e06eee944231f4aeef9dfa746c1b947/packages/app/src/app/components/Preview/DevTools/Tests/index.tsx
-const SandpackTests: React.FC<{ store: string; dispatch: React.Dispatch<any> }> = ({ dispatch, store }) => {
+// This is the sandbox component impl: https://github.com/codesandbox/codesandbox-client/blob/389073613e06eee944231f4aeef9dfa746c1b947/packages/app/src/app/components/Preview/DevTools/Tests/index.tsx
+// All message types for tests: https://github.com/codesandbox/codesandbox-client/blob/master/packages/common/src/utils/jest-lite.ts
+const SandpackTests: React.FC<{}> = ({}) => {
   const { sandpack, listen } = useSandpack();
-  const [state, setState] = React.useState<State>(State.of.idle({}));
+  const iframeRef = React.useRef<HTMLIFrameElement | null>(null);
+  const clientId = React.useRef<string>(generateRandomId());
+  const [state, setState] = React.useState<State>(INITIAL_STATE);
+  const { theme } = useSandpackTheme();
+
+  let draftState: State | null = null;
+  let currentDescribeBlocks: Array<string> = [];
 
   React.useEffect(() => {
-    let currentDescribe = "";
-    // All message types for tests: https://github.com/codesandbox/codesandbox-client/blob/master/packages/common/src/utils/jest-lite.ts
-    const unsub = listen((message: any) => {
-      console.log("Message", message);
-      if (message.type === "test") {
-        if (message.event === "describe_start") {
-          currentDescribe = message.blockName;
+    const iframeElement = iframeRef.current!;
+    const clientIdValue = clientId.current;
+
+    sandpack.registerBundler(iframeElement, clientIdValue);
+
+    // TODO: You've not handle the external status updates in the live impl
+    const unsubscribe = listen((data: any) => {
+      console.log("Message", data);
+      if (data.type === "test") {
+        if (data.event === "initialize_tests") {
+          currentDescribeBlocks = [];
+          return setState(INITIAL_STATE);
         }
 
-        if (message.event === "add_test") {
-          setState(
-            State.match({
-              running: ({ tests, blocks }) => {
-                console.log("blocks", blocks);
-                if (blocks.has(currentDescribe)) {
-                  const ts = blocks.get(currentDescribe)!;
-                  const newBlocks = new Map([
-                    ...blocks.entries(),
-                    [currentDescribe, ts?.concat({ errors: [], name: message.testName, status: "added" })],
-                  ]);
-                  return State.of.running({
-                    blocks: newBlocks,
-                    tests: tests.concat({ errors: [], name: message.testName, status: "added" }),
-                  });
-                } else {
-                  const newBlocks = new Map([
-                    ...blocks.entries(),
-                    [currentDescribe, [{ errors: [], name: message.testName, status: "added" }]],
-                  ]);
+        if (data.event === "test_count") {
+          return;
+        }
 
-                  return State.of.running({
-                    blocks: newBlocks,
-                    tests: tests.concat({ errors: [], name: message.testName, status: "added" }),
-                  });
-                }
-              },
-              complete: (c) => State.of.complete(c),
-              idle: () => State.of.idle({}),
+        if (data.event === "total_test_start") {
+          currentDescribeBlocks = [];
+          return setState((old) => ({ ...old, running: true }));
+        }
+
+        if (data.event === "total_test_end") {
+          return setState((old) => ({ ...old, running: false }));
+        }
+
+        if (data.event === "add_file") {
+          return setState((oldState) =>
+            immer(oldState, (state) => {
+              state.files[data.path] = {
+                tests: {},
+                fileName: data.path,
+              };
             })
           );
         }
 
-        if (message.event === "test_start") {
-          setState(
-            State.match({
-              running: ({ tests, blocks }) =>
-                State.of.running({
-                  blocks,
-                  tests: tests.reduce<Array<Test>>(
-                    (acc, test) =>
-                      test.name === message.test.name ? acc.concat({ ...test, status: "running" }) : acc.concat(test),
-                    []
-                  ),
-                }),
-              complete: (c) => State.of.complete(c),
-              idle: () => State.of.idle({}),
+        if (data.event === "remove_file") {
+          return setState((oldState) =>
+            immer(oldState, (state) => {
+              if (state.files[data.path]) {
+                delete state.files[data.path];
+              }
             })
           );
         }
 
-        if (message.event === "test_end") {
-          setState(
-            State.match({
-              running: ({ tests, blocks }) =>
-                State.of.running({
-                  blocks,
-                  tests: tests.reduce<Array<Test>>(
-                    (acc, test) =>
-                      test.name === message.test.name
-                        ? acc.concat({ ...test, status: message.test.status })
-                        : acc.concat(test),
-                    []
-                  ),
-                }),
-              complete: (c) => State.of.complete(c),
-              idle: () => State.of.idle({}),
+        if (data.event === "file_error") {
+          return setState((oldState) =>
+            immer(oldState, (state) => {
+              if (state.files[data.path]) {
+                state.files[data.path].fileError = data.error;
+              }
             })
           );
         }
 
-        if (message.event === "total_test_end") {
-          setState(
-            State.match({
-              running: (c) => State.of.complete(c),
-              complete: (c) => State.of.complete(c),
-              idle: () => State.of.complete({ tests: [] }),
+        if (data.event === "describe_start") {
+          return currentDescribeBlocks.push(data.blockName);
+        }
+
+        if (data.event === "describe_end") {
+          return currentDescribeBlocks.pop();
+        }
+
+        if (data.event === "add_test") {
+          const testName = [...currentDescribeBlocks, data.testName];
+          return setState((oldState) =>
+            immer(oldState, (state) => {
+              if (!state.files[data.path]) {
+                state.files[data.path] = {
+                  tests: {},
+                  fileName: data.path,
+                };
+              }
+
+              state.files[data.path].tests[testName.join("||||")] = {
+                status: "idle",
+                errors: [],
+                testName,
+                path: data.path,
+                running: false,
+              };
+            })
+          );
+        }
+
+        if (data.event === "test_start") {
+          const { test } = data;
+          const testName = [...test.blocks, test.name];
+
+          return setState((oldState) =>
+            immer(oldState, (state) => {
+              if (!state.files[test.path]) {
+                state.files[test.path] = {
+                  tests: {},
+                  fileName: test.path,
+                };
+              }
+
+              const currentTest = state.files[test.path].tests[testName.join("||||")];
+              if (!currentTest) {
+                state.files[test.path].tests[testName.join("||||")] = {
+                  status: "running",
+                  running: true,
+                  testName,
+                  path: test.path,
+                  errors: [],
+                };
+              } else {
+                currentTest.status = "running";
+                currentTest.running = true;
+              }
+            })
+          );
+        }
+
+        if (data.event === "test_end") {
+          const { test } = data;
+          const testName = [...test.blocks, test.name];
+
+          return setState((oldState) =>
+            immer(oldState, (state) => {
+              if (!state.files[test.path]) {
+                return;
+              }
+
+              const existingTest = state.files[test.path].tests[testName.join("||||")];
+
+              if (existingTest) {
+                existingTest.status = test.status;
+                existingTest.running = false;
+                existingTest.errors = test.errors;
+                existingTest.duration = test.duration;
+              } else {
+                state.files[test.path].tests[testName.join("||||")] = {
+                  status: test.status,
+                  running: false,
+                  errors: test.errors,
+                  duration: test.duration,
+                  testName,
+                  path: test.path,
+                };
+              }
             })
           );
         }
       }
     });
-    return unsub;
+
+    return () => {
+      unsubscribe();
+      sandpack.unregisterBundler(clientIdValue);
+    };
   }, []);
 
   const runAllTests = () => {
-    setState(State.of.running({ tests: [], blocks: new Map() }));
+    setState((old) => ({ ...old, running: true, files: {} }));
     Object.values(sandpack.clients).forEach((client) => {
       client.dispatch({ type: "run-all-tests" } as any);
     });
   };
 
-  console.log(state);
+  const openFile = (file: string) => {
+    sandpack.setActiveFile(file);
+  };
 
   return (
-    <SandpackStack>
+    <SandpackStack style={{ minHeight: "80vh" }}>
+      <iframe ref={iframeRef} className="hidden" />
       <div className="flex border-b border-solid border-[#44475a] min-h-[40px] px-4 py-2 justify-between">
         <button className="flex items-center bg-gray-700 text-gray-50 pl-1 pr-3 rounded-lg" onClick={runAllTests}>
           <RunIcon />
           Run
         </button>
-        {State.is.running(state) && (
+
+        {state.running && (
           <div role="status">
             <svg
               aria-hidden="true"
@@ -180,40 +346,35 @@ const SandpackTests: React.FC<{ store: string; dispatch: React.Dispatch<any> }> 
           </div>
         )}
       </div>
-      <div className="p-4">
-        {State.match({
-          idle: () => null,
-          running: ({ tests }) =>
-            tests.map((test) => (
-              <div
-                key={test.name}
-                className={classNames("mb-2", {
-                  "text-gray-400": test.status === "added",
-                  "text-yellow-400": test.status === "running",
-                  "text-red-400": test.status === "fail",
-                  "text-green-400": test.status === "pass",
+      <div className="p-4 overflow-auto">
+        {Object.values(state.files).map((file) => (
+          <div>
+            <button onClick={() => openFile(file.fileName)}>{file.fileName}</button>
+            {Object.values(file.tests).map((test) => (
+              <div>
+                <div
+                  key={test.testName.join(" > ")}
+                  className={classNames("mb-2", {
+                    "text-gray-400": test.status === "idle",
+                    "text-yellow-400": test.status === "running",
+                    "text-red-400": test.status === "fail",
+                    "text-green-400": test.status === "pass",
+                  })}
+                >
+                  {test.testName.join(" > ")}
+                </div>
+                {test.errors.map((e) => {
+                  return (
+                    <div
+                      className="font-[Menlo,_Source_Code_Pro,_monospace] p-4 text-sm leading-[1.6] whitespace-pre-wrap"
+                      dangerouslySetInnerHTML={{ __html: formatDiffMessage(e, test.path) }}
+                    ></div>
+                  );
                 })}
-              >
-                {test.name}
               </div>
-            )),
-          // TODO: This needs to display the summary
-          complete: ({ tests }) =>
-            // TODO: This should be a component
-            tests.map((test) => (
-              <div
-                key={test.name}
-                className={classNames("mb-2", {
-                  "text-gray-400": test.status === "added",
-                  "text-yellow-400": test.status === "running",
-                  "text-red-400": test.status === "fail",
-                  "text-green-400": test.status === "pass",
-                })}
-              >
-                {test.name}
-              </div>
-            )),
-        })(state)}
+            ))}
+          </div>
+        ))}
       </div>
     </SandpackStack>
   );
@@ -238,29 +399,39 @@ describe('add', () => {
   });
 
   test('negative numbers remain negative', async () => {
-    // await new Promise(res => setTimeout(res, 10000));
+    // await new Promise(res => setTimeout(res, 3000));
     expect(add(-1, -1)).toBeNegative();
   });
 
-  test('adding two even numbers does not give an odd number', () => {
-    expect(add(1, 3)).not.toBeOdd();
-  });
-
-  test('adding two odd numbers gives an even number', () => {
-    expect(add(1, 3)).toBeEven();
-  });
+  describe('nested add block', () => {
+    test('adding two odd numbers gives an even number', () => {
+      expect(add(1, 3)).toBeEven();
+    });
+  })
 });
 
+describe('sibling to add block', () => {
+  test('adding two even numbers does not give an odd number', () => {
+    expect(add(1, 3)).not.toBeOdd();
+  });    
+});
+`;
+
+const subTests = `import * as matchers from 'jest-extended';
+import {sub} from './sub';
+
+expect.extend(matchers);
+
 describe('sub', () => {
-  test('fail', () => {
-    expect(add(1, 100)).toBeInteger();
+  test('Should be positive', () => {
+    expect(sub(1, 100)).toBePositive();
   });
 });
 `;
 
 export default function Playground() {
-  const [store, dispatch] = React.useReducer(handler, "");
   const [mounted, setMounted] = React.useState(false);
+
   React.useEffect(() => setMounted(true), []);
   if (!mounted) return null;
   return (
@@ -268,22 +439,21 @@ export default function Playground() {
       <SandpackProvider
         theme={dracula}
         customSetup={{
-          entry: "src/app/add.test.ts",
+          entry: "add.ts",
           dependencies: {
             "jest-extended": "*",
           },
         }}
         files={{
-          "/src/app/add.test.ts": addTests,
-          "/src/app/add.ts": "export const add = (a: number, b: number): number => a + b;",
+          "/add.ts": "export const add = (a: number, b: number): number => a + b;",
+          "/add.test.ts": addTests,
+          "/sub.ts": "export const sub = (a: number, b: number): number => a + b;",
+          "/sub.test.ts": subTests,
         }}
       >
         <SandpackLayout>
-          <div className="hidden">
-            <SandpackPreview />
-          </div>
-          <SandpackCodeEditor showLineNumbers />
-          <SandpackTests store={store} dispatch={dispatch} />
+          <SandpackCodeEditor showLineNumbers style={{ height: "100%" }} />
+          <SandpackTests />
         </SandpackLayout>
       </SandpackProvider>
     </div>
