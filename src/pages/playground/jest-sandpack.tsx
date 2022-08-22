@@ -6,14 +6,13 @@ import {
   useSandpack,
   SandpackStack,
   RunIcon,
-  useSandpackTheme,
 } from "@codesandbox/sandpack-react";
 import { dracula } from "@codesandbox/sandpack-themes";
 import classNames from "classnames";
 import immer from "immer";
 // @ts-ignore
 import ansiHTML from "ansi-html";
-import { set, get, setWith } from "lodash";
+import { set, get } from "lodash";
 
 // TODO: Check todos in sandpack.tsx
 
@@ -162,7 +161,7 @@ const SandpackTests: React.FC<{}> = ({}) => {
 
     // TODO: You've not handle the external status updates in the live impl
     const unsubscribe = listen((data: any) => {
-      console.log("Message", data);
+      // console.log("Message", data);
 
       if (data.type === "action" && data.action === "clear-errors" && data.source === "jest") {
         currentFile = data.path;
@@ -362,7 +361,7 @@ const SandpackTests: React.FC<{}> = ({}) => {
     sandpack.setActiveFile(file);
   };
 
-  console.log("State", state);
+  // console.log("State", state);
 
   const files = Object.values(state.files);
 
