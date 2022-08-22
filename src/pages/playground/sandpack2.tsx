@@ -13,6 +13,7 @@ import classNames from "classnames";
 import immer from "immer";
 // @ts-ignore
 import ansiHTML from "ansi-html";
+import { set, get, setWith } from "lodash";
 
 // TODO: Check todos in sandpack.tsx
 
@@ -101,12 +102,23 @@ export type TestError = Error & {
 };
 
 export type Test = {
-  testName: string[];
+  name: string;
+  blocks: string[];
   status: Status;
   running: boolean;
   path: string;
   errors: TestError[];
   duration?: number | undefined;
+};
+
+export type Describe = {
+  name: string;
+  tests: {
+    [testName: string]: Test;
+  };
+  describes: {
+    [describeName: string]: Describe;
+  };
 };
 
 export type File = {
@@ -115,22 +127,19 @@ export type File = {
   tests: {
     [testName: string]: Test;
   };
+  describes: {
+    [describeName: string]: Describe;
+  };
 };
 
 type State = {
-  selectedFilePath: string | null;
-  files: {
-    [path: string]: File;
-  };
+  files: { [path: string]: File };
   running: boolean;
-  watching: boolean;
 };
 
 const INITIAL_STATE: State = {
   files: {},
-  selectedFilePath: null,
   running: false,
-  watching: false,
 };
 
 // Sandbox wrapper of jest-cirucs: https://github.com/codesandbox/codesandbox-client/blob/master/packages/app/src/sandbox/eval/tests/jest-lite.ts
@@ -141,10 +150,9 @@ const SandpackTests: React.FC<{}> = ({}) => {
   const iframeRef = React.useRef<HTMLIFrameElement | null>(null);
   const clientId = React.useRef<string>(generateRandomId());
   const [state, setState] = React.useState<State>(INITIAL_STATE);
-  const { theme } = useSandpackTheme();
 
-  let draftState: State | null = null;
   let currentDescribeBlocks: Array<string> = [];
+  let currentFile: string = "";
 
   React.useEffect(() => {
     const iframeElement = iframeRef.current!;
@@ -155,9 +163,15 @@ const SandpackTests: React.FC<{}> = ({}) => {
     // TODO: You've not handle the external status updates in the live impl
     const unsubscribe = listen((data: any) => {
       console.log("Message", data);
+
+      if (data.type === "action" && data.action === "clear-errors" && data.source === "jest") {
+        currentFile = data.path;
+      }
+
       if (data.type === "test") {
         if (data.event === "initialize_tests") {
           currentDescribeBlocks = [];
+          currentFile = "";
           return setState(INITIAL_STATE);
         }
 
@@ -178,6 +192,7 @@ const SandpackTests: React.FC<{}> = ({}) => {
           return setState((oldState) =>
             immer(oldState, (state) => {
               state.files[data.path] = {
+                describes: {},
                 tests: {},
                 fileName: data.path,
               };
@@ -206,7 +221,20 @@ const SandpackTests: React.FC<{}> = ({}) => {
         }
 
         if (data.event === "describe_start") {
-          return currentDescribeBlocks.push(data.blockName);
+          currentDescribeBlocks.push(data.blockName);
+          const head = currentDescribeBlocks.slice(0, currentDescribeBlocks.length - 1);
+          const tail = currentDescribeBlocks[currentDescribeBlocks.length - 1];
+          const file = currentFile;
+
+          return setState((oldState) =>
+            immer(oldState, (state) => {
+              set(state.files[file], ["describes", ...head.flatMap((name) => [name, "describes"]), tail], {
+                name: data.blockName,
+                tests: {},
+                describes: {},
+              });
+            })
+          );
         }
 
         if (data.event === "describe_end") {
@@ -214,52 +242,66 @@ const SandpackTests: React.FC<{}> = ({}) => {
         }
 
         if (data.event === "add_test") {
-          const testName = [...currentDescribeBlocks, data.testName];
+          const head = currentDescribeBlocks.slice(0, currentDescribeBlocks.length - 1);
+          const tail = currentDescribeBlocks[currentDescribeBlocks.length - 1];
           return setState((oldState) =>
             immer(oldState, (state) => {
-              if (!state.files[data.path]) {
-                state.files[data.path] = {
-                  tests: {},
-                  fileName: data.path,
+              if (tail === undefined) {
+                state.files[data.path].tests[data.testName] = {
+                  status: "idle",
+                  errors: [],
+                  name: data.testName,
+                  blocks: [...head, tail],
+                  path: data.path,
+                  running: false,
                 };
+              } else {
+                set(
+                  state.files[data.path].describes,
+                  [...head.flatMap((name) => [name, "describes"]), tail, "tests", data.testName],
+                  {
+                    status: "idle",
+                    errors: [],
+                    name: data.testName,
+                    blocks: [...head, tail],
+                    path: data.path,
+                    running: false,
+                  }
+                );
               }
-
-              state.files[data.path].tests[testName.join("||||")] = {
-                status: "idle",
-                errors: [],
-                testName,
-                path: data.path,
-                running: false,
-              };
             })
           );
         }
 
         if (data.event === "test_start") {
           const { test } = data;
-          const testName = [...test.blocks, test.name];
+          const head = test.blocks.slice(0, test.blocks.length - 1);
+          const tail = test.blocks[test.blocks.length - 1];
 
           return setState((oldState) =>
             immer(oldState, (state) => {
-              if (!state.files[test.path]) {
-                state.files[test.path] = {
-                  tests: {},
-                  fileName: test.path,
-                };
-              }
-
-              const currentTest = state.files[test.path].tests[testName.join("||||")];
-              if (!currentTest) {
-                state.files[test.path].tests[testName.join("||||")] = {
+              if (tail === undefined) {
+                state.files[test.path].tests[test.name] = {
                   status: "running",
                   running: true,
-                  testName,
+                  name: test.name,
+                  blocks: [...head, tail],
                   path: test.path,
                   errors: [],
                 };
               } else {
-                currentTest.status = "running";
-                currentTest.running = true;
+                set(
+                  state.files[test.path].describes,
+                  [...head.flatMap((name: string) => [name, "describes"]), tail, "tests", test.name],
+                  {
+                    status: "running",
+                    running: true,
+                    name: test.name,
+                    blocks: [...head, tail],
+                    path: test.path,
+                    errors: [],
+                  }
+                );
               }
             })
           );
@@ -267,30 +309,35 @@ const SandpackTests: React.FC<{}> = ({}) => {
 
         if (data.event === "test_end") {
           const { test } = data;
-          const testName = [...test.blocks, test.name];
+          const head = test.blocks.slice(0, test.blocks.length - 1);
+          const tail = test.blocks[test.blocks.length - 1];
 
           return setState((oldState) =>
             immer(oldState, (state) => {
-              if (!state.files[test.path]) {
-                return;
-              }
-
-              const existingTest = state.files[test.path].tests[testName.join("||||")];
-
-              if (existingTest) {
-                existingTest.status = test.status;
-                existingTest.running = false;
-                existingTest.errors = test.errors;
-                existingTest.duration = test.duration;
-              } else {
-                state.files[test.path].tests[testName.join("||||")] = {
+              if (tail === undefined) {
+                state.files[test.path].tests[test.name] = {
                   status: test.status,
                   running: false,
                   errors: test.errors,
                   duration: test.duration,
-                  testName,
+                  name: test.name,
+                  blocks: [...head, tail],
                   path: test.path,
                 };
+              } else {
+                set(
+                  state.files[test.path].describes,
+                  [...head.flatMap((name: string) => [name, "describes"]), tail, "tests", test.name],
+                  {
+                    status: test.status,
+                    running: false,
+                    errors: test.errors,
+                    duration: test.duration,
+                    name: test.name,
+                    blocks: [...head, tail],
+                    path: test.path,
+                  }
+                );
               }
             })
           );
@@ -315,8 +362,28 @@ const SandpackTests: React.FC<{}> = ({}) => {
     sandpack.setActiveFile(file);
   };
 
+  console.log("State", state);
+
+  const files = Object.values(state.files);
+
+  const duration = files.flatMap(getTests).reduce((acc, test) => acc + (test.duration || 0), 0);
+
+  const allTests = Object.values(state.files)
+    .map(getStats)
+    .reduce(
+      (acc, stats) => {
+        return {
+          pass: acc.pass + stats.pass,
+          fail: acc.fail + stats.fail,
+          skip: acc.skip + stats.skip,
+          total: acc.total + stats.total,
+        };
+      },
+      { pass: 0, skip: 0, fail: 0, total: 0 }
+    );
+
   return (
-    <SandpackStack style={{ minHeight: "80vh" }}>
+    <SandpackStack style={{ height: "100%" }}>
       <iframe ref={iframeRef} className="hidden" />
       <div className="flex border-b border-solid border-[#44475a] min-h-[40px] px-4 py-2 justify-between">
         <button className="flex items-center bg-gray-700 text-gray-50 pl-1 pr-3 rounded-lg" onClick={runAllTests}>
@@ -346,85 +413,193 @@ const SandpackTests: React.FC<{}> = ({}) => {
           </div>
         )}
       </div>
-      <div className="p-4 overflow-auto">
-        {Object.values(state.files).map((file) => (
-          <div>
-            <button onClick={() => openFile(file.fileName)}>{file.fileName}</button>
-            {Object.values(file.tests).map((test) => (
-              <div>
-                <div
-                  key={test.testName.join(" > ")}
-                  className={classNames("mb-2", {
-                    "text-gray-400": test.status === "idle",
-                    "text-yellow-400": test.status === "running",
-                    "text-red-400": test.status === "fail",
-                    "text-green-400": test.status === "pass",
-                  })}
-                >
-                  {test.testName.join(" > ")}
-                </div>
-                {test.errors.map((e) => {
-                  return (
-                    <div
-                      className="font-[Menlo,_Source_Code_Pro,_monospace] p-4 text-sm leading-[1.6] whitespace-pre-wrap"
-                      dangerouslySetInnerHTML={{ __html: formatDiffMessage(e, test.path) }}
-                    ></div>
-                  );
-                })}
-              </div>
-            ))}
+      <div className="p-4 overflow-auto h-full flex flex-col font-[Consolas,_Monaco,_monospace]">
+        {Object.values(state.files).map((file) => {
+          /* TODO: Don't recompute this here */
+
+          const stats = getStats(file);
+
+          return (
+            <div className="mb-2">
+              {!state.running &&
+                (stats.fail > 0 ? (
+                  <span className="px-2 py-1 bg-red-500 mr-2 font-[Consolas,_Monaco,_monospace]">FAIL</span>
+                ) : (
+                  <span className="px-2 py-1 bg-green-500 mr-2 font-[Consolas,_Monaco,_monospace]">PASS</span>
+                ))}
+              <button className="mb-2 decoration-dotted underline" onClick={() => openFile(file.fileName)}>
+                {file.fileName}
+              </button>
+
+              {Object.values(file.tests).map((test) => (
+                <Test test={test} />
+              ))}
+
+              {Object.values(file.describes).map((describe) => (
+                <Describe describe={describe} />
+              ))}
+            </div>
+          );
+        })}
+        {/* TODO: Add more states to the model */}
+        {!state.running && allTests.total > 0 && (
+          <div className="text-gray-400">
+            <div className="mb-2">
+              <span className="font-bold text-white">Tests:</span>{" "}
+              <span className="text-red-500">{allTests.fail} failed</span>,{" "}
+              <span className="text-yellow-500">{allTests.skip} skipped</span>,{" "}
+              <span className="text-green-500">{allTests.pass} passed</span>, {allTests.total} total
+            </div>
+            <div className="font-bold text-white">Time: {duration} ms</div>
           </div>
-        ))}
+        )}
       </div>
     </SandpackStack>
   );
 };
 
+const getTests = (block: Describe | File): Array<Test> => {
+  const tests = Object.values(block.tests);
+  return tests.concat(...Object.values(block.describes).map(getTests));
+};
+
+const getStats = (file: File) => {
+  const allTests = getTests(file);
+
+  const sum = (tests: Test[]): { pass: number; fail: number; skip: number; total: number } =>
+    tests.reduce(
+      (acc, test) => {
+        return {
+          pass: test.status === "pass" ? acc.pass + 1 : acc.pass,
+          fail: test.status === "fail" ? acc.fail + 1 : acc.fail,
+          skip: test.status === "idle" || test.status === "running" ? acc.skip + 1 : acc.skip,
+          total: acc.total + 1,
+        };
+      },
+      { pass: 0, fail: 0, skip: 0, total: 0 }
+    );
+
+  return sum(allTests);
+};
+
+const Describe: React.FC<{ describe: Describe }> = ({ describe }) => {
+  if (Object.values(describe.describes).length === 0 && Object.values(describe.tests).length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="ml-4">
+      <div className="">
+        <div className={classNames("mb-2 text-white", {})}>{describe.name}</div>
+
+        {Object.values(describe.tests).map((test) => (
+          <Test test={test} />
+        ))}
+
+        {Object.values(describe.describes).map((d) => (
+          <Describe describe={d} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const Test: React.FC<{ test: Test }> = ({ test }) => {
+  return (
+    <div className="ml-4">
+      <div className={classNames("mb-2 text-gray-400", {})}>
+        {test.status === "pass" && <span className="mr-2 text-green-500">✓</span>}
+        {test.status === "fail" && <span className="mr-2 text-red-500">✕</span>}
+        {test.status === "idle" && <span className="mr-2 text-yellow-500">○</span>}
+        {test.name}
+        {test.duration !== undefined && <span className="ml-2">({test.duration} ms)</span>}
+      </div>
+      {test.errors.map((e) => {
+        return (
+          <div
+            className="p-4 text-sm leading-[1.6] whitespace-pre-wrap"
+            dangerouslySetInnerHTML={{ __html: formatDiffMessage(e, test.path) }}
+          ></div>
+        );
+      })}
+    </div>
+  );
+};
+
 const addTests = `import * as matchers from 'jest-extended';
 import {add} from './add';
-
 expect.extend(matchers);
 
-describe('add', () => {
-  test.skip('Commutative Law of Addition', () => {
-    expect(add(1, 2)).toBe(add(2, 1));
-  });
+test('Root of file test', () => {
+  expect(add(1, 2)).toBe(add(2, 1)); 
+})
 
-  test('adding two integers returns an integer', () => {
-    expect(add(1, 100)).toBeInteger();
-  });
-
-  test('positive numbers remain positive', () => {
-    expect(add(-10, 1)).toBePositive();
-  });
-
-  test('negative numbers remain negative', async () => {
-    // await new Promise(res => setTimeout(res, 3000));
-    expect(add(-1, -1)).toBeNegative();
-  });
-
-  describe('nested add block', () => {
-    test('adding two odd numbers gives an even number', () => {
-      expect(add(1, 3)).toBeEven();
+describe('jest-extended', () => {
+  describe('add', () => {
+    test.skip('Skipped test', () => {
+      expect(true).toBe(false);
     });
-  })
+
+    test('Commutative Law of Addition', () => {
+      expect(add(1, 2)).toBe(add(2, 1));
+    });
+
+    test('adding two integers returns an integer', () => {
+      expect(add(1, 100)).toBeInteger();
+    });
+
+    test('positive numbers remain positive', () => {
+      expect(add(1, 1)).toBePositive();
+    });
+
+    test('negative numbers remain negative', () => {
+      expect(add(-1, -1)).toBeNegative();
+    });
+
+    test('adding two even numbers does not give an odd number', () => {
+      expect(add(1, 3)).not.toBeOdd();
+    });
+
+    test('Slow test', async () => {
+      await new Promise(res => setTimeout(res, 3000));
+      expect(true).toBe(true);
+    });
+
+    describe('Nested describe block', () => {
+      test('adding two odd numbers gives an even number', () => {
+        expect(add(1, 3)).toBeEven();
+      });
+
+      describe('Double nested describe block', () => {
+        test('adding two odd numbers gives an even number', () => {
+          expect(add(1, 3)).toBeEven();
+        });
+      });
+    });
+  });
 });
 
-describe('sibling to add block', () => {
+describe('Sibling describe block', () => {
   test('adding two even numbers does not give an odd number', () => {
     expect(add(1, 3)).not.toBeOdd();
   });    
 });
+
+describe('Empty describe block', () => {});
 `;
 
-const subTests = `import * as matchers from 'jest-extended';
-import {sub} from './sub';
+const subTests = `import {sub} from './sub';
 
-expect.extend(matchers);
+describe('Subtract', () => {
+  test('1 - 1 = 0', () => {
+    expect(sub(1, 1)).toBe(0);
+  });
+});
+`;
 
-describe('sub', () => {
-  test('Should be positive', () => {
-    expect(sub(1, 100)).toBePositive();
+const failingTests = `describe('Failing describe', () => {
+  test.skip('Failing test', () => {
+    expect(true).toBe(false);
   });
 });
 `;
@@ -435,27 +610,31 @@ export default function Playground() {
   React.useEffect(() => setMounted(true), []);
   if (!mounted) return null;
   return (
-    <div className="max-w-7xl mx-auto flex flex-col h-full justify-center">
-      <SandpackProvider
-        theme={dracula}
-        customSetup={{
-          entry: "add.ts",
-          dependencies: {
-            "jest-extended": "*",
-          },
-        }}
-        files={{
-          "/add.ts": "export const add = (a: number, b: number): number => a + b;",
-          "/add.test.ts": addTests,
-          "/sub.ts": "export const sub = (a: number, b: number): number => a + b;",
-          "/sub.test.ts": subTests,
-        }}
-      >
-        <SandpackLayout>
-          <SandpackCodeEditor showLineNumbers style={{ height: "100%" }} />
-          <SandpackTests />
-        </SandpackLayout>
-      </SandpackProvider>
+    <div className="max-w-7xl mx-auto flex flex-col h-full ">
+      <div className="flex-1 ">
+        <SandpackProvider
+          className="h-full"
+          theme={dracula}
+          customSetup={{
+            entry: "add.ts",
+            dependencies: {
+              "jest-extended": "*",
+            },
+          }}
+          files={{
+            "/add.ts": "export const add = (a: number, b: number): number => a + b;",
+            "/add.test.ts": addTests,
+            "/sub.ts": "export const sub = (a: number, b: number): number => a - b;",
+            "/sub.test.ts": subTests,
+            "/failing.test.ts": failingTests,
+          }}
+        >
+          <SandpackLayout className="h-full">
+            <SandpackCodeEditor showLineNumbers style={{ height: "100%" }} />
+            <SandpackTests />
+          </SandpackLayout>
+        </SandpackProvider>
+      </div>
     </div>
   );
 }
