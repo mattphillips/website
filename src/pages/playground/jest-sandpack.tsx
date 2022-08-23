@@ -135,21 +135,26 @@ export type File = {
 type State = {
   files: { [path: string]: File };
   running: boolean;
+  singleSuite: boolean;
 };
 
 const INITIAL_STATE: State = {
   files: {},
   running: false,
+  singleSuite: false,
 };
 
 // Sandbox wrapper of jest-cirucs: https://github.com/codesandbox/codesandbox-client/blob/master/packages/app/src/sandbox/eval/tests/jest-lite.ts
 // This is the sandbox component impl: https://github.com/codesandbox/codesandbox-client/blob/389073613e06eee944231f4aeef9dfa746c1b947/packages/app/src/app/components/Preview/DevTools/Tests/index.tsx
 // All message types for tests: https://github.com/codesandbox/codesandbox-client/blob/master/packages/common/src/utils/jest-lite.ts
-const SandpackTests: React.FC<{}> = ({}) => {
+const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose: defaultVerbose = false }) => {
   const { sandpack, listen } = useSandpack();
   const iframeRef = React.useRef<HTMLIFrameElement | null>(null);
   const clientId = React.useRef<string>(generateRandomId());
   const [state, setState] = React.useState<State>(INITIAL_STATE);
+  const [verbose, setVerbose] = React.useState(defaultVerbose);
+  // TODO: This can be backed into the current status model
+  const [isMounted, setIsMounted] = React.useState<boolean>(false);
 
   let currentDescribeBlocks: Array<string> = [];
   let currentFile: string = "";
@@ -160,10 +165,13 @@ const SandpackTests: React.FC<{}> = ({}) => {
 
     sandpack.registerBundler(iframeElement, clientIdValue);
 
+    return () => sandpack.unregisterBundler(clientId.current);
+  }, []);
+
+  React.useEffect(() => {
     // TODO: You've not handle the external status updates in the live impl
     const unsubscribe = listen((data: any) => {
       // console.log("Message", data);
-
       if (data.type === "action" && data.action === "clear-errors" && data.source === "jest") {
         currentFile = data.path;
       }
@@ -172,6 +180,7 @@ const SandpackTests: React.FC<{}> = ({}) => {
         if (data.event === "initialize_tests") {
           currentDescribeBlocks = [];
           currentFile = "";
+          setIsMounted(true);
           return setState(INITIAL_STATE);
         }
 
@@ -185,10 +194,13 @@ const SandpackTests: React.FC<{}> = ({}) => {
         }
 
         if (data.event === "total_test_end") {
-          return setState((old) => ({ ...old, running: false }));
+          return setState((old) => ({ ...old, running: false, singleSuite: false }));
         }
 
         if (data.event === "add_file") {
+          if (state.singleSuite && data.path !== sandpack.activeFile) {
+            return;
+          }
           return setState((oldState) =>
             immer(oldState, (state) => {
               state.files[data.path] = {
@@ -201,6 +213,9 @@ const SandpackTests: React.FC<{}> = ({}) => {
         }
 
         if (data.event === "remove_file") {
+          if (state.singleSuite && data.path !== sandpack.activeFile) {
+            return;
+          }
           return setState((oldState) =>
             immer(oldState, (state) => {
               if (state.files[data.path]) {
@@ -211,6 +226,9 @@ const SandpackTests: React.FC<{}> = ({}) => {
         }
 
         if (data.event === "file_error") {
+          if (state.singleSuite && data.path !== sandpack.activeFile) {
+            return;
+          }
           return setState((oldState) =>
             immer(oldState, (state) => {
               if (state.files[data.path]) {
@@ -242,6 +260,9 @@ const SandpackTests: React.FC<{}> = ({}) => {
         }
 
         if (data.event === "add_test") {
+          if (state.singleSuite && data.path !== sandpack.activeFile) {
+            return;
+          }
           const head = currentDescribeBlocks.slice(0, currentDescribeBlocks.length - 1);
           const tail = currentDescribeBlocks[currentDescribeBlocks.length - 1];
           return setState((oldState) =>
@@ -274,6 +295,9 @@ const SandpackTests: React.FC<{}> = ({}) => {
         }
 
         if (data.event === "test_start") {
+          if (state.singleSuite && data.test.path !== sandpack.activeFile) {
+            return;
+          }
           const { test } = data;
           const head = test.blocks.slice(0, test.blocks.length - 1);
           const tail = test.blocks[test.blocks.length - 1];
@@ -308,6 +332,9 @@ const SandpackTests: React.FC<{}> = ({}) => {
         }
 
         if (data.event === "test_end") {
+          if (state.singleSuite && data.test.path !== sandpack.activeFile) {
+            return;
+          }
           const { test } = data;
           const head = test.blocks.slice(0, test.blocks.length - 1);
           const tail = test.blocks[test.blocks.length - 1];
@@ -343,19 +370,26 @@ const SandpackTests: React.FC<{}> = ({}) => {
           );
         }
       }
-    });
+    }, clientId.current);
 
-    return () => {
-      unsubscribe();
-      sandpack.unregisterBundler(clientIdValue);
-    };
-  }, []);
+    return unsubscribe;
+  }, [state.singleSuite, sandpack.activeFile]);
 
   const runAllTests = () => {
-    setState((old) => ({ ...old, running: true, files: {} }));
-    Object.values(sandpack.clients).forEach((client) => {
-      client.dispatch({ type: "run-all-tests" } as any);
-    });
+    setState((old) => ({ ...old, running: true, singleSuite: false, files: {} }));
+    if (sandpack.clients[clientId.current]) {
+      sandpack.clients[clientId.current].dispatch({ type: "run-all-tests" } as any);
+    }
+  };
+
+  const runTest = () => {
+    setState((old) => ({ ...old, running: true, singleSuite: true, files: {} }));
+    if (sandpack.clients[clientId.current]) {
+      sandpack.clients[clientId.current].dispatch({
+        type: "run-tests",
+        path: sandpack.activeFile,
+      } as any);
+    }
   };
 
   const openFile = (file: string) => {
@@ -381,42 +415,84 @@ const SandpackTests: React.FC<{}> = ({}) => {
       },
       { pass: 0, skip: 0, fail: 0, total: 0 }
     );
+  const allSuites = Object.values(state.files)
+    .filter((file) => Object.values(file.describes).length > 0 || Object.values(file.tests).length > 0)
+    .map(getStats)
+    .reduce(
+      (acc, stats) => {
+        return {
+          pass: acc.pass + (stats.fail === 0 ? 1 : 0),
+          fail: acc.fail + (stats.fail > 0 ? 1 : 0),
+          total: acc.total + 1,
+        };
+      },
+      { pass: 0, fail: 0, total: 0 }
+    );
+
+  const isTestFileOpen = sandpack.activeFile.match(/\.(test|spec)\.(ts|js)$/);
 
   return (
     <SandpackStack style={{ height: "40vh" }}>
       <iframe ref={iframeRef} className="hidden" />
-      <div className="flex border-b border-solid border-[#44475a] min-h-[40px] px-4 py-2 justify-between">
-        <button className="flex items-center bg-gray-700 text-gray-50 pl-1 pr-3 rounded-lg" onClick={runAllTests}>
-          <RunIcon />
-          Run
-        </button>
-
-        {state.running && (
-          <div role="status">
-            <svg
-              aria-hidden="true"
-              className="w-6 h-6 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
-              viewBox="0 0 100 101"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                fill="currentColor"
-              />
-              <path
-                d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                fill="currentFill"
-              />
-            </svg>
-            <span className="sr-only">Loading...</span>
-          </div>
+      <div className="flex border-b border-solid border-[#44475a] min-h-[40px] px-4 py-2 justify-between items-center">
+        {isMounted && (
+          <button className="flex items-center bg-gray-700 text-gray-50 pl-1 pr-3 rounded-lg" onClick={runAllTests}>
+            <RunIcon />
+            Run all
+          </button>
         )}
+        {isMounted && (
+          <label htmlFor="default-toggle" className="inline-flex relative items-center cursor-pointer">
+            <input
+              type="checkbox"
+              value=""
+              checked={verbose}
+              id="default-toggle"
+              className="sr-only peer"
+              onChange={() => setVerbose((old) => !old)}
+            />
+            <div className="w-8 h-4 bg-gray-200 peer-focus:outline-none dark:peer-focus:ring-gray-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all dark:border-gray-600 peer-checked:bg-gray-600"></div>
+            <span className="ml-2  text-white ">Verbose</span>
+          </label>
+        )}
+
+        <div className="flex flex-row">
+          {isMounted && isTestFileOpen && (
+            <button className="flex items-center bg-gray-700 text-gray-50 pl-1 pr-3 rounded-lg" onClick={runTest}>
+              <RunIcon />
+              Run suite
+            </button>
+          )}
+          {(state.running || !isMounted) && (
+            <div role="status" className={classNames({ "ml-4": state.running })}>
+              <svg
+                aria-hidden="true"
+                className="w-6 h-6 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+                viewBox="0 0 100 101"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                  fill="currentFill"
+                />
+              </svg>
+              <span className="sr-only">Loading...</span>
+            </div>
+          )}
+        </div>
       </div>
       <div className="p-4 overflow-auto h-full flex flex-col font-[Consolas,_Monaco,_monospace]">
+        {/* TODO: Rename files to suites */}
         {Object.values(state.files).map((file) => {
+          if (Object.values(file.describes).length === 0 && Object.values(file.tests).length === 0) {
+            return null;
+          }
           /* TODO: Don't recompute this here */
-
           const stats = getStats(file);
 
           return (
@@ -431,31 +507,60 @@ const SandpackTests: React.FC<{}> = ({}) => {
                 {file.fileName}
               </button>
 
-              {Object.values(file.tests).map((test) => (
-                <Test test={test} />
-              ))}
+              {verbose && Object.values(file.tests).map((test) => <Test test={test} />)}
 
-              {Object.values(file.describes).map((describe) => (
-                <Describe describe={describe} />
-              ))}
+              {verbose &&
+                Object.values(file.describes).map((describe) => <Describe describe={describe} verbose={verbose} />)}
+
+              {getFailingTests(file).map((test) => {
+                return (
+                  <div key={`failing-${test.name}`}>
+                    <div className="text-red-500 mt-2">
+                      ● {test.blocks.join(" › ")} › {test.name}
+                    </div>
+                    {test.errors.map((e) => {
+                      return (
+                        <div
+                          className="p-4 text-sm leading-[1.6] whitespace-pre-wrap text-white"
+                          dangerouslySetInnerHTML={{ __html: formatDiffMessage(e, test.path) }}
+                        ></div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
             </div>
           );
         })}
-        {/* TODO: Add more states to the model */}
+        {/* TODO: Add more states to the model aka idle and complete */}
         {!state.running && allTests.total > 0 && (
           <div className="text-gray-400">
             <div className="mb-2">
-              <span className="font-bold text-white">Tests:</span>{" "}
-              <span className="text-red-500">{allTests.fail} failed</span>,{" "}
-              <span className="text-yellow-500">{allTests.skip} skipped</span>,{" "}
-              <span className="text-green-500">{allTests.pass} passed</span>, {allTests.total} total
+              <span className="font-bold text-white">Tests Suites: </span>
+              {allSuites.fail > 0 && <span className="text-red-500">{allSuites.fail} failed, </span>}
+              {allSuites.pass > 0 && <span className="text-green-500">{allSuites.pass} passed, </span>}
+              <span>{allSuites.total} total</span>
             </div>
-            <div className="font-bold text-white">Time: {duration} ms</div>
+            <div className="mb-2">
+              <span className="font-bold text-white whitespace-pre">Tests:{"        "}</span>
+              {allTests.fail > 0 && <span className="text-red-500">{allTests.fail} failed, </span>}
+              {allTests.skip > 0 && <span className="text-yellow-500">{allTests.skip} skipped, </span>}
+              {allTests.pass > 0 && <span className="text-green-500">{allTests.pass} passed, </span>}
+              <span>{allTests.total} total</span>
+            </div>
+            <div className="font-bold text-white whitespace-pre">
+              Time:{"         "}
+              {duration / 1000}s
+            </div>
           </div>
         )}
       </div>
     </SandpackStack>
   );
+};
+
+const getFailingTests = (block: Describe | File): Array<Test> => {
+  return getTests(block).filter((t) => t.status === "fail");
 };
 
 const getTests = (block: Describe | File): Array<Test> => {
@@ -482,7 +587,7 @@ const getStats = (file: File) => {
   return sum(allTests);
 };
 
-const Describe: React.FC<{ describe: Describe }> = ({ describe }) => {
+const Describe: React.FC<{ describe: Describe; verbose: boolean }> = ({ describe, verbose }) => {
   if (Object.values(describe.describes).length === 0 && Object.values(describe.tests).length === 0) {
     return null;
   }
@@ -492,12 +597,10 @@ const Describe: React.FC<{ describe: Describe }> = ({ describe }) => {
       <div className="">
         <div className={classNames("mb-2 text-white", {})}>{describe.name}</div>
 
-        {Object.values(describe.tests).map((test) => (
-          <Test test={test} />
-        ))}
+        {verbose && Object.values(describe.tests).map((test) => <Test test={test} />)}
 
         {Object.values(describe.describes).map((d) => (
-          <Describe describe={d} />
+          <Describe describe={d} verbose={verbose} />
         ))}
       </div>
     </div>
@@ -514,14 +617,6 @@ const Test: React.FC<{ test: Test }> = ({ test }) => {
         {test.name}
         {test.duration !== undefined && <span className="ml-2">({test.duration} ms)</span>}
       </div>
-      {test.errors.map((e) => {
-        return (
-          <div
-            className="p-4 text-sm leading-[1.6] whitespace-pre-wrap text-white"
-            dangerouslySetInnerHTML={{ __html: formatDiffMessage(e, test.path) }}
-          ></div>
-        );
-      })}
     </div>
   );
 };
