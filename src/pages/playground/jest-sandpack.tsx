@@ -34,8 +34,8 @@ const formatDiffMessage = (error: TestError, path: string) => {
       .replace(/(expected)/m, `<span style="color:green">$1</span>`)
       .replace(/(received)/m, `<span style="color:red">$1</span>`)
       .replace(/(Difference:)/m, `<span>$1</span>`)
-      .replace(/(Expected.*\n)(.*)/m, `<span>$1</span><span style="color:green">$2</span>`)
-      .replace(/(Received.*\n)(.*)/m, `<span>$1</span><span style="color:red">$2</span>`)
+      .replace(/(Expected:)(.*)/m, `<span>$1</span><span style="color:green">$2</span>`)
+      .replace(/(Received:)(.*)/m, `<span>$1</span><span style="color:red">$2</span>`)
       .replace(/^(-.*)/gm, `<span style="color:red">$1</span>`)
       .replace(/^(\+.*)/gm, `<span style="color:green">$1</span>`)}</span>`;
   } else {
@@ -69,14 +69,30 @@ const formatDiffMessage = (error: TestError, path: string) => {
           newMargin.length -= 2;
         }
 
+        const toBeIndex = code.content.indexOf(".to");
+        const toBeMargin = Array.from({ length: margin.length + toBeIndex - (widestNumber - 1) }, () => " ");
+
+        const content = escapeHtml(code.content)
+          .replace(
+            /(describe|test|it)(\()(&#039;|&quot;|`)(.*)(&#039;|&quot;|`)/m,
+            `<span>$1$2$3</span><span style="color:rgba(0, 255, 255, 0.5)">$4</span><span>$5</span>`
+          )
+          .replace(
+            /(expect\()(.*)(\)\..*)(to.*)(\()(.*)(\))/m,
+            `<span>$1</span><span style="color:red">$2</span><span>$3</span><span style="text-decoration: underline; color: white">$4</span><span>$5</span><span style="color:green">$6</span><span>$7</span>`
+          );
+
         finalMessage +=
-          `<div ${code.highlight ? `style="font-weight:900;"` : ``}>` +
+          `<div ${code.highlight ? `style="font-weight:900; color: rgba(255, 255, 255, 0.5)"` : ``}>` +
           (code.highlight ? `<span style="color:red;">></span> ` : "") +
           newMargin.join("") +
           escapeHtml("" + code.lineNumber) +
           " | " +
-          escapeHtml(code.content) +
-          "</div>";
+          content +
+          "</div>" +
+          (code.highlight
+            ? "<div>" + margin.join("") + " | " + toBeMargin.join("") + '<span style="color:red">^</span>' + "</div>"
+            : "");
       });
     finalMessage += "</div>";
   }
