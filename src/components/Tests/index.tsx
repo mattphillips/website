@@ -7,6 +7,7 @@ import { SandpackMessage } from "@codesandbox/sandpack-client";
 import { formatDiffMessage } from "./utils";
 import { useSandpackClient } from "./useSandpackClient";
 import { SandboxTestMessage, Test, TestError } from "./Message";
+import { Tests } from "./Tests";
 
 // TODO: Check todos in sandpack.tsx
 /*
@@ -376,6 +377,7 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
 
           /* TODO: Don't recompute this here */
           const stats = getStats(file);
+          const tests = Object.values(file.tests);
 
           return (
             <div className="mb-2">
@@ -390,7 +392,7 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
                 <span className="text-white decoration-dotted underline">{name}</span>
               </button>
 
-              {state.verbose && Object.values(file.tests).map((test) => <Test test={test} />)}
+              {verbose && <Tests tests={tests} />}
 
               {state.verbose &&
                 Object.values(file.describes).map((describe) => (
@@ -476,30 +478,18 @@ const Describe: React.FC<{ describe: Block; verbose: boolean }> = ({ describe, v
     return null;
   }
 
+  const tests = Object.values(describe.tests);
+
   return (
     <div className="ml-4">
       <div className="">
         <div className={classNames("mb-2 text-white", {})}>{describe.name}</div>
 
-        {verbose && Object.values(describe.tests).map((test) => <Test test={test} />)}
+        {verbose && <Tests tests={tests} />}
 
         {Object.values(describe.describes).map((d) => (
           <Describe describe={d} verbose={verbose} />
         ))}
-      </div>
-    </div>
-  );
-};
-
-const Test: React.FC<{ test: Test }> = ({ test }) => {
-  return (
-    <div className="ml-4">
-      <div className={classNames("mb-2 text-gray-400", {})}>
-        {test.status === "pass" && <span className="mr-2 text-[#15c213]">✓</span>}
-        {test.status === "fail" && <span className="mr-2 text-[#f7362b]">✕</span>}
-        {test.status === "idle" && <span className="mr-2 text-[#c1ba35]">○</span>}
-        {test.name}
-        {test.duration !== undefined && <span className="ml-2">({test.duration} ms)</span>}
       </div>
     </div>
   );
