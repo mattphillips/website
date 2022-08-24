@@ -221,6 +221,16 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
     // TODO: You've not handle the external status updates in the live impl
     const unsubscribe = listen((data: CustomSandboxMessage): void => {
       // console.log("Message", data);
+
+      // Note: short-circuit if message isn't for the currently active file when `runMode` is `single`
+      if (
+        state.runMode === "single" &&
+        (("path" in data && data.path !== sandpack.activeFile) ||
+          ("test" in data && "path" in data.test && data.test.path !== sandpack.activeFile))
+      ) {
+        return;
+      }
+
       if (data.type === "action" && data.action === "clear-errors" && data.source === "jest") {
         currentFile = data.path;
         return;
@@ -247,9 +257,6 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
         }
 
         if (data.event === "add_file") {
-          if (state.runMode === "single" && data.path !== sandpack.activeFile) {
-            return;
-          }
           return setState((oldState) =>
             immer(oldState, (state) => {
               state.files[data.path] = {
@@ -262,9 +269,6 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
         }
 
         if (data.event === "remove_file") {
-          if (state.runMode === "single" && data.path !== sandpack.activeFile) {
-            return;
-          }
           return setState((oldState) =>
             immer(oldState, (state) => {
               if (state.files[data.path]) {
@@ -275,9 +279,6 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
         }
 
         if (data.event === "file_error") {
-          if (state.runMode === "single" && data.path !== sandpack.activeFile) {
-            return;
-          }
           return setState((oldState) =>
             immer(oldState, (state) => {
               if (state.files[data.path]) {
@@ -310,32 +311,24 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
         }
 
         if (data.event === "add_test") {
-          if (state.runMode === "single" && data.path !== sandpack.activeFile) {
-            return;
-          }
           const head = currentDescribeBlocks.slice(0, currentDescribeBlocks.length - 1);
           const tail = currentDescribeBlocks[currentDescribeBlocks.length - 1];
+          const test: Test = {
+            status: "idle",
+            errors: [],
+            name: data.testName,
+            blocks: [...currentDescribeBlocks],
+            path: data.path,
+          };
           return setState((oldState) =>
             immer(oldState, (state) => {
               if (tail === undefined) {
-                state.files[data.path].tests[data.testName] = {
-                  status: "idle",
-                  errors: [],
-                  name: data.testName,
-                  blocks: [...head, tail],
-                  path: data.path,
-                };
+                state.files[data.path].tests[data.testName] = test;
               } else {
                 set(
                   state.files[data.path].describes,
                   [...head.flatMap((name) => [name, "describes"]), tail, "tests", data.testName],
-                  {
-                    status: "idle",
-                    errors: [],
-                    name: data.testName,
-                    blocks: [...head, tail],
-                    path: data.path,
-                  }
+                  test
                 );
               }
             })
@@ -343,34 +336,27 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
         }
 
         if (data.event === "test_start") {
-          if (state.runMode === "single" && data.test.path !== sandpack.activeFile) {
-            return;
-          }
           const { test } = data;
           const head = test.blocks.slice(0, test.blocks.length - 1);
           const tail = test.blocks[test.blocks.length - 1];
 
+          const startedTest: Test = {
+            status: "running",
+            name: test.name,
+            blocks: test.blocks,
+            path: test.path,
+            errors: [],
+          };
+
           return setState((oldState) =>
             immer(oldState, (state) => {
               if (tail === undefined) {
-                state.files[test.path].tests[test.name] = {
-                  status: "running",
-                  name: test.name,
-                  blocks: [...head, tail],
-                  path: test.path,
-                  errors: [],
-                };
+                state.files[test.path].tests[test.name] = startedTest;
               } else {
                 set(
                   state.files[test.path].describes,
                   [...head.flatMap((name: string) => [name, "describes"]), tail, "tests", test.name],
-                  {
-                    status: "running",
-                    name: test.name,
-                    blocks: [...head, tail],
-                    path: test.path,
-                    errors: [],
-                  }
+                  startedTest
                 );
               }
             })
@@ -378,36 +364,28 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
         }
 
         if (data.event === "test_end") {
-          if (state.runMode === "single" && data.test.path !== sandpack.activeFile) {
-            return;
-          }
           const { test } = data;
           const head = test.blocks.slice(0, test.blocks.length - 1);
           const tail = test.blocks[test.blocks.length - 1];
 
+          const endedTest = {
+            status: test.status,
+            errors: test.errors,
+            duration: test.duration,
+            name: test.name,
+            blocks: test.blocks,
+            path: test.path,
+          };
+
           return setState((oldState) =>
             immer(oldState, (state) => {
               if (tail === undefined) {
-                state.files[test.path].tests[test.name] = {
-                  status: test.status,
-                  errors: test.errors,
-                  duration: test.duration,
-                  name: test.name,
-                  blocks: [...head, tail],
-                  path: test.path,
-                };
+                state.files[test.path].tests[test.name] = endedTest;
               } else {
                 set(
                   state.files[test.path].describes,
                   [...head.flatMap((name: string) => [name, "describes"]), tail, "tests", test.name],
-                  {
-                    status: test.status,
-                    errors: test.errors,
-                    duration: test.duration,
-                    name: test.name,
-                    blocks: [...head, tail],
-                    path: test.path,
-                  }
+                  endedTest
                 );
               }
             })
