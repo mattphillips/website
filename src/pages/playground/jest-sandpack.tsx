@@ -14,6 +14,7 @@ import immer from "immer";
 import ansiHTML from "ansi-html";
 import { set, get } from "lodash";
 import { Layout } from "src/components/Layout";
+import { SandpackClient, ListenerFunction, SandpackMessage } from "@codesandbox/sandpack-client";
 
 // TODO: Check todos in sandpack.tsx
 
@@ -100,7 +101,7 @@ const formatDiffMessage = (error: TestError, path: string) => {
   return finalMessage.replace(/(?:\r\n|\r|\n)/g, "<br />");
 };
 
-export type Status = "idle" | "running" | "pass" | "fail";
+export type TestStatus = "idle" | "running" | "pass" | "fail";
 
 export type TestError = Error & {
   matcherResult?: boolean;
@@ -120,7 +121,7 @@ export type TestError = Error & {
 export type Test = {
   name: string;
   blocks: string[];
-  status: Status;
+  status: TestStatus;
   running: boolean;
   path: string;
   errors: TestError[];
@@ -148,32 +149,29 @@ export type File = {
   };
 };
 
+type Status = "initialising" | "idle" | "running" | "complete";
+type RunMode = "all" | "single";
+
 type State = {
   files: { [path: string]: File };
   running: boolean;
-  singleSuite: boolean;
+  status: Status;
+  runMode: RunMode;
+  verbose: boolean;
 };
 
 const INITIAL_STATE: State = {
   files: {},
   running: false,
-  singleSuite: false,
+  status: "initialising",
+  runMode: "all",
+  verbose: false,
 };
 
-// Sandbox wrapper of jest-cirucs: https://github.com/codesandbox/codesandbox-client/blob/master/packages/app/src/sandbox/eval/tests/jest-lite.ts
-// This is the sandbox component impl: https://github.com/codesandbox/codesandbox-client/blob/389073613e06eee944231f4aeef9dfa746c1b947/packages/app/src/app/components/Preview/DevTools/Tests/index.tsx
-// All message types for tests: https://github.com/codesandbox/codesandbox-client/blob/master/packages/common/src/utils/jest-lite.ts
-const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose: defaultVerbose = false }) => {
-  const { sandpack, listen } = useSandpack();
+const useSandpackClient = () => {
+  const { sandpack, listen, dispatch } = useSandpack();
   const iframeRef = React.useRef<HTMLIFrameElement | null>(null);
   const clientId = React.useRef<string>(generateRandomId());
-  const [state, setState] = React.useState<State>(INITIAL_STATE);
-  const [verbose, setVerbose] = React.useState(defaultVerbose);
-  // TODO: This can be backed into the current status model
-  const [isMounted, setIsMounted] = React.useState<boolean>(false);
-
-  let currentDescribeBlocks: Array<string> = [];
-  let currentFile: string = "";
 
   React.useEffect(() => {
     const iframeElement = iframeRef.current!;
@@ -183,6 +181,30 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose: defaultVerbos
 
     return () => sandpack.unregisterBundler(clientId.current);
   }, []);
+
+  const getClient = (): SandpackClient | null => {
+    return sandpack.clients[clientId.current] || null;
+  };
+
+  return {
+    sandpack,
+    getClient,
+    iframe: iframeRef,
+    listen: (listener: ListenerFunction) => listen(listener, clientId.current),
+    dispatch: (message: SandpackMessage) => dispatch(message, clientId.current),
+  };
+};
+
+// Sandbox wrapper of jest-cirucs: https://github.com/codesandbox/codesandbox-client/blob/master/packages/app/src/sandbox/eval/tests/jest-lite.ts
+// This is the sandbox component impl: https://github.com/codesandbox/codesandbox-client/blob/389073613e06eee944231f4aeef9dfa746c1b947/packages/app/src/app/components/Preview/DevTools/Tests/index.tsx
+// All message types for tests: https://github.com/codesandbox/codesandbox-client/blob/master/packages/common/src/utils/jest-lite.ts
+const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => {
+  const { getClient, iframe, listen, sandpack } = useSandpackClient();
+
+  const [state, setState] = React.useState<State>({ ...INITIAL_STATE, verbose });
+
+  let currentDescribeBlocks: Array<string> = [];
+  let currentFile: string = "";
 
   React.useEffect(() => {
     // TODO: You've not handle the external status updates in the live impl
@@ -196,8 +218,7 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose: defaultVerbos
         if (data.event === "initialize_tests") {
           currentDescribeBlocks = [];
           currentFile = "";
-          setIsMounted(true);
-          return setState(INITIAL_STATE);
+          return setState((old) => ({ ...INITIAL_STATE, status: "idle", runMode: old.runMode }));
         }
 
         if (data.event === "test_count") {
@@ -210,11 +231,11 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose: defaultVerbos
         }
 
         if (data.event === "total_test_end") {
-          return setState((old) => ({ ...old, running: false, singleSuite: false }));
+          return setState((old) => ({ ...old, running: false, runMode: "all" }));
         }
 
         if (data.event === "add_file") {
-          if (state.singleSuite && data.path !== sandpack.activeFile) {
+          if (state.runMode === "single" && data.path !== sandpack.activeFile) {
             return;
           }
           return setState((oldState) =>
@@ -229,7 +250,7 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose: defaultVerbos
         }
 
         if (data.event === "remove_file") {
-          if (state.singleSuite && data.path !== sandpack.activeFile) {
+          if (state.runMode === "single" && data.path !== sandpack.activeFile) {
             return;
           }
           return setState((oldState) =>
@@ -242,7 +263,7 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose: defaultVerbos
         }
 
         if (data.event === "file_error") {
-          if (state.singleSuite && data.path !== sandpack.activeFile) {
+          if (state.runMode === "single" && data.path !== sandpack.activeFile) {
             return;
           }
           return setState((oldState) =>
@@ -276,7 +297,7 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose: defaultVerbos
         }
 
         if (data.event === "add_test") {
-          if (state.singleSuite && data.path !== sandpack.activeFile) {
+          if (state.runMode === "single" && data.path !== sandpack.activeFile) {
             return;
           }
           const head = currentDescribeBlocks.slice(0, currentDescribeBlocks.length - 1);
@@ -311,7 +332,7 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose: defaultVerbos
         }
 
         if (data.event === "test_start") {
-          if (state.singleSuite && data.test.path !== sandpack.activeFile) {
+          if (state.runMode === "single" && data.test.path !== sandpack.activeFile) {
             return;
           }
           const { test } = data;
@@ -348,7 +369,7 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose: defaultVerbos
         }
 
         if (data.event === "test_end") {
-          if (state.singleSuite && data.test.path !== sandpack.activeFile) {
+          if (state.runMode === "single" && data.test.path !== sandpack.activeFile) {
             return;
           }
           const { test } = data;
@@ -386,22 +407,25 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose: defaultVerbos
           );
         }
       }
-    }, clientId.current);
+    });
 
     return unsubscribe;
-  }, [state.singleSuite, sandpack.activeFile]);
+  }, [state.runMode, sandpack.activeFile]);
 
   const runAllTests = () => {
-    setState((old) => ({ ...old, running: true, singleSuite: false, files: {} }));
-    if (sandpack.clients[clientId.current]) {
-      sandpack.clients[clientId.current].dispatch({ type: "run-all-tests" } as any);
+    setState((s) => ({ ...s, running: true, runMode: "all", files: {} }));
+    // TODO: Abstract this away
+    const client = getClient();
+    if (client) {
+      client.dispatch({ type: "run-all-tests" } as any);
     }
   };
 
   const runTest = () => {
-    setState((old) => ({ ...old, running: true, singleSuite: true, files: {} }));
-    if (sandpack.clients[clientId.current]) {
-      sandpack.clients[clientId.current].dispatch({
+    setState((old) => ({ ...old, running: true, runMode: "single", files: {} }));
+    const client = getClient();
+    if (client) {
+      client.dispatch({
         type: "run-tests",
         path: sandpack.activeFile,
       } as any);
@@ -449,23 +473,23 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose: defaultVerbos
 
   return (
     <SandpackStack style={{ height: "40vh" }}>
-      <iframe ref={iframeRef} className="hidden" />
+      <iframe ref={iframe} className="hidden" />
       <div className="flex border-b border-solid border-[#44475a] min-h-[40px] px-4 py-2 justify-between items-center">
-        {isMounted && (
+        {state.status !== "initialising" && (
           <button className="flex items-center bg-gray-700 text-gray-50 pl-1 pr-3 rounded-lg" onClick={runAllTests}>
             <RunIcon />
             Run all
           </button>
         )}
-        {isMounted && (
+        {state.status !== "initialising" && (
           <label htmlFor="default-toggle" className="inline-flex relative items-center cursor-pointer">
             <input
               type="checkbox"
               value=""
-              checked={verbose}
+              checked={state.verbose}
               id="default-toggle"
               className="sr-only peer"
-              onChange={() => setVerbose((old) => !old)}
+              onChange={() => setState((s) => ({ ...s, verbose: !s.verbose }))}
             />
             <div className="w-8 h-4 bg-gray-200 peer-focus:outline-none dark:peer-focus:ring-gray-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all dark:border-gray-600 peer-checked:bg-gray-600"></div>
             <span className="ml-2  text-white ">Verbose</span>
@@ -473,13 +497,13 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose: defaultVerbos
         )}
 
         <div className="flex flex-row">
-          {isMounted && isTestFileOpen && (
+          {state.status !== "initialising" && isTestFileOpen && (
             <button className="flex items-center bg-gray-700 text-gray-50 pl-1 pr-3 rounded-lg" onClick={runTest}>
               <RunIcon />
               Run suite
             </button>
           )}
-          {(state.running || !isMounted) && (
+          {(state.running || state.status === "initialising") && (
             <div role="status" className={classNames({ "ml-4": state.running })}>
               <svg
                 aria-hidden="true"
@@ -523,10 +547,12 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose: defaultVerbos
                 {file.fileName}
               </button>
 
-              {verbose && Object.values(file.tests).map((test) => <Test test={test} />)}
+              {state.verbose && Object.values(file.tests).map((test) => <Test test={test} />)}
 
-              {verbose &&
-                Object.values(file.describes).map((describe) => <Describe describe={describe} verbose={verbose} />)}
+              {state.verbose &&
+                Object.values(file.describes).map((describe) => (
+                  <Describe describe={describe} verbose={state.verbose} />
+                ))}
 
               {getFailingTests(file).map((test) => {
                 return (
