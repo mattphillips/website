@@ -6,6 +6,7 @@ import { set } from "lodash";
 import { SandpackMessage } from "@codesandbox/sandpack-client";
 import { formatDiffMessage } from "./utils";
 import { useSandpackClient } from "./useSandpackClient";
+import { SandboxTestMessage, Test, TestError } from "./Message";
 
 // TODO: Check todos in sandpack.tsx
 /*
@@ -18,52 +19,13 @@ TODO:
 - Tidy controls 
 */
 
-type TestStatus = "idle" | "running" | "pass" | "fail";
-
-export type TestError = Error & {
-  matcherResult?: boolean;
-  mappedErrors?: Array<{
-    fileName: string;
-    _originalFunctionName: string;
-    _originalColumnNumber: number;
-    _originalLineNumber: number;
-    _originalScriptCode: Array<{
-      lineNumber: number;
-      content: string;
-      highlight: boolean;
-    }> | null;
-  }>;
-};
-
-type Test = {
+type Block = {
   name: string;
-  blocks: string[];
-  status: TestStatus;
-  path: string;
-  errors: TestError[];
-  duration?: number | undefined;
+  tests: { [testName: string]: Test };
+  describes: { [describeName: string]: Block };
 };
 
-type Describe = {
-  name: string;
-  tests: {
-    [testName: string]: Test;
-  };
-  describes: {
-    [describeName: string]: Describe;
-  };
-};
-
-type File = {
-  name: string;
-  error?: TestError;
-  tests: {
-    [testName: string]: Test;
-  };
-  describes: {
-    [describeName: string]: Describe;
-  };
-};
+type File = { error?: TestError } & Block;
 
 type Status = "initialising" | "idle" | "running" | "complete";
 type RunMode = "all" | "single";
@@ -94,7 +56,7 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
   let currentFile: string = "";
 
   React.useEffect(() => {
-    const unsubscribe = listen((data: CustomSandboxMessage): void => {
+    const unsubscribe = listen((data: SandpackMessage | SandboxTestMessage): void => {
       // console.log("Message", data);
 
       // Note: short-circuit if message isn't for the currently active file when `runMode` is `single`
@@ -481,11 +443,11 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
   );
 };
 
-const getFailingTests = (block: Describe | File): Array<Test> => {
+const getFailingTests = (block: Block | File): Array<Test> => {
   return getTests(block).filter((t) => t.status === "fail");
 };
 
-const getTests = (block: Describe | File): Array<Test> => {
+const getTests = (block: Block | File): Array<Test> => {
   const tests = Object.values(block.tests);
   return tests.concat(...Object.values(block.describes).map(getTests));
 };
@@ -509,7 +471,7 @@ const getStats = (file: File) => {
   return sum(allTests);
 };
 
-const Describe: React.FC<{ describe: Describe; verbose: boolean }> = ({ describe, verbose }) => {
+const Describe: React.FC<{ describe: Block; verbose: boolean }> = ({ describe, verbose }) => {
   if (Object.values(describe.describes).length === 0 && Object.values(describe.tests).length === 0) {
     return null;
   }
@@ -542,106 +504,3 @@ const Test: React.FC<{ test: Test }> = ({ test }) => {
     </div>
   );
 };
-
-type CustomSandboxMessage =
-  | SandpackMessage
-  | ClearJestErrors
-  | ({ type: "test" } & (
-      | InitializedTestsMessage
-      | TestCountMessage
-      | TotalTestStartMessage
-      | TotalTestEndMessage
-      | AddFileMessage
-      | RemoveFileMessage
-      | FileErrorMessage
-      | DescribeStartMessage
-      | DescribeEndMessage
-      | AddTestMessage
-      | TestStartMessage
-      | TestEndMessage
-    ));
-
-interface InitializedTestsMessage {
-  event: messages.INITIALIZE;
-}
-
-interface ClearJestErrors {
-  type: "action";
-  action: "clear-errors";
-  source: "jest";
-  path: string;
-}
-
-interface TestCountMessage {
-  event: "test_count";
-  count: number;
-}
-
-interface TotalTestStartMessage {
-  event: messages.TOTAL_TEST_START;
-}
-
-interface TotalTestEndMessage {
-  event: messages.TOTAL_TEST_END;
-}
-
-interface AddFileMessage {
-  event: messages.ADD_FILE;
-  path: string;
-}
-
-interface RemoveFileMessage {
-  event: messages.REMOVE_FILE;
-  path: string;
-}
-
-interface FileErrorMessage {
-  event: messages.FILE_ERROR;
-  path: string;
-  error: TestError;
-}
-
-interface DescribeStartMessage {
-  event: messages.DESCRIBE_START;
-  blockName: string;
-}
-
-interface DescribeEndMessage {
-  event: messages.DESCRIBE_END;
-}
-
-interface AddTestMessage {
-  event: messages.ADD_TEST;
-  testName: string;
-  path: string;
-}
-
-type TestMessage = Test & {
-  blocks: string[];
-  name: string;
-  path: string;
-};
-
-interface TestStartMessage {
-  event: messages.TEST_START;
-  test: TestMessage;
-}
-
-interface TestEndMessage {
-  event: messages.TEST_END;
-  test: TestMessage;
-}
-
-export enum messages {
-  INITIALIZE = "initialize_tests",
-  ADD_FILE = "add_file",
-  REMOVE_FILE = "remove_file",
-  FILE_ERROR = "file_error",
-  TOTAL_TEST_START = "total_test_start",
-  TOTAL_TEST_END = "total_test_end",
-  TEST_START = "test_start",
-  TEST_END = "test_end",
-  DESCRIBE_START = "describe_start",
-  DESCRIBE_END = "describe_end",
-  ADD_TEST = "add_test",
-}

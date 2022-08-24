@@ -1,6 +1,6 @@
 // @ts-ignore
 import ansiHTML from "ansi-html";
-import { TestError } from ".";
+import { TestError } from "./Message";
 
 export const generateRandomId = (): string => Math.floor(Math.random() * 10000).toString();
 

@@ -93,7 +93,7 @@ export default function Playground() {
             }}
           >
             <SandpackLayout className="">
-              <SandpackCodeEditor showLineNumbers style={{ height: "40vh" }} />
+              <SandpackCodeEditor showRunButton={false} showLineNumbers style={{ height: "40vh" }} />
               <SandpackTests />
             </SandpackLayout>
           </SandpackProvider>
