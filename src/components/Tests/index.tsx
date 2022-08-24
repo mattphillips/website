@@ -8,6 +8,7 @@ import { useSandpackClient } from "./useSandpackClient";
 import { SandboxTestMessage, Test } from "./Message";
 import { Describe } from "./Describes";
 import { Spec, Specs } from "./Specs";
+import { Summary } from "./Summary";
 
 // TODO: Check todos in sandpack.tsx
 /*
@@ -345,27 +346,8 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
       <div className="p-4 overflow-auto h-full flex flex-col font-[Consolas,_Monaco,_monospace]">
         <Specs specs={specs} verbose={state.verbose} status={state.status} open={openFile} />
 
-        {/* Summary */}
         {state.status === "complete" && allTests.total > 0 && (
-          <div className="text-gray-400 font-bold">
-            <div className="mb-2">
-              <span className="font-bold text-white">Tests Suites: </span>
-              {allSuites.fail > 0 && <span className="text-[#fa7c75]">{allSuites.fail} failed, </span>}
-              {allSuites.pass > 0 && <span className="text-[#15c213]">{allSuites.pass} passed, </span>}
-              <span>{allSuites.total} total</span>
-            </div>
-            <div className="mb-2">
-              <span className="font-bold text-white whitespace-pre">Tests:{"        "}</span>
-              {allTests.fail > 0 && <span className="text-[#fa7c75]">{allTests.fail} failed, </span>}
-              {allTests.skip > 0 && <span className="text-[#c1ba35]">{allTests.skip} skipped, </span>}
-              {allTests.pass > 0 && <span className="text-[#15c213]">{allTests.pass} passed, </span>}
-              <span>{allTests.total} total</span>
-            </div>
-            <div className="font-bold text-white whitespace-pre">
-              Time:{"         "}
-              {duration / 1000}s
-            </div>
-          </div>
+          <Summary suites={allSuites} tests={allTests} duration={duration} />
         )}
       </div>
     </SandpackStack>
