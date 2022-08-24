@@ -40,7 +40,7 @@ const formatDiffMessage = (error: TestError, path: string) => {
       .replace(/^(-.*)/gm, `<span style="color:red">$1</span>`)
       .replace(/^(\+.*)/gm, `<span style="color:green">$1</span>`)}</span>`;
   } else {
-    finalMessage = escapeHtml(error.message + "\n\n" + error.stack);
+    finalMessage = escapeHtml(error.message);
   }
 
   finalMessage = ansiHTML(finalMessage);
@@ -520,9 +520,25 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
       <div className="p-4 overflow-auto h-full flex flex-col font-[Consolas,_Monaco,_monospace]">
         {/* TODO: Rename files to suites */}
         {Object.values(state.files).map((file) => {
+          if (file.fileError) {
+            return (
+              <div className="mb-2">
+                <span className="px-2 py-1 bg-red-500 mr-2 font-[Consolas,_Monaco,_monospace]">ERROR</span>
+                <button className="mb-2 decoration-dotted underline text-white" onClick={() => openFile(file.fileName)}>
+                  {file.fileName}
+                </button>
+                <div
+                  className="mb-2 p-4 text-sm leading-[1.6] whitespace-pre-wrap text-white"
+                  dangerouslySetInnerHTML={{ __html: formatDiffMessage(file.fileError, file.fileName) }}
+                ></div>
+              </div>
+            );
+          }
+
           if (Object.values(file.describes).length === 0 && Object.values(file.tests).length === 0) {
             return null;
           }
+
           /* TODO: Don't recompute this here */
           const stats = getStats(file);
 
