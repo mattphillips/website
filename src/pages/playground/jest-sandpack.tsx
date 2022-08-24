@@ -17,6 +17,15 @@ import { Layout } from "src/components/Layout";
 import { SandpackClient, ListenerFunction, SandpackMessage } from "@codesandbox/sandpack-client";
 
 // TODO: Check todos in sandpack.tsx
+/*
+TODO:
+- Pull out components (Test/Tests/Describes/Describe/Suites/Suite/TestSummary)
+- Write some nicer combinators for working with the data structure to compute shit
+- Add types to listen function (really this should be a PR to the API spec)
+- Migrate to Sandpack theme
+- PR error syntax highlighting PR to codesandbox
+- Tidy controls 
+*/
 
 const generateRandomId = (): string => Math.floor(Math.random() * 10000).toString();
 export function escapeHtml(unsafe: string) {
@@ -210,17 +219,18 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
 
   React.useEffect(() => {
     // TODO: You've not handle the external status updates in the live impl
-    const unsubscribe = listen((data: any) => {
+    const unsubscribe = listen((data: CustomSandboxMessage): void => {
       // console.log("Message", data);
       if (data.type === "action" && data.action === "clear-errors" && data.source === "jest") {
         currentFile = data.path;
+        return;
       }
 
       if (data.type === "test") {
         if (data.event === "initialize_tests") {
           currentDescribeBlocks = [];
           currentFile = "";
-          return setState((old) => ({ ...INITIAL_STATE, status: "idle", runMode: old.runMode }));
+          return setState((oldState) => ({ ...INITIAL_STATE, status: "idle", runMode: oldState.runMode }));
         }
 
         if (data.event === "test_count") {
@@ -229,11 +239,11 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
 
         if (data.event === "total_test_start") {
           currentDescribeBlocks = [];
-          return setState((old) => ({ ...old, status: "running" }));
+          return setState((oldState) => ({ ...oldState, status: "running" }));
         }
 
         if (data.event === "total_test_end") {
-          return setState((old) => ({ ...old, status: "complete", runMode: "all" }));
+          return setState((oldState) => ({ ...oldState, status: "complete", runMode: "all" }));
         }
 
         if (data.event === "add_file") {
@@ -295,7 +305,8 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
         }
 
         if (data.event === "describe_end") {
-          return currentDescribeBlocks.pop();
+          currentDescribeBlocks.pop();
+          return;
         }
 
         if (data.event === "add_test") {
@@ -698,7 +709,7 @@ describe('extending expect', () => {
     });
 
     test('Slow test', async () => {
-      await new Promise(res => setTimeout(res, 2000));
+      // await new Promise(res => setTimeout(res, 2000));
       expect(true).toBe(true);
     });
 
@@ -776,4 +787,107 @@ export default function Playground() {
       </div>
     </Layout>
   );
+}
+
+type CustomSandboxMessage =
+  | SandpackMessage
+  | ClearJestErrors
+  | ({ type: "test" } & (
+      | InitializedTestsMessage
+      | TestCountMessage
+      | TotalTestStartMessage
+      | TotalTestEndMessage
+      | AddFileMessage
+      | RemoveFileMessage
+      | FileErrorMessage
+      | DescribeStartMessage
+      | DescribeEndMessage
+      | AddTestMessage
+      | TestStartMessage
+      | TestEndMessage
+    ));
+
+interface InitializedTestsMessage {
+  event: messages.INITIALIZE;
+}
+
+interface ClearJestErrors {
+  type: "action";
+  action: "clear-errors";
+  source: "jest";
+  path: string;
+}
+
+interface TestCountMessage {
+  event: "test_count";
+  count: number;
+}
+
+interface TotalTestStartMessage {
+  event: messages.TOTAL_TEST_START;
+}
+
+interface TotalTestEndMessage {
+  event: messages.TOTAL_TEST_END;
+}
+
+interface AddFileMessage {
+  event: messages.ADD_FILE;
+  path: string;
+}
+
+interface RemoveFileMessage {
+  event: messages.REMOVE_FILE;
+  path: string;
+}
+
+interface FileErrorMessage {
+  event: messages.FILE_ERROR;
+  path: string;
+  error: TestError;
+}
+
+interface DescribeStartMessage {
+  event: messages.DESCRIBE_START;
+  blockName: string;
+}
+
+interface DescribeEndMessage {
+  event: messages.DESCRIBE_END;
+}
+
+interface AddTestMessage {
+  event: messages.ADD_TEST;
+  testName: string;
+  path: string;
+}
+
+type TestMessage = Test & {
+  blocks: string[];
+  name: string;
+  path: string;
+};
+
+interface TestStartMessage {
+  event: messages.TEST_START;
+  test: TestMessage;
+}
+
+interface TestEndMessage {
+  event: messages.TEST_END;
+  test: TestMessage;
+}
+
+export enum messages {
+  INITIALIZE = "initialize_tests",
+  ADD_FILE = "add_file",
+  REMOVE_FILE = "remove_file",
+  FILE_ERROR = "file_error",
+  TOTAL_TEST_START = "total_test_start",
+  TOTAL_TEST_END = "total_test_end",
+  TEST_START = "test_start",
+  TEST_END = "test_end",
+  DESCRIBE_START = "describe_start",
+  DESCRIBE_END = "describe_end",
+  ADD_TEST = "add_test",
 }
