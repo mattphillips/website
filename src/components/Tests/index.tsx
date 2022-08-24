@@ -11,6 +11,7 @@ import { Spec, Specs } from "./Specs";
 import { Summary } from "./Summary";
 import { RunButton } from "./RunButton";
 import { Spinner } from "./Spinner";
+import { Controls } from "./Controls";
 
 // TODO: Check todos in sandpack.tsx
 /*
@@ -238,7 +239,7 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
     }
   };
 
-  const runTest = () => {
+  const runSpec = () => {
     setState((old) => ({ ...old, running: true, runMode: "single", specs: {} }));
     const client = getClient();
     if (client) {
@@ -284,37 +285,33 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
       { pass: 0, fail: 0, total: 0 }
     );
 
-  const isSpecOpen = sandpack.activeFile.match(/\.(test|spec)\.(ts|js)$/);
+  const isSpecOpen = sandpack.activeFile.match(/\.(test|spec)\.(ts|js)$/) !== null;
 
   return (
     <SandpackStack style={{ height: "40vh" }}>
       <iframe ref={iframe} className="hidden" />
-      <div className="flex border-b border-solid border-[#44475a] min-h-[40px] px-4 py-2 justify-between items-center">
-        <div className="flex flex-row items-center">
-          {state.status !== "initialising" && (
-            <div className="mr-4">
-              <RunButton onClick={runAllTests}>Run all</RunButton>
-            </div>
-          )}
-          {state.status !== "initialising" && isSpecOpen && <RunButton onClick={runTest}>Run suite</RunButton>}
-        </div>
-        {(state.status === "running" || state.status === "initialising") && <Spinner />}
-        {state.status !== "initialising" && (
-          <label htmlFor="default-toggle" className="inline-flex relative items-center cursor-pointer">
-            <input
-              type="checkbox"
-              value=""
-              checked={state.verbose}
-              id="default-toggle"
-              className="sr-only peer"
-              onChange={() => setState((s) => ({ ...s, verbose: !s.verbose }))}
-            />
-            <div className="w-8 h-4 bg-gray-200 peer-focus:outline-none dark:peer-focus:ring-gray-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all dark:border-gray-600 peer-checked:bg-gray-600"></div>
-            <span className="ml-2 text-white ">Verbose</span>
-          </label>
+
+      <Controls
+        runAllTests={runAllTests}
+        runSpec={runSpec}
+        setVerbose={() => setState((s) => ({ ...s, verbose: !s.verbose }))}
+        verbose={state.verbose}
+        status={state.status}
+        isSpecOpen={isSpecOpen}
+      />
+
+      <div className="p-4 overflow-auto h-full flex flex-col relative font-[Consolas,_Monaco,_monospace]">
+        {state.status === "initialising" && (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <Spinner />
+          </div>
         )}
-      </div>
-      <div className="p-4 overflow-auto h-full flex flex-col font-[Consolas,_Monaco,_monospace]">
+        {state.status === "running" && (
+          <div className="absolute top-0 right-0 mr-4 mt-4">
+            <Spinner />
+          </div>
+        )}
+
         <Specs specs={specs} verbose={state.verbose} status={state.status} open={openFile} />
 
         {state.status === "complete" && allTests.total > 0 && (
