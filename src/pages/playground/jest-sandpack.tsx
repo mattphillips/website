@@ -12,7 +12,7 @@ import classNames from "classnames";
 import immer from "immer";
 // @ts-ignore
 import ansiHTML from "ansi-html";
-import { set, get } from "lodash";
+import { set } from "lodash";
 import { Layout } from "src/components/Layout";
 import { SandpackClient, ListenerFunction, SandpackMessage } from "@codesandbox/sandpack-client";
 
@@ -32,13 +32,13 @@ const formatDiffMessage = (error: TestError, path: string) => {
   let finalMessage: string = "";
   if (error.matcherResult) {
     finalMessage = `<span>${escapeHtml(error.message)
-      .replace(/(expected)/m, `<span style="color:green">$1</span>`)
-      .replace(/(received)/m, `<span style="color:red">$1</span>`)
+      .replace(/(expected)/m, `<span style="color:#15c213">$1</span>`)
+      .replace(/(received)/m, `<span style="color:#f7362b">$1</span>`)
       .replace(/(Difference:)/m, `<span>$1</span>`)
-      .replace(/(Expected:)(.*)/m, `<span>$1</span><span style="color:green">$2</span>`)
-      .replace(/(Received:)(.*)/m, `<span>$1</span><span style="color:red">$2</span>`)
-      .replace(/^(-.*)/gm, `<span style="color:red">$1</span>`)
-      .replace(/^(\+.*)/gm, `<span style="color:green">$1</span>`)}</span>`;
+      .replace(/(Expected:)(.*)/m, `<span>$1</span><span style="color:#15c213">$2</span>`)
+      .replace(/(Received:)(.*)/m, `<span>$1</span><span style="color:#f7362b">$2</span>`)
+      .replace(/^(-.*)/gm, `<span style="color:#f7362b">$1</span>`)
+      .replace(/^(\+.*)/gm, `<span style="color:#15c213">$1</span>`)}</span>`;
   } else {
     finalMessage = escapeHtml(error.message);
   }
@@ -76,23 +76,28 @@ const formatDiffMessage = (error: TestError, path: string) => {
         const content = escapeHtml(code.content)
           .replace(
             /(describe|test|it)(\()(&#039;|&quot;|`)(.*)(&#039;|&quot;|`)/m,
-            `<span>$1$2$3</span><span style="color:rgba(0, 255, 255, 0.5)">$4</span><span>$5</span>`
+            `<span>$1$2$3</span><span style="color:#3fbabe">$4</span><span>$5</span>`
           )
           .replace(
             /(expect\()(.*)(\)\..*)(to.*)(\()(.*)(\))/m,
-            `<span>$1</span><span style="color:red">$2</span><span>$3</span><span style="text-decoration: underline; color: white">$4</span><span>$5</span><span style="color:green">$6</span><span>$7</span>`
+            `<span>$1</span><span style="color:#f7362b">$2</span><span>$3</span><span style="text-decoration: underline; color: white">$4</span><span>$5</span><span style="color:#15c213">$6</span><span>$7</span>`
           );
 
         finalMessage +=
           `<div ${code.highlight ? `style="font-weight:900; color: rgba(255, 255, 255, 0.5)"` : ``}>` +
-          (code.highlight ? `<span style="color:red;">></span> ` : "") +
+          (code.highlight ? `<span style="color:#f7362b;">></span> ` : "") +
           newMargin.join("") +
           escapeHtml("" + code.lineNumber) +
           " | " +
           content +
           "</div>" +
           (code.highlight
-            ? "<div>" + margin.join("") + " | " + toBeMargin.join("") + '<span style="color:red">^</span>' + "</div>"
+            ? "<div>" +
+              margin.join("") +
+              " | " +
+              toBeMargin.join("") +
+              '<span style="color:#f7362b">^</span>' +
+              "</div>"
             : "");
       });
     finalMessage += "</div>";
@@ -520,10 +525,14 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
       <div className="p-4 overflow-auto h-full flex flex-col font-[Consolas,_Monaco,_monospace]">
         {/* TODO: Rename files to suites */}
         {Object.values(state.files).map((file) => {
+          const parts = file.name.split("/");
+          const path = parts.slice(0, parts.length - 1).join("/") + "/";
+          const name = parts[parts.length - 1];
+
           if (file.error) {
             return (
               <div className="mb-2">
-                <span className="px-2 py-1 bg-red-500 mr-2 font-[Consolas,_Monaco,_monospace]">ERROR</span>
+                <span className="px-2 py-1 bg-[#f7362b] mr-2 font-[Consolas,_Monaco,_monospace]">ERROR</span>
                 <button className="mb-2 decoration-dotted underline text-white" onClick={() => openFile(file.name)}>
                   {file.name}
                 </button>
@@ -546,12 +555,13 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
             <div className="mb-2">
               {state.status === "complete" &&
                 (stats.fail > 0 ? (
-                  <span className="px-2 py-1 bg-red-500 mr-2 font-[Consolas,_Monaco,_monospace]">FAIL</span>
+                  <span className="px-2 py-1 bg-[#f7362b] mr-2 font-[Consolas,_Monaco,_monospace]">FAIL</span>
                 ) : (
-                  <span className="px-2 py-1 bg-green-500 mr-2 font-[Consolas,_Monaco,_monospace]">PASS</span>
+                  <span className="px-2 py-1 bg-[#15c213] mr-2 font-[Consolas,_Monaco,_monospace]">PASS</span>
                 ))}
-              <button className="mb-2 decoration-dotted underline text-white" onClick={() => openFile(file.name)}>
-                {file.name}
+              <button className="mb-2" onClick={() => openFile(file.name)}>
+                <span className="text-gray-400 decoration-dotted underline">{path}</span>
+                <span className="text-white decoration-dotted underline">{name}</span>
               </button>
 
               {state.verbose && Object.values(file.tests).map((test) => <Test test={test} />)}
@@ -564,7 +574,7 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
               {getFailingTests(file).map((test) => {
                 return (
                   <div key={`failing-${test.name}`}>
-                    <div className="text-red-500 mt-2">
+                    <div className="text-[#fa7c75] mt-2 font-bold">
                       ● {test.blocks.join(" › ")} › {test.name}
                     </div>
                     {test.errors.map((e) => {
@@ -582,18 +592,18 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
           );
         })}
         {state.status === "complete" && allTests.total > 0 && (
-          <div className="text-gray-400">
+          <div className="text-gray-400 font-bold">
             <div className="mb-2">
               <span className="font-bold text-white">Tests Suites: </span>
-              {allSuites.fail > 0 && <span className="text-red-500">{allSuites.fail} failed, </span>}
-              {allSuites.pass > 0 && <span className="text-green-500">{allSuites.pass} passed, </span>}
+              {allSuites.fail > 0 && <span className="text-[#fa7c75]">{allSuites.fail} failed, </span>}
+              {allSuites.pass > 0 && <span className="text-[#15c213]">{allSuites.pass} passed, </span>}
               <span>{allSuites.total} total</span>
             </div>
             <div className="mb-2">
               <span className="font-bold text-white whitespace-pre">Tests:{"        "}</span>
-              {allTests.fail > 0 && <span className="text-red-500">{allTests.fail} failed, </span>}
-              {allTests.skip > 0 && <span className="text-yellow-500">{allTests.skip} skipped, </span>}
-              {allTests.pass > 0 && <span className="text-green-500">{allTests.pass} passed, </span>}
+              {allTests.fail > 0 && <span className="text-[#fa7c75]">{allTests.fail} failed, </span>}
+              {allTests.skip > 0 && <span className="text-[#c1ba35]">{allTests.skip} skipped, </span>}
+              {allTests.pass > 0 && <span className="text-[#15c213]">{allTests.pass} passed, </span>}
               <span>{allTests.total} total</span>
             </div>
             <div className="font-bold text-white whitespace-pre">
@@ -659,9 +669,9 @@ const Test: React.FC<{ test: Test }> = ({ test }) => {
   return (
     <div className="ml-4">
       <div className={classNames("mb-2 text-gray-400", {})}>
-        {test.status === "pass" && <span className="mr-2 text-green-500">✓</span>}
-        {test.status === "fail" && <span className="mr-2 text-red-500">✕</span>}
-        {test.status === "idle" && <span className="mr-2 text-yellow-500">○</span>}
+        {test.status === "pass" && <span className="mr-2 text-[#15c213]">✓</span>}
+        {test.status === "fail" && <span className="mr-2 text-[#f7362b]">✕</span>}
+        {test.status === "idle" && <span className="mr-2 text-[#c1ba35]">○</span>}
         {test.name}
         {test.duration !== undefined && <span className="ml-2">({test.duration} ms)</span>}
       </div>
@@ -752,8 +762,8 @@ export default function Playground() {
             files={{
               "/add.test.ts": addTests,
               "/add.ts": "export const add = (a: number, b: number): number => a + b;",
-              "/sub.ts": "export const sub = (a: number, b: number): number => a - b;",
-              "/sub.test.ts": subTests,
+              "/src/app/sub.ts": "export const sub = (a: number, b: number): number => a - b;",
+              "/src/app/sub.test.ts": subTests,
               "/failing.test.ts": failingTests,
             }}
           >
