@@ -24,14 +24,14 @@ export type Status = "initialising" | "idle" | "running" | "complete";
 type RunMode = "all" | "single";
 
 type State = {
-  files: { [path: string]: Spec };
+  specs: { [path: string]: Spec };
   status: Status;
   runMode: RunMode;
   verbose: boolean;
 };
 
 const INITIAL_STATE: State = {
-  files: {},
+  specs: {},
   status: "initialising",
   runMode: "all",
   verbose: false,
@@ -46,13 +46,13 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
   const [state, setState] = React.useState<State>({ ...INITIAL_STATE, verbose });
 
   let currentDescribeBlocks: Array<string> = [];
-  let currentFile: string = "";
+  let currentSpec: string = "";
 
   React.useEffect(() => {
     const unsubscribe = listen((data: SandpackMessage | SandboxTestMessage): void => {
       // console.log("Message", data);
 
-      // Note: short-circuit if message isn't for the currently active file when `runMode` is `single`
+      // Note: short-circuit if message isn't for the currently active spec when `runMode` is `single`
       if (
         state.runMode === "single" &&
         (("path" in data && data.path !== sandpack.activeFile) ||
@@ -62,14 +62,14 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
       }
 
       if (data.type === "action" && data.action === "clear-errors" && data.source === "jest") {
-        currentFile = data.path;
+        currentSpec = data.path;
         return;
       }
 
       if (data.type === "test") {
         if (data.event === "initialize_tests") {
           currentDescribeBlocks = [];
-          currentFile = "";
+          currentSpec = "";
           return setState((oldState) => ({ ...INITIAL_STATE, status: "idle", runMode: oldState.runMode }));
         }
 
@@ -89,7 +89,7 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
         if (data.event === "add_file") {
           return setState((oldState) =>
             immer(oldState, (state) => {
-              state.files[data.path] = {
+              state.specs[data.path] = {
                 describes: {},
                 tests: {},
                 name: data.path,
@@ -101,8 +101,8 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
         if (data.event === "remove_file") {
           return setState((oldState) =>
             immer(oldState, (state) => {
-              if (state.files[data.path]) {
-                delete state.files[data.path];
+              if (state.specs[data.path]) {
+                delete state.specs[data.path];
               }
             })
           );
@@ -111,8 +111,8 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
         if (data.event === "file_error") {
           return setState((oldState) =>
             immer(oldState, (state) => {
-              if (state.files[data.path]) {
-                state.files[data.path].error = data.error;
+              if (state.specs[data.path]) {
+                state.specs[data.path].error = data.error;
               }
             })
           );
@@ -122,11 +122,11 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
           currentDescribeBlocks.push(data.blockName);
           const head = currentDescribeBlocks.slice(0, currentDescribeBlocks.length - 1);
           const tail = currentDescribeBlocks[currentDescribeBlocks.length - 1];
-          const file = currentFile;
+          const spec = currentSpec;
 
           return setState((oldState) =>
             immer(oldState, (state) => {
-              set(state.files[file], ["describes", ...head.flatMap((name) => [name, "describes"]), tail], {
+              set(state.specs[spec], ["describes", ...head.flatMap((name) => [name, "describes"]), tail], {
                 name: data.blockName,
                 tests: {},
                 describes: {},
@@ -141,6 +141,7 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
         }
 
         if (data.event === "add_test") {
+          // TODO: This pattern is common
           const head = currentDescribeBlocks.slice(0, currentDescribeBlocks.length - 1);
           const tail = currentDescribeBlocks[currentDescribeBlocks.length - 1];
           const test: Test = {
@@ -153,10 +154,10 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
           return setState((oldState) =>
             immer(oldState, (state) => {
               if (tail === undefined) {
-                state.files[data.path].tests[data.testName] = test;
+                state.specs[data.path].tests[data.testName] = test;
               } else {
                 set(
-                  state.files[data.path].describes,
+                  state.specs[data.path].describes,
                   [...head.flatMap((name) => [name, "describes"]), tail, "tests", data.testName],
                   test
                 );
@@ -181,10 +182,10 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
           return setState((oldState) =>
             immer(oldState, (state) => {
               if (tail === undefined) {
-                state.files[test.path].tests[test.name] = startedTest;
+                state.specs[test.path].tests[test.name] = startedTest;
               } else {
                 set(
-                  state.files[test.path].describes,
+                  state.specs[test.path].describes,
                   [...head.flatMap((name: string) => [name, "describes"]), tail, "tests", test.name],
                   startedTest
                 );
@@ -210,10 +211,10 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
           return setState((oldState) =>
             immer(oldState, (state) => {
               if (tail === undefined) {
-                state.files[test.path].tests[test.name] = endedTest;
+                state.specs[test.path].tests[test.name] = endedTest;
               } else {
                 set(
-                  state.files[test.path].describes,
+                  state.specs[test.path].describes,
                   [...head.flatMap((name: string) => [name, "describes"]), tail, "tests", test.name],
                   endedTest
                 );
@@ -228,7 +229,7 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
   }, [state.runMode, sandpack.activeFile]);
 
   const runAllTests = () => {
-    setState((s) => ({ ...s, running: true, runMode: "all", files: {} }));
+    setState((s) => ({ ...s, running: true, runMode: "all", specs: {} }));
     // TODO: Abstract this away
     const client = getClient();
     if (client) {
@@ -237,7 +238,7 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
   };
 
   const runTest = () => {
-    setState((old) => ({ ...old, running: true, runMode: "single", files: {} }));
+    setState((old) => ({ ...old, running: true, runMode: "single", specs: {} }));
     const client = getClient();
     if (client) {
       client.dispatch({
@@ -253,11 +254,11 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
 
   // console.log("State", state);
 
-  const files = Object.values(state.files);
+  const specs = Object.values(state.specs);
 
-  const duration = files.flatMap(getTests).reduce((acc, test) => acc + (test.duration || 0), 0);
+  const duration = specs.flatMap(getTests).reduce((acc, test) => acc + (test.duration || 0), 0);
 
-  const allTests = Object.values(state.files)
+  const allTests = Object.values(state.specs)
     .map(getStats)
     .reduce(
       (acc, stats) => {
@@ -270,8 +271,8 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
       },
       { pass: 0, skip: 0, fail: 0, total: 0 }
     );
-  const allSuites = Object.values(state.files)
-    .filter((file) => Object.values(file.describes).length > 0 || Object.values(file.tests).length > 0)
+  const allSuites = Object.values(state.specs)
+    .filter((spec) => Object.values(spec.describes).length > 0 || Object.values(spec.tests).length > 0)
     .map(getStats)
     .reduce(
       (acc, stats) => {
@@ -284,7 +285,7 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
       { pass: 0, fail: 0, total: 0 }
     );
 
-  const isTestFileOpen = sandpack.activeFile.match(/\.(test|spec)\.(ts|js)$/);
+  const isSpecOpen = sandpack.activeFile.match(/\.(test|spec)\.(ts|js)$/);
 
   return (
     <SandpackStack style={{ height: "40vh" }}>
@@ -312,7 +313,7 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
         )}
 
         <div className="flex flex-row">
-          {state.status !== "initialising" && isTestFileOpen && (
+          {state.status !== "initialising" && isSpecOpen && (
             <button className="flex items-center bg-gray-700 text-gray-50 pl-1 pr-3 rounded-lg" onClick={runTest}>
               <RunIcon />
               Run suite
@@ -342,7 +343,7 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
         </div>
       </div>
       <div className="p-4 overflow-auto h-full flex flex-col font-[Consolas,_Monaco,_monospace]">
-        <Specs specs={files} verbose={state.verbose} status={state.status} open={openFile} />
+        <Specs specs={specs} verbose={state.verbose} status={state.status} open={openFile} />
 
         {/* Summary */}
         {state.status === "complete" && allTests.total > 0 && (
@@ -371,17 +372,13 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
   );
 };
 
-const getFailingTests = (block: Describe | Spec): Array<Test> => {
-  return getTests(block).filter((t) => t.status === "fail");
-};
-
 const getTests = (block: Describe | Spec): Array<Test> => {
   const tests = Object.values(block.tests);
   return tests.concat(...Object.values(block.describes).map(getTests));
 };
 
-const getStats = (file: Spec) => {
-  const allTests = getTests(file);
+const getStats = (spec: Spec) => {
+  const allTests = getTests(spec);
 
   const sum = (tests: Test[]): { pass: number; fail: number; skip: number; total: number } =>
     tests.reduce(
