@@ -122,7 +122,6 @@ export type Test = {
   name: string;
   blocks: string[];
   status: TestStatus;
-  running: boolean;
   path: string;
   errors: TestError[];
   duration?: number | undefined;
@@ -309,7 +308,6 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
                   name: data.testName,
                   blocks: [...head, tail],
                   path: data.path,
-                  running: false,
                 };
               } else {
                 set(
@@ -321,7 +319,6 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
                     name: data.testName,
                     blocks: [...head, tail],
                     path: data.path,
-                    running: false,
                   }
                 );
               }
@@ -342,7 +339,6 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
               if (tail === undefined) {
                 state.files[test.path].tests[test.name] = {
                   status: "running",
-                  running: true,
                   name: test.name,
                   blocks: [...head, tail],
                   path: test.path,
@@ -354,7 +350,6 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
                   [...head.flatMap((name: string) => [name, "describes"]), tail, "tests", test.name],
                   {
                     status: "running",
-                    running: true,
                     name: test.name,
                     blocks: [...head, tail],
                     path: test.path,
@@ -379,7 +374,6 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
               if (tail === undefined) {
                 state.files[test.path].tests[test.name] = {
                   status: test.status,
-                  running: false,
                   errors: test.errors,
                   duration: test.duration,
                   name: test.name,
@@ -392,7 +386,6 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
                   [...head.flatMap((name: string) => [name, "describes"]), tail, "tests", test.name],
                   {
                     status: test.status,
-                    running: false,
                     errors: test.errors,
                     duration: test.duration,
                     name: test.name,
