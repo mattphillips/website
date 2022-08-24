@@ -138,8 +138,8 @@ export type Describe = {
 };
 
 export type File = {
-  fileName: string;
-  fileError?: TestError;
+  name: string;
+  error?: TestError;
   tests: {
     [testName: string]: Test;
   };
@@ -240,7 +240,7 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
               state.files[data.path] = {
                 describes: {},
                 tests: {},
-                fileName: data.path,
+                name: data.path,
               };
             })
           );
@@ -266,7 +266,7 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
           return setState((oldState) =>
             immer(oldState, (state) => {
               if (state.files[data.path]) {
-                state.files[data.path].fileError = data.error;
+                state.files[data.path].error = data.error;
               }
             })
           );
@@ -520,16 +520,16 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
       <div className="p-4 overflow-auto h-full flex flex-col font-[Consolas,_Monaco,_monospace]">
         {/* TODO: Rename files to suites */}
         {Object.values(state.files).map((file) => {
-          if (file.fileError) {
+          if (file.error) {
             return (
               <div className="mb-2">
                 <span className="px-2 py-1 bg-red-500 mr-2 font-[Consolas,_Monaco,_monospace]">ERROR</span>
-                <button className="mb-2 decoration-dotted underline text-white" onClick={() => openFile(file.fileName)}>
-                  {file.fileName}
+                <button className="mb-2 decoration-dotted underline text-white" onClick={() => openFile(file.name)}>
+                  {file.name}
                 </button>
                 <div
                   className="mb-2 p-4 text-sm leading-[1.6] whitespace-pre-wrap text-white"
-                  dangerouslySetInnerHTML={{ __html: formatDiffMessage(file.fileError, file.fileName) }}
+                  dangerouslySetInnerHTML={{ __html: formatDiffMessage(file.error, file.name) }}
                 ></div>
               </div>
             );
@@ -550,8 +550,8 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
                 ) : (
                   <span className="px-2 py-1 bg-green-500 mr-2 font-[Consolas,_Monaco,_monospace]">PASS</span>
                 ))}
-              <button className="mb-2 decoration-dotted underline text-white" onClick={() => openFile(file.fileName)}>
-                {file.fileName}
+              <button className="mb-2 decoration-dotted underline text-white" onClick={() => openFile(file.name)}>
+                {file.name}
               </button>
 
               {state.verbose && Object.values(file.tests).map((test) => <Test test={test} />)}
