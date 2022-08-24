@@ -4,11 +4,10 @@ import classNames from "classnames";
 import immer from "immer";
 import { set } from "lodash";
 import { SandpackMessage } from "@codesandbox/sandpack-client";
-import { formatDiffMessage } from "./utils";
 import { useSandpackClient } from "./useSandpackClient";
-import { SandboxTestMessage, Test, TestError } from "./Message";
-import { Tests } from "./Tests";
-import { Describe, Describes } from "./Describes";
+import { SandboxTestMessage, Test } from "./Message";
+import { Describe } from "./Describes";
+import { Spec, Specs } from "./Specs";
 
 // TODO: Check todos in sandpack.tsx
 /*
@@ -21,13 +20,11 @@ TODO:
 - Tidy controls 
 */
 
-type File = { error?: TestError } & Describe;
-
-type Status = "initialising" | "idle" | "running" | "complete";
+export type Status = "initialising" | "idle" | "running" | "complete";
 type RunMode = "all" | "single";
 
 type State = {
-  files: { [path: string]: File };
+  files: { [path: string]: Spec };
   status: Status;
   runMode: RunMode;
   verbose: boolean;
@@ -345,73 +342,9 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
         </div>
       </div>
       <div className="p-4 overflow-auto h-full flex flex-col font-[Consolas,_Monaco,_monospace]">
-        {/* TODO: Rename files to suites */}
-        {Object.values(state.files).map((file) => {
-          const parts = file.name.split("/");
-          const path = parts.slice(0, parts.length - 1).join("/") + "/";
-          const name = parts[parts.length - 1];
+        <Specs specs={files} verbose={state.verbose} status={state.status} open={openFile} />
 
-          if (file.error) {
-            return (
-              <div className="mb-2">
-                <span className="px-2 py-1 bg-[#f7362b] mr-2 font-[Consolas,_Monaco,_monospace]">ERROR</span>
-                <button className="mb-2 decoration-dotted underline text-white" onClick={() => openFile(file.name)}>
-                  {file.name}
-                </button>
-                <div
-                  className="mb-2 p-4 text-sm leading-[1.6] whitespace-pre-wrap text-white"
-                  dangerouslySetInnerHTML={{ __html: formatDiffMessage(file.error, file.name) }}
-                ></div>
-              </div>
-            );
-          }
-
-          if (Object.values(file.describes).length === 0 && Object.values(file.tests).length === 0) {
-            return null;
-          }
-
-          /* TODO: Don't recompute this here */
-          const stats = getStats(file);
-          const tests = Object.values(file.tests);
-          const describes = Object.values(file.describes);
-
-          return (
-            <div className="mb-2">
-              {state.status === "complete" &&
-                (stats.fail > 0 ? (
-                  <span className="px-2 py-1 bg-[#f7362b] mr-2 font-[Consolas,_Monaco,_monospace]">FAIL</span>
-                ) : (
-                  <span className="px-2 py-1 bg-[#15c213] mr-2 font-[Consolas,_Monaco,_monospace]">PASS</span>
-                ))}
-              <button className="mb-2" onClick={() => openFile(file.name)}>
-                <span className="text-gray-400 decoration-dotted underline">{path}</span>
-                <span className="text-white decoration-dotted underline">{name}</span>
-              </button>
-
-              {verbose && <Tests tests={tests} />}
-
-              {state.verbose && <Describes describes={describes} />}
-
-              {getFailingTests(file).map((test) => {
-                return (
-                  <div key={`failing-${test.name}`}>
-                    <div className="text-[#fa7c75] mt-2 font-bold">
-                      ● {test.blocks.join(" › ")} › {test.name}
-                    </div>
-                    {test.errors.map((e) => {
-                      return (
-                        <div
-                          className="p-4 text-sm leading-[1.6] whitespace-pre-wrap text-white"
-                          dangerouslySetInnerHTML={{ __html: formatDiffMessage(e, test.path) }}
-                        ></div>
-                      );
-                    })}
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })}
+        {/* Summary */}
         {state.status === "complete" && allTests.total > 0 && (
           <div className="text-gray-400 font-bold">
             <div className="mb-2">
@@ -438,16 +371,16 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
   );
 };
 
-const getFailingTests = (block: Describe | File): Array<Test> => {
+const getFailingTests = (block: Describe | Spec): Array<Test> => {
   return getTests(block).filter((t) => t.status === "fail");
 };
 
-const getTests = (block: Describe | File): Array<Test> => {
+const getTests = (block: Describe | Spec): Array<Test> => {
   const tests = Object.values(block.tests);
   return tests.concat(...Object.values(block.describes).map(getTests));
 };
 
-const getStats = (file: File) => {
+const getStats = (file: Spec) => {
   const allTests = getTests(file);
 
   const sum = (tests: Test[]): { pass: number; fail: number; skip: number; total: number } =>
