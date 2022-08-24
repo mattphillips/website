@@ -8,6 +8,7 @@ import { formatDiffMessage } from "./utils";
 import { useSandpackClient } from "./useSandpackClient";
 import { SandboxTestMessage, Test, TestError } from "./Message";
 import { Tests } from "./Tests";
+import { Describe, Describes } from "./Describes";
 
 // TODO: Check todos in sandpack.tsx
 /*
@@ -20,13 +21,7 @@ TODO:
 - Tidy controls 
 */
 
-type Block = {
-  name: string;
-  tests: { [testName: string]: Test };
-  describes: { [describeName: string]: Block };
-};
-
-type File = { error?: TestError } & Block;
+type File = { error?: TestError } & Describe;
 
 type Status = "initialising" | "idle" | "running" | "complete";
 type RunMode = "all" | "single";
@@ -378,6 +373,7 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
           /* TODO: Don't recompute this here */
           const stats = getStats(file);
           const tests = Object.values(file.tests);
+          const describes = Object.values(file.describes);
 
           return (
             <div className="mb-2">
@@ -394,10 +390,7 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
 
               {verbose && <Tests tests={tests} />}
 
-              {state.verbose &&
-                Object.values(file.describes).map((describe) => (
-                  <Describe describe={describe} verbose={state.verbose} />
-                ))}
+              {state.verbose && <Describes describes={describes} />}
 
               {getFailingTests(file).map((test) => {
                 return (
@@ -445,11 +438,11 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
   );
 };
 
-const getFailingTests = (block: Block | File): Array<Test> => {
+const getFailingTests = (block: Describe | File): Array<Test> => {
   return getTests(block).filter((t) => t.status === "fail");
 };
 
-const getTests = (block: Block | File): Array<Test> => {
+const getTests = (block: Describe | File): Array<Test> => {
   const tests = Object.values(block.tests);
   return tests.concat(...Object.values(block.describes).map(getTests));
 };
@@ -471,26 +464,4 @@ const getStats = (file: File) => {
     );
 
   return sum(allTests);
-};
-
-const Describe: React.FC<{ describe: Block; verbose: boolean }> = ({ describe, verbose }) => {
-  if (Object.values(describe.describes).length === 0 && Object.values(describe.tests).length === 0) {
-    return null;
-  }
-
-  const tests = Object.values(describe.tests);
-
-  return (
-    <div className="ml-4">
-      <div className="">
-        <div className={classNames("mb-2 text-white", {})}>{describe.name}</div>
-
-        {verbose && <Tests tests={tests} />}
-
-        {Object.values(describe.describes).map((d) => (
-          <Describe describe={d} verbose={verbose} />
-        ))}
-      </div>
-    </div>
-  );
 };
