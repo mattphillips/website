@@ -154,7 +154,6 @@ type RunMode = "all" | "single";
 
 type State = {
   files: { [path: string]: File };
-  running: boolean;
   status: Status;
   runMode: RunMode;
   verbose: boolean;
@@ -162,7 +161,6 @@ type State = {
 
 const INITIAL_STATE: State = {
   files: {},
-  running: false,
   status: "initialising",
   runMode: "all",
   verbose: false,
@@ -227,11 +225,11 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
 
         if (data.event === "total_test_start") {
           currentDescribeBlocks = [];
-          return setState((old) => ({ ...old, running: true }));
+          return setState((old) => ({ ...old, status: "running" }));
         }
 
         if (data.event === "total_test_end") {
-          return setState((old) => ({ ...old, running: false, runMode: "all" }));
+          return setState((old) => ({ ...old, status: "complete", runMode: "all" }));
         }
 
         if (data.event === "add_file") {
@@ -503,8 +501,8 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
               Run suite
             </button>
           )}
-          {(state.running || state.status === "initialising") && (
-            <div role="status" className={classNames({ "ml-4": state.running })}>
+          {(state.status === "running" || state.status === "initialising") && (
+            <div role="status" className={classNames({ "ml-4": state.status === "running" })}>
               <svg
                 aria-hidden="true"
                 className="w-6 h-6 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
@@ -537,7 +535,7 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
 
           return (
             <div className="mb-2">
-              {!state.running &&
+              {state.status === "complete" &&
                 (stats.fail > 0 ? (
                   <span className="px-2 py-1 bg-red-500 mr-2 font-[Consolas,_Monaco,_monospace]">FAIL</span>
                 ) : (
@@ -574,8 +572,7 @@ const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false }) => 
             </div>
           );
         })}
-        {/* TODO: Add more states to the model aka idle and complete */}
-        {!state.running && allTests.total > 0 && (
+        {state.status === "complete" && allTests.total > 0 && (
           <div className="text-gray-400">
             <div className="mb-2">
               <span className="font-bold text-white">Tests Suites: </span>
