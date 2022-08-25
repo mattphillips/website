@@ -79,7 +79,7 @@ const formatDiffMessage = (error: TestError, path: string) => {
             `<span>$1$2$3</span><span style="color:#3fbabe">$4</span><span>$5</span>`
           )
           .replace(
-            /(expect\()(.*)(\)\..*)(to.*)(\()(.*)(\))/m,
+            /(expect\()(.*)(\)\..*)(to[\w\d]*)(\()(.*)(\))/m,
             `<span>$1</span><span style="color:#f7362b">$2</span><span>$3</span><span style="text-decoration: underline; color: white">$4</span><span>$5</span><span style="color:#15c213">$6</span><span>$7</span>`
           );
 
