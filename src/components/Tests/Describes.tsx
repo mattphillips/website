@@ -10,12 +10,13 @@ export type Describe = {
 };
 
 export const Describes: React.FC<{ describes: Array<Describe> }> = ({ describes }) => {
+  if (describes.length === 0) return null;
   return (
-    <div>
+    <>
       {describes.map((describe) => (
         <Describe key={describe.name} describe={describe} />
       ))}
-    </div>
+    </>
   );
 };
 
@@ -28,14 +29,12 @@ const Describe: React.FC<{ describe: Describe }> = ({ describe }) => {
   const describes = Object.values(describe.describes);
 
   return (
-    <div className="ml-4">
-      <div className="">
-        <div className={classNames("mb-2 text-white", {})}>{describe.name}</div>
+    <div className="ml-4" data-testid="describe-container">
+      <div className={classNames("mb-2 text-white", {})}>{describe.name}</div>
 
-        <Tests tests={tests} />
+      <Tests tests={tests} />
 
-        <Describes describes={describes} />
-      </div>
+      <Describes describes={describes} />
     </div>
   );
 };

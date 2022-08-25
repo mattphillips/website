@@ -11,7 +11,7 @@ type Props = {
 export const FormattedError: React.FC<Props> = ({ error, path }) => {
   return (
     <div
-      className="p-4 text-sm leading-[1.6] whitespace-pre-wrap text-white"
+      className="p-2 text-sm leading-[1.6] whitespace-pre-wrap text-white"
       dangerouslySetInnerHTML={{ __html: formatDiffMessage(error, path) }}
     ></div>
   );
