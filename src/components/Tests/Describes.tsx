@@ -13,7 +13,7 @@ export const Describes: React.FC<{ describes: Array<Describe> }> = ({ describes 
   return (
     <div>
       {describes.map((describe) => (
-        <Describe describe={describe} />
+        <Describe key={describe.name} describe={describe} />
       ))}
     </div>
   );

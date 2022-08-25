@@ -6,7 +6,7 @@ export const Tests: React.FC<{ tests: Array<Test> }> = ({ tests }) => {
   return (
     <div>
       {tests.map((test) => (
-        <Test test={test} />
+        <Test key={test.name} test={test} />
       ))}
     </div>
   );

@@ -1,6 +1,5 @@
 import React from "react";
 import { SandpackStack } from "@codesandbox/sandpack-react";
-import classNames from "classnames";
 import immer from "immer";
 import { set } from "lodash";
 import { SandpackMessage } from "@codesandbox/sandpack-client";
@@ -9,19 +8,15 @@ import { SandboxTestMessage, Test } from "./Message";
 import { Describe } from "./Describes";
 import { Spec, Specs } from "./Specs";
 import { Summary } from "./Summary";
-import { RunButton } from "./RunButton";
 import { Spinner } from "./Spinner";
 import { Controls } from "./Controls";
 
-// TODO: Check todos in sandpack.tsx
 /*
 TODO:
-- Pull out components (Test/Tests/Describes/Describe/Suites/Suite/TestSummary)
 - Write some nicer combinators for working with the data structure to compute shit
-- Add types to listen function (really this should be a PR to the API spec)
+- Clean up stats code
+- Pull out components in `Specs.tsx`
 - Migrate to Sandpack theme
-- PR error syntax highlighting PR to codesandbox
-- Tidy controls 
 */
 
 export type Status = "initialising" | "idle" | "running" | "complete";
@@ -232,7 +227,6 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
 
   const runAllTests = () => {
     setState((s) => ({ ...s, running: true, runMode: "all", specs: {} }));
-    // TODO: Abstract this away
     const client = getClient();
     if (client) {
       client.dispatch({ type: "run-all-tests" } as any);
@@ -251,7 +245,7 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
     }
   };
 
-  const openFile = (file: string) => {
+  const openSpec = (file: string) => {
     sandpack.setActiveFile(file);
   };
 
@@ -312,7 +306,7 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
           </div>
         )}
 
-        <Specs specs={specs} verbose={state.verbose} status={state.status} open={openFile} />
+        <Specs specs={specs} verbose={state.verbose} status={state.status} openSpec={openSpec} />
 
         {state.status === "complete" && allTests.total > 0 && (
           <Summary suites={allSuites} tests={allTests} duration={duration} />

@@ -1,9 +1,9 @@
 import React from "react";
 import { Status } from ".";
 import { Describe, Describes } from "./Describes";
+import { FormattedError } from "./FormattedError";
 import { Test, TestError } from "./Message";
 import { Tests } from "./Tests";
-import { formatDiffMessage } from "./utils";
 
 export type Spec = { error?: TestError } & Describe;
 
@@ -11,20 +11,20 @@ type Props = {
   specs: Array<Spec>;
   verbose: boolean;
   status: Status;
-  open: (name: string) => void;
+  openSpec: (name: string) => void;
 };
 
-export const Specs: React.FC<Props> = ({ specs, open, status, verbose }) => {
+export const Specs: React.FC<Props> = ({ specs, openSpec, status, verbose }) => {
   return (
     <div>
       {specs.map((spec) => (
-        <Spec spec={spec} open={open} status={status} verbose={verbose} />
+        <Spec key={spec.name} spec={spec} openSpec={openSpec} status={status} verbose={verbose} />
       ))}
     </div>
   );
 };
 
-const Spec: React.FC<Omit<Props, "specs"> & { spec: Spec }> = ({ spec, verbose, status, open }) => {
+const Spec: React.FC<Omit<Props, "specs"> & { spec: Spec }> = ({ spec, verbose, status, openSpec }) => {
   const parts = spec.name.split("/");
   const path = parts.slice(0, parts.length - 1).join("/") + "/";
   const name = parts[parts.length - 1];
@@ -33,13 +33,10 @@ const Spec: React.FC<Omit<Props, "specs"> & { spec: Spec }> = ({ spec, verbose, 
     return (
       <div className="mb-2">
         <span className="px-2 py-1 bg-[#f7362b] mr-2 font-[Consolas,_Monaco,_monospace]">ERROR</span>
-        <button className="mb-2 decoration-dotted underline text-white" onClick={() => open(spec.name)}>
+        <button className="mb-2 decoration-dotted underline text-white" onClick={() => openSpec(spec.name)}>
           {spec.name}
         </button>
-        <div
-          className="mb-2 p-4 text-sm leading-[1.6] whitespace-pre-wrap text-white"
-          dangerouslySetInnerHTML={{ __html: formatDiffMessage(spec.error, spec.name) }}
-        ></div>
+        <FormattedError error={spec.error} path={spec.name} />
       </div>
     );
   }
@@ -61,7 +58,7 @@ const Spec: React.FC<Omit<Props, "specs"> & { spec: Spec }> = ({ spec, verbose, 
         ) : (
           <span className="px-2 py-1 bg-[#15c213] mr-2 font-[Consolas,_Monaco,_monospace]">PASS</span>
         ))}
-      <button className="mb-2" onClick={() => open(spec.name)}>
+      <button className="mb-2" onClick={() => openSpec(spec.name)}>
         <span className="text-gray-400 decoration-dotted underline">{path}</span>
         <span className="text-white decoration-dotted underline">{name}</span>
       </button>
@@ -76,14 +73,9 @@ const Spec: React.FC<Omit<Props, "specs"> & { spec: Spec }> = ({ spec, verbose, 
             <div className="text-[#fa7c75] mt-2 font-bold">
               ● {test.blocks.join(" › ")} › {test.name}
             </div>
-            {test.errors.map((e) => {
-              return (
-                <div
-                  className="p-4 text-sm leading-[1.6] whitespace-pre-wrap text-white"
-                  dangerouslySetInnerHTML={{ __html: formatDiffMessage(e, test.path) }}
-                ></div>
-              );
-            })}
+            {test.errors.map((e) => (
+              <FormattedError key={`failing-${test.name}-error`} error={e} path={test.path} />
+            ))}
           </div>
         );
       })}
