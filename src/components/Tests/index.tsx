@@ -1,7 +1,7 @@
 import React from "react";
 import { SandpackStack } from "@codesandbox/sandpack-react";
 import immer from "immer";
-import { set } from "lodash";
+import { set, split } from "lodash";
 import { SandpackMessage } from "@codesandbox/sandpack-client";
 import { useSandpackClient } from "./useSandpackClient";
 import { SandboxTestMessage, Test } from "./Message";
@@ -15,7 +15,6 @@ import { Controls } from "./Controls";
 TODO:
 - Write some nicer combinators for working with the data structure to compute shit
 - Clean up stats code
-- Pull out components in `Specs.tsx`
 - Migrate to Sandpack theme
 */
 
@@ -117,17 +116,24 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
 
         if (data.event === "describe_start") {
           currentDescribeBlocks.push(data.blockName);
-          const head = currentDescribeBlocks.slice(0, currentDescribeBlocks.length - 1);
-          const tail = currentDescribeBlocks[currentDescribeBlocks.length - 1];
+          const [describePath, currentDescribe] = splitTail(currentDescribeBlocks);
           const spec = currentSpec;
+
+          if (currentDescribe === undefined) {
+            return;
+          }
 
           return setState((oldState) =>
             immer(oldState, (state) => {
-              set(state.specs[spec], ["describes", ...head.flatMap((name) => [name, "describes"]), tail], {
-                name: data.blockName,
-                tests: {},
-                describes: {},
-              });
+              set(
+                state.specs[spec],
+                ["describes", ...describePath.flatMap((name) => [name, "describes"]), currentDescribe],
+                {
+                  name: data.blockName,
+                  tests: {},
+                  describes: {},
+                }
+              );
             })
           );
         }
@@ -138,9 +144,7 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
         }
 
         if (data.event === "add_test") {
-          // TODO: This pattern is common
-          const head = currentDescribeBlocks.slice(0, currentDescribeBlocks.length - 1);
-          const tail = currentDescribeBlocks[currentDescribeBlocks.length - 1];
+          const [describePath, currentDescribe] = splitTail(currentDescribeBlocks);
           const test: Test = {
             status: "idle",
             errors: [],
@@ -150,12 +154,12 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
           };
           return setState((oldState) =>
             immer(oldState, (state) => {
-              if (tail === undefined) {
+              if (currentDescribe === undefined) {
                 state.specs[data.path].tests[data.testName] = test;
               } else {
                 set(
                   state.specs[data.path].describes,
-                  [...head.flatMap((name) => [name, "describes"]), tail, "tests", data.testName],
+                  [...describePath.flatMap((name) => [name, "describes"]), currentDescribe, "tests", data.testName],
                   test
                 );
               }
@@ -165,8 +169,7 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
 
         if (data.event === "test_start") {
           const { test } = data;
-          const head = test.blocks.slice(0, test.blocks.length - 1);
-          const tail = test.blocks[test.blocks.length - 1];
+          const [describePath, currentDescribe] = splitTail(test.blocks);
 
           const startedTest: Test = {
             status: "running",
@@ -178,12 +181,12 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
 
           return setState((oldState) =>
             immer(oldState, (state) => {
-              if (tail === undefined) {
+              if (currentDescribe === undefined) {
                 state.specs[test.path].tests[test.name] = startedTest;
               } else {
                 set(
                   state.specs[test.path].describes,
-                  [...head.flatMap((name: string) => [name, "describes"]), tail, "tests", test.name],
+                  [...describePath.flatMap((name: string) => [name, "describes"]), currentDescribe, "tests", test.name],
                   startedTest
                 );
               }
@@ -193,9 +196,7 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
 
         if (data.event === "test_end") {
           const { test } = data;
-          const head = test.blocks.slice(0, test.blocks.length - 1);
-          const tail = test.blocks[test.blocks.length - 1];
-
+          const [describePath, currentDescribe] = splitTail(test.blocks);
           const endedTest = {
             status: test.status,
             errors: test.errors,
@@ -207,12 +208,12 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
 
           return setState((oldState) =>
             immer(oldState, (state) => {
-              if (tail === undefined) {
+              if (currentDescribe === undefined) {
                 state.specs[test.path].tests[test.name] = endedTest;
               } else {
                 set(
                   state.specs[test.path].describes,
-                  [...head.flatMap((name: string) => [name, "describes"]), tail, "tests", test.name],
+                  [...describePath.flatMap((name: string) => [name, "describes"]), currentDescribe, "tests", test.name],
                   endedTest
                 );
               }
@@ -328,6 +329,13 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
       </div>
     </SandpackStack>
   );
+};
+
+const splitTail = <A,>(as: A[]): [A[], A | undefined] => {
+  const lastIndex = as.length - 1;
+  const head = as.slice(0, lastIndex);
+  const tail = as[lastIndex];
+  return [head, tail];
 };
 
 const getTests = (block: Describe | Spec): Array<Test> => {
