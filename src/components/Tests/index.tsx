@@ -279,7 +279,10 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
       { pass: 0, fail: 0, total: 0 }
     );
 
-  const isSpecOpen = sandpack.activeFile.match(/\.(test|spec)\.(ts|js)$/) !== null;
+  // TODO: jest-lite doesn't support jsx files but does tsx. PR needed
+  // https://github.com/codesandbox/codesandbox-client/blob/master/packages/app/src/sandbox/eval/tests/jest-lite.ts#L214
+  const testFileRegex = /.*\.(test|spec)\.[tj]sx?$/;
+  const isSpecOpen = sandpack.activeFile.match(testFileRegex) !== null;
 
   return (
     <SandpackStack style={{ height: "40vh" }}>
@@ -306,10 +309,21 @@ export const SandpackTests: React.FC<{ verbose?: boolean }> = ({ verbose = false
           </div>
         )}
 
-        <Specs specs={specs} verbose={state.verbose} status={state.status} openSpec={openSpec} />
+        {specs.length === 0 && state.status === "complete" ? (
+          <div className="font-bold">
+            <p className="mb-2">No test files found.</p>
+            <p>
+              Test match: <span className="text-[#fa7c75]">{testFileRegex.toString()}</span>
+            </p>
+          </div>
+        ) : (
+          <>
+            <Specs specs={specs} verbose={state.verbose} status={state.status} openSpec={openSpec} />
 
-        {state.status === "complete" && allTests.total > 0 && (
-          <Summary suites={allSuites} tests={allTests} duration={duration} />
+            {state.status === "complete" && allTests.total > 0 && (
+              <Summary suites={allSuites} tests={allTests} duration={duration} />
+            )}
+          </>
         )}
       </div>
     </SandpackStack>
