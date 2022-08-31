@@ -1,6 +1,4 @@
 import React from "react";
-// @ts-ignore
-import ansiHTML from "ansi-html";
 import { TestError } from "./Message";
 
 type Props = {
@@ -42,8 +40,6 @@ const formatDiffMessage = (error: TestError, path: string) => {
   } else {
     finalMessage = escapeHtml(error.message);
   }
-
-  finalMessage = ansiHTML(finalMessage);
 
   if (
     error.mappedErrors &&
