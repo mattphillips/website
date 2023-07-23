@@ -15,17 +15,16 @@ import { config } from 'src/config';
 import { ProfileAvatar } from 'src/components/ProfileAvatar';
 import { Paths, Props } from 'src/next/Props';
 import { ContentLayerArticles } from 'src/articles/ContentLayerArticles';
+import { MDX } from 'src/components/mdx';
 
 export default function Post({ description, duration, image, mdx, publishedAt, slug, title }: Article) {
-  const Component = useMDXComponent(mdx);
-
   return (
     <>
       <SEO title={Maybe.just(title)} slug={`/blog/${slug}`} description={description} image={image.src} />
       <Layout>
         <div className="max-w-4xl mx-auto pt-16">
           <div className="px-6 lg:px-0">
-            <h1 className="font-display text-5xl md:text-7xl font-bold mb-8 leading-tight">
+            <h1 className="font-display text-5xl md:text-7xl font-bold mb-8 leading-tight text-center">
               <Balancer>{title}</Balancer>
             </h1>
             <PostMeta className="mb-12" duration={duration} publishedAt={publishedAt} />
@@ -33,7 +32,7 @@ export default function Post({ description, duration, image, mdx, publishedAt, s
             <Thumbnail src={image.src} alt={image.alt} priority />
 
             <article className="post mt-12 max-w-4xl mx-auto md:px-6">
-              <Component components={{}}></Component>
+              <MDX code={mdx} />
             </article>
           </div>
 

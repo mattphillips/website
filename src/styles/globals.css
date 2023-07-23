@@ -1,18 +1,91 @@
 @tailwind base;
-
-body {
-  @apply transition-colors duration-300 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-50;
-  -webkit-font-smoothing: antialiased;
-  height: 100%;
-}
-
-html,
-#__next {
-  height: 100%;
-}
-
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 215 27.9% 16.9%;
+
+    --muted: 220 14.3% 95.9%;
+    --muted-foreground: 220 8.9% 46.1%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 27.9% 16.9%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 27.9% 16.9%;
+
+    --primary: 215 27.9% 16.9%;
+    --primary-foreground: 210 20% 98%;
+
+    --secondary: 220 14.3% 95.9%;
+    --secondary-foreground: 215 27.9% 16.9%;
+
+    --accent: 220 14.3% 95.9%;
+    --accent-foreground: 215 27.9% 16.9%;
+
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 210 20% 98%;
+
+    --ring: 217.9 10.6% 64.9%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 215 27.9% 16.9%;
+    --foreground: 210 20% 98%;
+
+    /* TODO: The below colours haven't been updated to my theme so might be slightly off */
+    --muted: 223 47% 11%;
+    --muted-foreground: 215.4 16.3% 56.9%;
+
+    --accent: 216 34% 17%;
+    --accent-foreground: 210 20% 98%;
+
+    --popover: 224 71% 4%;
+    --popover-foreground: 217.9 10.6% 64.9%;
+
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+
+    --card: 224 71% 4%;
+    --card-foreground: 213 31% 91%;
+
+    --primary: 210 20% 98%;
+    --primary-foreground: 222.2 47.4% 1.2%;
+
+    --secondary: 215 27.9% 16.9%;
+    --secondary-foreground: 210 20% 98%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 20% 98%;
+
+    --ring: 216 34% 17%;
+
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground transition-colors duration-300;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+    -webkit-font-smoothing: antialiased;
+    height: 100%;
+  }
+  html,
+  #__next {
+    height: 100%;
+  }
+}
 
 /* Theme */
 [data-theme='light'] {
@@ -104,7 +177,7 @@ code[data-line-numbers-max-digits='3'] > [data-line]::before {
   @apply text-gray-800 border-gray-200 bg-gray-100;
 }
 
-[data-rehype-pretty-code-title] + pre {
+[data-rehype-pretty-code-title] + div > pre {
   @apply mt-0 rounded-t-none border-t-0;
 }
 
