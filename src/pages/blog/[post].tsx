@@ -3,6 +3,7 @@ import React from 'react';
 import { Maybe } from 'ts-prelude/Maybe';
 import { IO } from 'ts-prelude/IO/fluent';
 import { useMDXComponent } from 'next-contentlayer/hooks';
+import Balancer from 'react-wrap-balancer';
 
 import { Article, Slug } from 'src/articles/Articles';
 import { Layout } from 'src/components/Layout';
@@ -24,7 +25,9 @@ export default function Post({ description, duration, image, mdx, publishedAt, s
       <Layout>
         <div className="max-w-4xl mx-auto pt-16">
           <div className="px-6 lg:px-0">
-            <h1 className="font-display text-5xl md:text-7xl font-bold mb-8 leading-tight text-center">{title}</h1>
+            <h1 className="font-display text-5xl md:text-7xl font-bold mb-8 leading-tight">
+              <Balancer>{title}</Balancer>
+            </h1>
             <PostMeta className="mb-12" duration={duration} publishedAt={publishedAt} />
 
             <Thumbnail src={image.src} alt={image.alt} priority />
