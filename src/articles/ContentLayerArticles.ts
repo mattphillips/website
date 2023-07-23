@@ -49,9 +49,7 @@ const isProduction: UIO<boolean> = readEnv('NODE_ENV').fold(
 
 export class ContentLayerArticles implements Articles {
   list: UIO<Array<Article>> = IO.sync<never, Array<Blog>>(() => allBlogs)
-    .flatMapW((blogs) =>
-      isProduction.tap((b) => console.log(b)).map((isProd) => blogs.filter((b) => (isProd ? !b.draft : true)))
-    )
+    .flatMapW((blogs) => isProduction.map((isProd) => blogs.filter((b) => (isProd ? !b.draft : true))))
     .map((blogs) =>
       blogs
         .map((blog) => eitherToResult(article.decode(blog)))
