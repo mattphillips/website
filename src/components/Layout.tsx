@@ -1,10 +1,11 @@
-import Link from "next/link";
-import { useTheme } from "next-themes";
-import React from "react";
+import Link from 'next/link';
+import { useTheme } from 'next-themes';
+import React from 'react';
 
-import { config } from "src/config";
-import { Moon, Sun } from "./icons";
-import { SocialLinks } from "./SocialLinks";
+import { config } from 'src/config';
+import { Moon, Sun } from './icons';
+import { SocialLinks } from './SocialLinks';
+import { getYear } from 'date-fns';
 
 export const Layout: React.FC = ({ children }) => {
   const { resolvedTheme, setTheme } = useTheme();
@@ -24,7 +25,7 @@ export const Layout: React.FC = ({ children }) => {
           <button
             aria-label="Toggle dark mode"
             type="button"
-            onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
             className="bg-gray-100 dark:bg-gray-700 inline-flex items-center justify-center overflow-hidden rounded-lg p-2 md:transition-transform md:transform md:hover:scale-125"
           >
             <div className="relative h-6 w-6">
@@ -43,7 +44,7 @@ export const Layout: React.FC = ({ children }) => {
           </div>
           <div className="mt-4 md:mt-0 md:order-1">
             <p className="text-center text-base text-gray-500 dark:text-gray-400">
-              &copy; 2022 Matt Phillips. All rights reserved.
+              &copy; {getYear(new Date())} Matt Phillips. All rights reserved.
             </p>
           </div>
         </div>
