@@ -1,14 +1,14 @@
-import { GetStaticProps } from "next";
-import React from "react";
+import { GetStaticProps } from 'next';
+import React from 'react';
 
-import { FsArticles } from "src/articles/FsArticles";
-import { Article, Description, Src } from "src/articles/Articles";
-import { Layout } from "src/components/Layout";
-import { Props } from "src/next/Props";
-import { SEO } from "src/components/Seo";
-import { Maybe } from "ts-prelude/Maybe";
-import { Posts } from "src/components/Posts";
-import { ProfileAvatar } from "src/components/ProfileAvatar";
+import { Article, Summary, Src } from 'src/articles/Articles';
+import { Layout } from 'src/components/Layout';
+import { Props } from 'src/next/Props';
+import { SEO } from 'src/components/Seo';
+import { Maybe } from 'ts-prelude/Maybe';
+import { Posts } from 'src/components/Posts';
+import { ProfileAvatar } from 'src/components/ProfileAvatar';
+import { ContentLayerArticles } from 'src/articles/ContentLayerArticles';
 
 type Home = { posts: Array<Article> };
 
@@ -20,8 +20,8 @@ export default function Home({ posts }: Home) {
       <SEO
         title={Maybe.nothing}
         slug=""
-        description={Description.unsafeFrom(description)}
-        image={Src.unsafeFrom("/profile.jpg")}
+        description={Summary.unsafeFrom(description)}
+        image={Src.unsafeFrom('/profile.jpg')}
       />
       <Layout>
         <div className="px-6">
@@ -54,5 +54,5 @@ export default function Home({ posts }: Home) {
 }
 
 export const getStaticProps: GetStaticProps<Home> = Props.getStatic(() =>
-  new FsArticles().list.map((posts) => ({ posts }))
+  new ContentLayerArticles().list.map((posts) => ({ posts }))
 );

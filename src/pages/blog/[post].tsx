@@ -1,22 +1,23 @@
-import { GetStaticPaths, GetStaticProps } from "next";
-import React from "react";
-import { IO } from "ts-prelude/IO/fluent";
-import { Maybe } from "ts-prelude/Maybe";
+import { GetStaticPaths, GetStaticProps } from 'next';
+import React from 'react';
+import { Maybe } from 'ts-prelude/Maybe';
+import { IO } from 'ts-prelude/IO/fluent';
+import { useMDXComponent } from 'next-contentlayer/hooks';
 
-import { Article, Slug } from "src/articles/Articles";
-import { FsArticles } from "src/articles/FsArticles";
-import { Layout } from "src/components/Layout";
-import { Paths, Props } from "src/next/Props";
-import { Thumbnail } from "src/components/Thumbnail";
-import { SEO } from "src/components/Seo";
-import { PostMeta } from "src/components/PostMeta";
-import { ExternalLink } from "src/components/ExternalLink";
-import { config } from "src/config";
-import { usePrism } from "src/hooks/usePrism";
-import { ProfileAvatar } from "src/components/ProfileAvatar";
+import { Article, Slug } from 'src/articles/Articles';
+import { Layout } from 'src/components/Layout';
+import { Thumbnail } from 'src/components/Thumbnail';
+import { SEO } from 'src/components/Seo';
+import { PostMeta } from 'src/components/PostMeta';
+import { ExternalLink } from 'src/components/ExternalLink';
+import { config } from 'src/config';
+import { ProfileAvatar } from 'src/components/ProfileAvatar';
+import { Paths, Props } from 'src/next/Props';
+import { ContentLayerArticles } from 'src/articles/ContentLayerArticles';
 
-export default function Post({ html, title, date, duration, image, slug, description }: Article) {
-  const prismRef = usePrism();
+export default function Post({ description, duration, image, mdx, publishedAt, slug, title }: Article) {
+  const Component = useMDXComponent(mdx);
+
   return (
     <>
       <SEO title={Maybe.just(title)} slug={`/blog/${slug}`} description={description} image={image.src} />
@@ -24,12 +25,12 @@ export default function Post({ html, title, date, duration, image, slug, descrip
         <div className="max-w-4xl mx-auto pt-16">
           <div className="px-6 lg:px-0">
             <h1 className="font-display text-5xl md:text-7xl font-bold mb-8 leading-tight text-center">{title}</h1>
-            <PostMeta className="mb-12" duration={duration} date={date} />
+            <PostMeta className="mb-12" duration={duration} publishedAt={publishedAt} />
 
             <Thumbnail src={image.src} alt={image.alt} priority />
 
-            <article className="post mt-12 max-w-4xl mx-auto md:px-6" ref={prismRef}>
-              <div dangerouslySetInnerHTML={{ __html: html }} />
+            <article className="post mt-12 max-w-4xl mx-auto md:px-6">
+              <Component components={{}}></Component>
             </article>
           </div>
 
@@ -56,7 +57,7 @@ export default function Post({ html, title, date, duration, image, slug, descrip
                 </p>
                 <p className="font-body text-lg">
                   Don’t miss out on on future posts, projects and products I’m working on by following me over on
-                  Twitter{" "}
+                  Twitter{' '}
                   <ExternalLink className="font-bold" href={config.social.twitter}>
                     @mattphillipsio
                   </ExternalLink>
@@ -72,12 +73,12 @@ export default function Post({ html, title, date, duration, image, slug, descrip
 }
 
 export const getStaticProps: GetStaticProps<Article, { post: Slug }> = Props.getStatic((ctx) =>
-  new FsArticles()
-    .findBySlug(`${ctx.params!.post}.md`)
-    .flatMapW(IO.fromMaybe(new Error("Slug not found")))
+  new ContentLayerArticles()
+    .findBySlug(ctx.params!.post)
+    .flatMapW(IO.fromMaybe(new Error('Slug not found')))
     .orDie()
 );
 
 export const getStaticPaths: GetStaticPaths<{ post: Slug }> = Paths.getStatic(() =>
-  new FsArticles().list.map((articles) => articles.map((a) => ({ post: a.slug })))
+  new ContentLayerArticles().list.map((articles) => articles.map((a) => ({ post: a.slug })))
 );

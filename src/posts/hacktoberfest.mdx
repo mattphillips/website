@@ -1,10 +1,10 @@
 ---
 title: Hacktoberfest — get involved in OSS with jest-extended
-date: "2017-10-23T22:12:03.284Z"
-description: Want to get involved in open source software but don’t know where to begin? We’ve all been there!
+publishedAt: '2017-10-23T22:12:03.284Z'
+summary: Want to get involved in open source software but don’t know where to begin? We’ve all been there!
 image:
   src: /images/blog/hacktoberfest.jpg
-  alt: "Mount tiede"
+  alt: 'Mount tiede'
 ---
 
 Want to get involved in open source software but don’t know where to begin? We’ve all been there! Hacktoberfest is a great incentive for people to start contributing back to the OSS community and you can get yourself some free swag 👕. With the clock ticking down on Hacktoberfest — I’ve got a new open source project that you’re more than to contribute to! [jest-extended](https://github.com/mattphillips/jest-extended) 🎉
@@ -19,22 +19,22 @@ I recently found a feature of Jest that I thought was very cool!
 
 You can use [`expect.extend`](https://jestjs.io/docs/expect#expectextendmatchers) to add your own matchers (assertions) to Jest. For example, let’s say you wanted to check a value is `true`. You could abstract that into a `toBeTrue` matcher:
 
-```js[class=line-numbers]
+```js showLineNumbers
 expect.extend({
   toBeTrue(given) {
     const pass = given === true;
     if (pass) {
       return {
         message: () => `expected ${given} not to be true`,
-        pass: true,
+        pass: true
       };
     } else {
       return {
         message: () => `expected ${given} to be true`,
-        pass: false,
+        pass: false
       };
     }
-  },
+  }
 });
 
 test('true and false', () => {

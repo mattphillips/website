@@ -1,32 +1,32 @@
-import { GetStaticProps } from "next";
-import React from "react";
+import { GetStaticProps } from 'next';
+import React from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { Maybe } from 'ts-prelude/Maybe';
 
-import { FsArticles } from "src/articles/FsArticles";
-import { Alt, Article, Description, Src, Title } from "src/articles/Articles";
-import { Layout } from "src/components/Layout";
-import { Props } from "src/next/Props";
-import { SEO } from "src/components/Seo";
-import { Maybe } from "ts-prelude/Maybe";
-import { Posts } from "src/components/Posts";
-import { useRouter } from "next/router";
-import { Thumbnail } from "src/components/Thumbnail";
-import Link from "next/link";
+import { Alt, Article, Summary, Src, Title } from 'src/articles/Articles';
+import { Layout } from 'src/components/Layout';
+import { Props } from 'src/next/Props';
+import { SEO } from 'src/components/Seo';
+import { Posts } from 'src/components/Posts';
+import { Thumbnail } from 'src/components/Thumbnail';
+import { ContentLayerArticles } from 'src/articles/ContentLayerArticles';
 
 type NotFound = { posts: Array<Article> };
 
 export default function NotFound({ posts }: NotFound) {
   const description =
-    "Personal site by Matt Phillips where he write on all things related to code and careers in tech with a focus on Typescript, Testing and Functional Programming.";
+    'Personal site by Matt Phillips where he write on all things related to code and careers in tech with a focus on Typescript, Testing and Functional Programming.';
 
   const { asPath } = useRouter();
 
   return (
     <>
       <SEO
-        title={Maybe.just(Title.unsafeFrom("Not Found"))}
+        title={Maybe.just(Title.unsafeFrom('Not Found'))}
         slug={asPath}
-        description={Description.unsafeFrom(description)}
-        image={Src.unsafeFrom("/profile.jpg")}
+        description={Summary.unsafeFrom(description)}
+        image={Src.unsafeFrom('/profile.jpg')}
       />
       <Layout>
         <div className="max-w-4xl mx-auto pt-16">
@@ -50,7 +50,7 @@ export default function NotFound({ posts }: NotFound) {
             </Link>
 
             <div className="my-12">
-              <Thumbnail src={Src.unsafeFrom("/images/404.jpg")} alt={Alt.unsafeFrom("Not found")} priority />
+              <Thumbnail src={Src.unsafeFrom('/images/404.jpg')} alt={Alt.unsafeFrom('Not found')} priority />
             </div>
           </div>
         </div>
@@ -64,5 +64,5 @@ export default function NotFound({ posts }: NotFound) {
 }
 
 export const getStaticProps: GetStaticProps<NotFound> = Props.getStatic(() =>
-  new FsArticles().list.map((as) => as.slice(0, 3)).map((posts) => ({ posts }))
+  new ContentLayerArticles().list.map((as) => as.slice(0, 3)).map((posts) => ({ posts }))
 );

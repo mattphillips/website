@@ -1,10 +1,11 @@
 ---
+draft: true
 title: Hello World
-date: "2022-08-11T22:12:03.284Z"
-description: Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+publishedAt: '2022-08-11T22:12:03.284Z'
+summary: Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
 image:
   src: /images/blog/demo.jpg
-  alt: "Rocket"
+  alt: 'Rocket'
 ---
 
 # Heading 1
@@ -43,6 +44,8 @@ This is a [link](/#) inline
 
 This is a link inside of a code snippet [`link`](/#)
 
+This `text` is inside a code block
+
 This is an unordered list:
 
 - Two
@@ -77,14 +80,14 @@ This is an emoji inline 😆
 # This is an emoji heading 🗿
 
 This is an image:
-![Chinese Salty Egg](/example.jpeg "hello")
+![Chinese Salty Egg](/example.jpeg 'hello')
 
 This is a code block with js highlighting and multiple lines highlighted with no line numbers
 
-```js[class="line-numbers"][class="hide-numbers"][data-line="3,8-10"]
+```js
 class Shape {
   draw() {
-    console.log("Uhhh maybe override me");
+    console.log('Uhhh maybe override me');
   }
 }
 
@@ -97,7 +100,7 @@ class Circle {
 
 This is a code block with js highlighting and multiple lines highlighted with line numbers
 
-```typescript[class="line-numbers"][data-line="3,8-10"]
+```typescript /User/1,2
 interface User {
   name: string;
   id: number;
@@ -113,12 +116,12 @@ class UserAccount {
   }
 }
 
-const user: User = new UserAccount("Murphy", 1);
+const user: User = new UserAccount('Murphy', 1);
 ```
 
 This is a code block with line numbers
 
-```js[class="line-numbers"]
+```js {1,2} showLineNumbers
 const hi () => {
   console.log('hi');
 }
@@ -126,7 +129,36 @@ const hi () => {
 
 Haskell
 
-```haskell[class="line-numbers"]
+```haskell showLineNumbers title="Demo.hs" caption="Caption"
+main :: IO ()
+main = putStrLn "Hello, World!"
+```
+
+```js showLineNumbers title="JS"
+expect.extend({
+  toBeTrue(given) {
+    const pass = given === true;
+    if (pass) {
+      return {
+        message: () => `expected ${given} not to be true`,
+        pass: true
+      };
+    } else {
+      return {
+        message: () => `expected ${given} to be true`,
+        pass: false
+      };
+    }
+  }
+});
+
+test('true and false', () => {
+  expect(true).toBeTrue();
+  expect(false).not.toBeTrue();
+});
+```
+
+```haskell showLineNumbers title="Demo.hs" caption="Caption"
 main :: IO ()
 main = putStrLn "Hello, World!"
 ```

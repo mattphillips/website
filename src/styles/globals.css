@@ -13,3 +13,117 @@ html,
 
 @tailwind components;
 @tailwind utilities;
+
+/* Theme */
+[data-theme='light'] {
+  display: block;
+}
+
+[data-theme='dark'] {
+  display: none;
+}
+
+.dark [data-theme='light'] {
+  display: none;
+}
+
+.dark [data-theme='dark'] {
+  display: block;
+}
+
+/* Default code block */
+pre {
+  @apply !px-0 rounded-lg overflow-auto;
+}
+
+.light pre {
+  @apply !bg-gray-50 border border-gray-200;
+}
+
+.dark pre {
+  @apply border border-gray-700;
+}
+
+code {
+  @apply !text-sm !leading-loose;
+}
+
+pre > code {
+  @apply grid py-2;
+  counter-reset: line;
+}
+
+[data-line] {
+  @apply border-l-4 border-l-transparent px-2 w-full inline-block;
+}
+
+/* Line highlighting */
+[data-highlighted-line] {
+  @apply border-l-blue-400 bg-gray-400 bg-opacity-10;
+}
+
+/* Word highlighting */
+[data-highlighted-chars] {
+  @apply rounded-md bg-gray-500 bg-opacity-10 p-1;
+}
+
+.dark [data-highlighted-chars] {
+  @apply bg-opacity-20;
+}
+
+/* Line numbers */
+[data-line-numbers] > [data-line]::before {
+  counter-increment: line;
+  content: counter(line);
+
+  display: inline-block;
+  width: 1rem;
+  margin-right: 1rem;
+  text-align: right;
+  color: gray;
+}
+
+code[data-line-numbers-max-digits='2'] > [data-line]::before {
+  width: 2rem;
+}
+
+code[data-line-numbers-max-digits='3'] > [data-line]::before {
+  width: 3rem;
+}
+
+/* Code titles */
+[data-rehype-pretty-code-title] {
+  @apply px-4 py-3 font-mono text-xs font-medium border rounded-t-lg;
+}
+
+.dark [data-rehype-pretty-code-title] {
+  @apply text-gray-200 border-gray-700 bg-gray-900;
+}
+
+.light [data-rehype-pretty-code-title] {
+  @apply text-gray-800 border-gray-200 bg-gray-100;
+}
+
+[data-rehype-pretty-code-title] + pre {
+  @apply mt-0 rounded-t-none border-t-0;
+}
+
+/* Code captions */
+[data-rehype-pretty-code-caption] {
+  display: none !important;
+}
+
+/* Inline code blocks */
+.dark :not(pre) > code {
+  background: #011627;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-size: 90%;
+}
+
+.light :not(pre) > code {
+  background-color: #f6f8fa;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-size: 90%;
+}

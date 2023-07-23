@@ -1,19 +1,19 @@
-import Head from "next/head";
-import { Maybe } from "ts-prelude/Maybe";
+import Head from 'next/head';
+import { Maybe } from 'ts-prelude/Maybe';
 
-import { Description, Src, Title } from "src/articles/Articles";
-import { config } from "src/config";
+import { Summary, Src, Title } from 'src/articles/Articles';
+import { config } from 'src/config';
 
 type SEO = {
   title: Maybe<Title>;
   slug: string;
-  description: Description;
+  description: Summary;
   image: Src;
 };
 
 export const SEO = ({ title, slug, description, image }: SEO) => {
   const url = `${config.domain}/${slug}`;
-  const displayTitle = title.map((t) => `${t} · Matt Phillips`).getOrElse("Matt Phillips");
+  const displayTitle = title.map((t) => `${t} · Matt Phillips`).getOrElse('Matt Phillips');
   return (
     <Head>
       <title>{displayTitle}</title>

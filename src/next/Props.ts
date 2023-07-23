@@ -1,11 +1,11 @@
-import { GetStaticPaths, GetStaticPathsContext, GetStaticProps, GetStaticPropsContext } from "next";
-import { UIO } from "ts-prelude/IO/fluent";
-import { toSerialisable } from "ts-prelude/Serialisable";
-import { ParsedUrlQuery } from "querystring";
+import { GetStaticPaths, GetStaticPathsContext, GetStaticProps, GetStaticPropsContext } from 'next';
+import { UIO } from 'ts-prelude/IO/fluent';
+import { toSerialisable } from 'ts-prelude/Serialisable';
+import { ParsedUrlQuery } from 'querystring';
 
 export namespace Props {
   export const getStatic =
-    <Props, Params extends ParsedUrlQuery = ParsedUrlQuery>(
+    <Props extends { [key: string]: any }, Params extends ParsedUrlQuery = ParsedUrlQuery>(
       f: (ctx: GetStaticPropsContext<Params>) => UIO<Props>
     ): GetStaticProps<Props, Params> =>
     (ctx) =>
