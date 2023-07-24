@@ -6,7 +6,20 @@ import { Maybe } from 'ts-prelude/Maybe';
 import { eitherToResult } from 'ts-prelude/fp-ts-interop';
 
 import { allBlogs, Blog } from 'contentlayer/generated';
-import { Articles, Article, Title, Summary, Src, Alt, Slug, Duration, MDX, PublishedAt, Tag } from './Articles';
+import {
+  Articles,
+  Article,
+  Title,
+  Summary,
+  Src,
+  Alt,
+  Slug,
+  Duration,
+  MDX,
+  PublishedAt,
+  Tag,
+  Keyword
+} from './Articles';
 import { IterableToCodec } from 'src/codecs/Iterable';
 
 const article = t.type({
@@ -19,7 +32,8 @@ const article = t.type({
     src: IterableToCodec(Src),
     alt: IterableToCodec(Alt)
   }),
-  tags: t.array(IterableToCodec(Tag))
+  tags: t.array(IterableToCodec(Tag)),
+  keywords: t.array(IterableToCodec(Keyword))
 });
 
 const readEnv = (key: string): IO<Error, string> =>
@@ -49,7 +63,8 @@ export class ContentLayerArticles implements Articles {
                   mdx: a.body.code,
                   slug: a.slug,
                   duration: Duration(reading(a.body.raw).text),
-                  tags: a.tags.map(Tag.toLowerCase)
+                  tags: a.tags.map(Tag.toLowerCase),
+                  keywords: a.keywords
                 })
             ),
           []
