@@ -24,7 +24,7 @@ import {
 import { IterableToCodec } from 'src/codecs/Iterable';
 
 const article = t.type({
-  body: t.type({ code: IterableToCodec(MDX), raw: t.string }),
+  body: t.type({ code: IterableToCodec(MDX) }),
   publishedAt: tt.DateFromISOString,
   title: IterableToCodec(Title),
   slug: IterableToCodec(Slug),
@@ -33,6 +33,7 @@ const article = t.type({
     src: IterableToCodec(Src),
     alt: IterableToCodec(Alt)
   }),
+  duration: IterableToCodec(Duration),
   tags: t.array(IterableToCodec(Tag)),
   keywords: t.array(IterableToCodec(Keyword))
 });
@@ -63,7 +64,7 @@ export class ContentLayerArticles implements Articles {
                   title: a.title,
                   mdx: a.body.code,
                   slug: a.slug,
-                  duration: Duration(reading(a.body.raw).text),
+                  duration: a.duration,
                   tags: a.tags.map(Tag.toLowerCase),
                   keywords: a.keywords
                 })

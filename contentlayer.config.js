@@ -4,12 +4,17 @@ import rehypePrettyCode from 'rehype-pretty-code';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import darkTheme from './src/themes/dark-theme.json';
+import readingTime from 'reading-time';
 
 /** @type {import('contentlayer/source-files').ComputedFields} */
 const computedFields = {
   slug: {
     type: 'string',
     resolve: (doc) => doc._raw.flattenedPath
+  },
+  duration: {
+    type: 'string',
+    resolve: (doc) => readingTime(doc.body.raw).text
   }
 };
 

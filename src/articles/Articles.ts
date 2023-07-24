@@ -46,7 +46,7 @@ export type Summary = Nominal<string, { readonly Summary: unique symbol }>;
 export const Summary = Refined.Iterable.MinLength.refinement<Summary>(0);
 
 export type Duration = Nominal<string, { readonly Duration: unique symbol }>;
-export const Duration = Nominal<Duration>();
+export const Duration = Refined.Iterable.MinLength.refinement<Duration>(1);
 
 export type PublishedAt = Nominal<Date, { readonly PublishedAt: unique symbol }>;
 export const PublishedAt = Nominal<PublishedAt>();
