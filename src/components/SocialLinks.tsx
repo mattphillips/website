@@ -3,6 +3,7 @@ import React from 'react';
 import { config } from 'src/config';
 import { Github, LinkedIn, Twitter } from './icons';
 import { cn } from 'src/styles/cn';
+import { ExternalLink } from './ExternalLink';
 
 const links = [
   { href: config.social.twitter, title: 'Twitter', icon: <Twitter /> },
@@ -13,9 +14,9 @@ const links = [
 export const SocialLinks: React.FC<{ className?: string }> = ({ className }) => (
   <div className={cn(className, 'flex flex-row justify-center')}>
     {links.map(({ href, icon, title }) => (
-      <a href={href} target="_blank" title={title} rel="noopener" key={title}>
+      <ExternalLink href={href} key={title}>
         <div className="p-3 transition-transform transform hover:scale-125">{icon}</div>
-      </a>
+      </ExternalLink>
     ))}
   </div>
 );

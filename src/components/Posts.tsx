@@ -1,8 +1,9 @@
-import Link from 'next/link';
 import React from 'react';
 import { Article } from 'src/articles/Articles';
 import { PostMeta } from './PostMeta';
 import { Thumbnail } from './Thumbnail';
+import { Action } from './Action';
+import { config } from 'src/config';
 
 type Posts = { posts: Array<Article> };
 
@@ -14,20 +15,18 @@ export const Posts: React.FC<Posts> = ({ posts }) => (
         key={slug}
       >
         <div className="max-w-lg">
-          <Link passHref={true} href={`/blog/${slug}`}>
-            <a className="no-underline">
-              <article className="">
-                <Thumbnail src={image.src} alt={image.alt} />
-                <div className="mt-4">
-                  <PostMeta className="text-sm" duration={duration} publishedAt={publishedAt} />
-                  <div className="p-4">
-                    <h2 className="text-3xl font-display font-semibold mb-4">{title}</h2>
-                    <p className="text-lg font-body">{description}</p>
-                  </div>
+          <Action tag="Link" href={config.routes.blog(slug)} className="no-underline">
+            <article className="">
+              <Thumbnail src={image.src} alt={image.alt} />
+              <div className="mt-4">
+                <PostMeta className="text-sm" duration={duration} publishedAt={publishedAt} />
+                <div className="p-4">
+                  <h2 className="text-3xl font-display font-semibold mb-4">{title}</h2>
+                  <p className="text-lg font-body">{description}</p>
                 </div>
-              </article>
-            </a>
-          </Link>
+              </div>
+            </article>
+          </Action>
         </div>
       </article>
     ))}

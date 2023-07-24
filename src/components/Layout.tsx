@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import React from 'react';
 
@@ -6,6 +5,7 @@ import { config } from 'src/config';
 import { Moon, Sun } from './icons';
 import { SocialLinks } from './SocialLinks';
 import { getYear } from 'date-fns';
+import { Action } from './Action';
 
 export const Layout: React.FC = ({ children }) => {
   const { resolvedTheme, setTheme } = useTheme();
@@ -14,13 +14,11 @@ export const Layout: React.FC = ({ children }) => {
     <div className="flex flex-col h-full">
       <header className="p-4">
         <div className="max-w-5xl mx-auto flex flex-row justify-between items-center">
-          <Link passHref href="/">
-            <a title={config.domain}>
-              <span className="inline-block font-display bg-gray-800 dark:bg-white text-2xl font-semibold p-2 rounded text-white dark:text-gray-800 transition-all transform duration-300 hover:scale-110">
-                MP
-              </span>
-            </a>
-          </Link>
+          <Action tag="Link" href={config.routes.home} title={config.domain}>
+            <span className="inline-block font-display bg-gray-800 dark:bg-white text-2xl font-semibold p-2 rounded text-white dark:text-gray-800 transition-all transform duration-300 hover:scale-110">
+              MP
+            </span>
+          </Action>
 
           <button
             aria-label="Toggle dark mode"

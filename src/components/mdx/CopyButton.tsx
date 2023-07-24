@@ -36,7 +36,7 @@ export const CopyButton = ({
   }, [getText]);
 
   return (
-    <Button size="icon" variant="ghost" onClick={handleClick} title="Copy code" tabIndex={0} {...props}>
+    <Button tag="Button" size="icon" variant="ghost" onClick={handleClick} title="Copy code" tabIndex={0} {...props}>
       {isCopied ? <CheckIcon className="h-3 w-3" /> : <CopyIcon className="h-3 w-3" />}
     </Button>
   );

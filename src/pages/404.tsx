@@ -1,6 +1,5 @@
 import { GetStaticProps } from 'next';
 import React from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Maybe } from 'ts-prelude/Maybe';
 
@@ -11,6 +10,8 @@ import { SEO } from 'src/components/Seo';
 import { Posts } from 'src/components/Posts';
 import { Thumbnail } from 'src/components/Thumbnail';
 import { ContentLayerArticles } from 'src/articles/ContentLayerArticles';
+import { Action } from 'src/components/Action';
+import { config } from 'src/config';
 
 type NotFound = { posts: Array<Article> };
 
@@ -37,17 +38,19 @@ export default function NotFound({ posts }: NotFound) {
               <code>{asPath}</code> does not exist
             </p>
 
-            <Link href="/" passHref>
-              <a className="inline-flex group transition-transform transform delay-75 ease-in-out text-base md:hover:scale-105 font-medium text-link dark:text-blue-300">
-                <span
-                  aria-hidden="true"
-                  className="inline-flex mr-2 transition-transform transform delay-75 ease-in-out md:group-hover:-translate-x-2"
-                >
-                  &larr;
-                </span>
-                Back to home
-              </a>
-            </Link>
+            <Action
+              tag="Link"
+              href={config.routes.home}
+              className="inline-flex group transition-transform transform delay-75 ease-in-out text-base md:hover:scale-105 font-medium text-link dark:text-blue-300"
+            >
+              <span
+                aria-hidden="true"
+                className="inline-flex mr-2 transition-transform transform delay-75 ease-in-out md:group-hover:-translate-x-2"
+              >
+                &larr;
+              </span>
+              Back to home
+            </Action>
 
             <div className="my-12">
               <Thumbnail src={Src.unsafeFrom('/images/404.jpg')} alt={Alt.unsafeFrom('Not found')} priority />
