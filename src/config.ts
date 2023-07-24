@@ -30,7 +30,7 @@ export const config = {
         })}`
       ),
 
-    edit: (slug: Slug) => ExternalRoute(`https://github.com/${githubUser}/website/edit/main/src/posts/${slug}.md`),
+    edit: (slug: Slug) => ExternalRoute(`https://github.com/${githubUser}/website/edit/main/src/posts/${slug}.mdx`),
 
     discuss: (slug: Slug) =>
       ExternalRoute(
