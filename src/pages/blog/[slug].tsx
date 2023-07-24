@@ -144,7 +144,9 @@ export default function Post({
         {/* Recommended */}
         <div className="px-6">
           <div className="max-w-4xl mx-auto pt-16">
-            <h3 className="text-center text-3xl font-display">Related posts that you may also enjoy</h3>
+            <h3 className="text-center text-3xl font-display">
+              <Balancer>Related posts that you may also enjoy</Balancer>
+            </h3>
           </div>
           <Posts posts={recommendations} />
         </div>
