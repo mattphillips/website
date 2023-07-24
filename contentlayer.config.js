@@ -52,6 +52,11 @@ export const Blog = defineDocumentType(() => ({
       type: 'nested',
       required: true,
       of: Image
+    },
+    tags: {
+      type: 'list',
+      of: { type: 'string' },
+      default: []
     }
   },
   computedFields

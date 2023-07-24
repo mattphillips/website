@@ -22,6 +22,20 @@ export const Alt = Refined.Iterable.MinLength.refinement<Alt>(0);
 export type Title = Nominal<string, { readonly Title: unique symbol }>;
 export const Title = Refined.Iterable.MinLength.refinement<Title>(2);
 
+export type Tag = Nominal<string, { readonly Tag: unique symbol }>;
+export namespace Tag {
+  const Tag = Refined.Iterable.MinLength.refinement<Tag>(2);
+  export const from = Tag.from;
+  export const handleError = Tag.handleError;
+  export const is = Tag.is;
+  export const unsafeFrom = Tag.unsafeFrom;
+  export const minLength = Tag.minLength;
+
+  export const toLowerCase = (t: Tag): Tag => Tag.unsafeFrom(t.toLowerCase());
+  export const unique = (tags: Array<Tag>): Array<Tag> => [...new Set(tags).values()];
+  export const toQuery = (tags: Array<Tag>): string => tags.map((t) => `t=${t}`).join('&');
+}
+
 export type Summary = Nominal<string, { readonly Summary: unique symbol }>;
 export const Summary = Refined.Iterable.MinLength.refinement<Summary>(0);
 
@@ -44,4 +58,5 @@ export type Article = {
   description: Summary;
   duration: Duration;
   image: Image;
+  tags: Array<Tag>;
 };

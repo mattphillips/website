@@ -9,6 +9,7 @@ module.exports = {
       },
       colors: {
         link: '#0074de',
+        brand: '#99FBD1',
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',

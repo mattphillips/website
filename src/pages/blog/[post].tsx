@@ -2,7 +2,6 @@ import { GetStaticPaths, GetStaticProps } from 'next';
 import React from 'react';
 import { Maybe } from 'ts-prelude/Maybe';
 import { IO } from 'ts-prelude/IO/fluent';
-import { useMDXComponent } from 'next-contentlayer/hooks';
 import Balancer from 'react-wrap-balancer';
 
 import { Article, Slug } from 'src/articles/Articles';
@@ -16,8 +15,9 @@ import { ProfileAvatar } from 'src/components/ProfileAvatar';
 import { Paths, Props } from 'src/next/Props';
 import { ContentLayerArticles } from 'src/articles/ContentLayerArticles';
 import { MDX } from 'src/components/mdx';
+import { TagButton } from 'src/components/TagButton';
 
-export default function Post({ description, duration, image, mdx, publishedAt, slug, title }: Article) {
+export default function Post({ description, duration, image, mdx, publishedAt, slug, title, tags }: Article) {
   return (
     <>
       <SEO title={Maybe.just(title)} slug={`/blog/${slug}`} description={description} image={image.src} />
@@ -28,6 +28,14 @@ export default function Post({ description, duration, image, mdx, publishedAt, s
               <Balancer>{title}</Balancer>
             </h1>
             <PostMeta className="mb-12" duration={duration} publishedAt={publishedAt} />
+
+            {tags.length > 0 && (
+              <div className="flex flex-wrap justify-center gap-2.5 my-10">
+                {tags.map((tag) => (
+                  <TagButton key={tag} type="Unselected" count={0} tag={tag} />
+                ))}
+              </div>
+            )}
 
             <Thumbnail src={image.src} alt={image.alt} priority />
 

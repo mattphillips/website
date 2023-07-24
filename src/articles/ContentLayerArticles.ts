@@ -1,34 +1,16 @@
 import * as t from 'io-ts';
 import * as tt from 'io-ts-types';
 import reading from 'reading-time';
-import { TagUnion } from 'ts-prelude/match';
 import { IO, UIO } from 'ts-prelude/IO/fluent';
 import { Maybe } from 'ts-prelude/Maybe';
 import { eitherToResult } from 'ts-prelude/fp-ts-interop';
-import { Refined } from 'ts-prelude/Refined';
-import { SimpleNominal } from 'ts-prelude/Nominal';
 
 import { allBlogs, Blog } from 'contentlayer/generated';
-import { Articles, Article, Title, Summary, Src, Alt, Slug, Duration, MDX, PublishedAt } from './Articles';
-
-const IterableToCodec = <A extends SimpleNominal<unknown>, Tag extends TagUnion>(
-  refinement: Refined<A, Tag>
-): t.Type<A> =>
-  new t.Type(
-    'ToCodec',
-    refinement.is,
-    (input, context) =>
-      Symbol.iterator in Object(input)
-        ? refinement.from(input).fold(
-            (e) => t.failure(input, context, e.tag),
-            (a) => t.success(a)
-          )
-        : t.failure(input, context, 'Not iterable'),
-    t.identity
-  );
+import { Articles, Article, Title, Summary, Src, Alt, Slug, Duration, MDX, PublishedAt, Tag } from './Articles';
+import { IterableToCodec } from 'src/codecs/Iterable';
 
 const article = t.type({
-  body: t.type({ code: IterableToCodec(MDX) }),
+  body: t.type({ code: IterableToCodec(MDX), raw: t.string }),
   publishedAt: tt.DateFromISOString,
   title: IterableToCodec(Title),
   slug: IterableToCodec(Slug),
@@ -36,7 +18,8 @@ const article = t.type({
   image: t.type({
     src: IterableToCodec(Src),
     alt: IterableToCodec(Alt)
-  })
+  }),
+  tags: t.array(IterableToCodec(Tag))
 });
 
 const readEnv = (key: string): IO<Error, string> =>
@@ -65,7 +48,8 @@ export class ContentLayerArticles implements Articles {
                   title: a.title,
                   mdx: a.body.code,
                   slug: a.slug,
-                  duration: Duration(reading(a.body.code).text)
+                  duration: Duration(reading(a.body.raw).text),
+                  tags: a.tags.map(Tag.toLowerCase)
                 })
             ),
           []

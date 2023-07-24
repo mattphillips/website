@@ -1,5 +1,6 @@
 import { Nominal } from 'ts-prelude/Nominal';
-import { Slug, Title } from './articles/Articles';
+import { Slug, Tag, Title } from './articles/Articles';
+import { useQueryTags } from './hooks/useQueryTags';
 
 const domain = 'https://mattphillips.io';
 const twitterUser = 'mattphillipsio';
@@ -41,7 +42,18 @@ export const config = {
 
   routes: {
     home: Route('/'),
-
+    tag: (tag: Tag) => {
+      const query = Tag.toQuery(Tag.unique(useQueryTags().concat(tag)));
+      return Route(`/?${query}`);
+    },
+    untag: (tag: Tag) => {
+      const query = Tag.toQuery(useQueryTags().filter((t) => t !== tag));
+      if (query.length === 0) {
+        return Route('/');
+      } else {
+        return Route(`/?${query}`);
+      }
+    },
     blog: (slug: Slug) => Route(`/blog/${slug}`)
   }
 };

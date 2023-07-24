@@ -1,7 +1,7 @@
 import { GetStaticProps } from 'next';
 import React from 'react';
 
-import { Article, Summary, Src } from 'src/articles/Articles';
+import { Article, Summary, Src, Tag } from 'src/articles/Articles';
 import { Layout } from 'src/components/Layout';
 import { Props } from 'src/next/Props';
 import { SEO } from 'src/components/Seo';
@@ -9,11 +9,23 @@ import { Maybe } from 'ts-prelude/Maybe';
 import { Posts } from 'src/components/Posts';
 import { ProfileAvatar } from 'src/components/ProfileAvatar';
 import { ContentLayerArticles } from 'src/articles/ContentLayerArticles';
+import { TagButton as TagComp } from 'src/components/TagButton';
+import { useQueryTags } from 'src/hooks/useQueryTags';
 
 type Home = { posts: Array<Article> };
 
 export default function Home({ posts }: Home) {
   const description = `Open-source software engineer and tech founder with a passion for teaching all things software related, career development and building products.`;
+
+  const query = useQueryTags();
+  const allTags = Tag.unique(posts.flatMap((p) => p.tags));
+  const availablePosts = posts.filter((post) => query.every((t) => post.tags.includes(t)));
+  const availableTags = availablePosts
+    .flatMap((a) => a.tags)
+    .reduce<Record<Tag, number>>((acc, tag) => {
+      acc[tag] = (acc[tag] || 0) + 1;
+      return acc;
+    }, {});
 
   return (
     <>
@@ -47,7 +59,19 @@ export default function Home({ posts }: Home) {
           </div>
         </div>
 
-        <Posts posts={posts} />
+        <div className="flex flex-wrap justify-center gap-2.5 mt-10">
+          {allTags.map((tag) => {
+            const type = query.includes(tag)
+              ? 'Selected'
+              : availableTags[tag] === undefined
+              ? 'Disabled'
+              : 'Unselected';
+
+            return <TagComp key={tag} count={availableTags[tag] || 0} tag={tag} type={type} />;
+          })}
+        </div>
+
+        <Posts posts={availablePosts} />
       </Layout>
     </>
   );
