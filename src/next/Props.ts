@@ -1,16 +1,28 @@
-import { GetStaticPaths, GetStaticPathsContext, GetStaticProps, GetStaticPropsContext } from 'next';
-import { UIO } from 'ts-prelude/IO/fluent';
+import {
+  GetStaticPaths,
+  GetStaticPathsContext,
+  GetStaticProps,
+  GetStaticPropsContext,
+  GetStaticPropsResult
+} from 'next';
+import { IO, UIO } from 'ts-prelude/IO/fluent';
 import { toSerialisable } from 'ts-prelude/Serialisable';
 import { ParsedUrlQuery } from 'querystring';
 
+export class NotFound extends Error {
+  tag: 'NotFound' = 'NotFound';
+}
+
 export namespace Props {
   export const getStatic =
-    <Props extends { [key: string]: any }, Params extends ParsedUrlQuery = ParsedUrlQuery>(
-      f: (ctx: GetStaticPropsContext<Params>) => UIO<Props>
+    <E extends NotFound | never, Props extends { [key: string]: any }, Params extends ParsedUrlQuery = ParsedUrlQuery>(
+      f: (ctx: GetStaticPropsContext<Params>) => IO<E, Props>
     ): GetStaticProps<Props, Params> =>
     (ctx) =>
       f(ctx)
         .map((props) => ({ props: toSerialisable(props) as Props }))
+        .mapError<GetStaticPropsResult<Props>>(() => ({ notFound: true }))
+        .merge()
         .toPromise();
 }
 

@@ -12,7 +12,7 @@ import { PostMeta } from 'src/components/PostMeta';
 import { ExternalLink } from 'src/components/ExternalLink';
 import { config } from 'src/config';
 import { ProfileAvatar } from 'src/components/ProfileAvatar';
-import { Paths, Props } from 'src/next/Props';
+import { NotFound, Paths, Props } from 'src/next/Props';
 import { ContentLayerArticles } from 'src/articles/ContentLayerArticles';
 import { MDX } from 'src/components/mdx';
 import { TagButton } from 'src/components/TagButton';
@@ -97,16 +97,12 @@ export default function Post({
 export const getStaticProps: GetStaticProps<Props, { post: Slug }> = Props.getStatic((ctx) =>
   IO.do(function* (_) {
     const articles = new ContentLayerArticles();
-
-    // TODO: Tidy the types up to guarentee this is present
     const slug = ctx.params!.post;
-    const article = yield* _(articles.findBySlug(slug).flatMapW(IO.fromMaybe(new Error(''))));
+    const article = yield* _(articles.findBySlug(slug).flatMapW(IO.fromMaybe(new NotFound())));
     const recommendations = yield* _(articles.findRecommendations(slug));
 
     return { article, recommendations };
-
-    // Add `NotFound` return type to this
-  }).orDie()
+  })
 );
 
 export const getStaticPaths: GetStaticPaths<{ post: Slug }> = Paths.getStatic(() =>
