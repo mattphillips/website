@@ -1,3 +1,4 @@
+import { Eq } from 'fp-ts/lib/Eq';
 import { UIO } from 'ts-prelude/IO/fluent';
 import { Maybe } from 'ts-prelude/Maybe';
 import { Nominal } from 'ts-prelude/Nominal';
@@ -7,6 +8,8 @@ export interface Articles {
   list: UIO<Array<Article>>;
 
   findBySlug: (slug: string) => UIO<Maybe<Article>>;
+
+  findRecommendations: (slug: string) => UIO<Array<Article.Preview>>;
 }
 
 // TODO: These could be a lot stricter
@@ -64,3 +67,19 @@ export type Article = {
   tags: Array<Tag>;
   keywords: Array<Keyword>;
 };
+
+export namespace Article {
+  export type Preview = Omit.Strict<Article, 'keywords' | 'mdx' | 'tags'>;
+  export const toPreview = ({ description, duration, image, publishedAt, slug, title }: Article): Preview => ({
+    description,
+    duration,
+    image,
+    publishedAt,
+    slug,
+    title
+  });
+
+  export const eq: Eq<Article> = {
+    equals: (a, b) => a.slug === b.slug
+  };
+}

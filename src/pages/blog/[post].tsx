@@ -16,8 +16,14 @@ import { Paths, Props } from 'src/next/Props';
 import { ContentLayerArticles } from 'src/articles/ContentLayerArticles';
 import { MDX } from 'src/components/mdx';
 import { TagButton } from 'src/components/TagButton';
+import { Posts } from 'src/components/Posts';
 
-export default function Post({ description, duration, image, mdx, publishedAt, slug, title, tags }: Article) {
+type Props = { article: Article; recommendations: Array<Article.Preview> };
+
+export default function Post({
+  article: { description, duration, image, mdx, publishedAt, slug, title, tags },
+  recommendations
+}: Props) {
   return (
     <>
       <SEO title={Maybe.just(title)} slug={`/blog/${slug}`} description={description} image={image.src} />
@@ -77,16 +83,30 @@ export default function Post({ description, duration, image, mdx, publishedAt, s
             </div>
           </div>
         </div>
+        <div className="px-6">
+          <div className="max-w-4xl mx-auto pt-16">
+            <h3 className="text-center text-3xl font-display">Related posts that you may also enjoy</h3>
+          </div>
+          <Posts posts={recommendations} />
+        </div>
       </Layout>
     </>
   );
 }
 
-export const getStaticProps: GetStaticProps<Article, { post: Slug }> = Props.getStatic((ctx) =>
-  new ContentLayerArticles()
-    .findBySlug(ctx.params!.post)
-    .flatMapW(IO.fromMaybe(new Error('Slug not found')))
-    .orDie()
+export const getStaticProps: GetStaticProps<Props, { post: Slug }> = Props.getStatic((ctx) =>
+  IO.do(function* (_) {
+    const articles = new ContentLayerArticles();
+
+    // TODO: Tidy the types up to guarentee this is present
+    const slug = ctx.params!.post;
+    const article = yield* _(articles.findBySlug(slug).flatMapW(IO.fromMaybe(new Error(''))));
+    const recommendations = yield* _(articles.findRecommendations(slug));
+
+    return { article, recommendations };
+
+    // Add `NotFound` return type to this
+  }).orDie()
 );
 
 export const getStaticPaths: GetStaticPaths<{ post: Slug }> = Paths.getStatic(() =>

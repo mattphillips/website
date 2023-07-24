@@ -5,7 +5,7 @@ import { Thumbnail } from './Thumbnail';
 import { Action } from './Action';
 import { config } from 'src/config';
 
-type Posts = { posts: Array<Article> };
+type Posts = { posts: Array<Article.Preview> };
 
 export const Posts: React.FC<Posts> = ({ posts }) => (
   <div className="grid grid-cols-1 px-6 xl:px-4 md:grid-cols-2 xl:grid-cols-3 gap-12 max-w-7xl mx-auto py-16">
