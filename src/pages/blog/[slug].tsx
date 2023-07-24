@@ -153,10 +153,10 @@ export default function Post({
   );
 }
 
-export const getStaticProps: GetStaticProps<Props, { post: Slug }> = Props.getStatic((ctx) =>
+export const getStaticProps: GetStaticProps<Props, { slug: Slug }> = Props.getStatic((ctx) =>
   IO.do(function* (_) {
     const articles = new ContentLayerArticles();
-    const slug = ctx.params!.post;
+    const slug = ctx.params!.slug;
     const article = yield* _(articles.findBySlug(slug).flatMapW(IO.fromMaybe(new NotFound())));
     const recommendations = yield* _(articles.findRecommendations(slug));
 
@@ -164,6 +164,6 @@ export const getStaticProps: GetStaticProps<Props, { post: Slug }> = Props.getSt
   })
 );
 
-export const getStaticPaths: GetStaticPaths<{ post: Slug }> = Paths.getStatic(() =>
-  new ContentLayerArticles().list.map((articles) => articles.map((a) => ({ post: a.slug })))
+export const getStaticPaths: GetStaticPaths<{ slug: Slug }> = Paths.getStatic(() =>
+  new ContentLayerArticles().list.map((articles) => articles.map((_) => ({ slug: _.slug })))
 );
