@@ -3173,10 +3173,10 @@ ts-pattern@^4.2.2:
   resolved "https://registry.yarnpkg.com/ts-pattern/-/ts-pattern-4.3.0.tgz#7a995b39342f1b00d1507c2d2f3b90ea16e178a6"
   integrity sha512-pefrkcd4lmIVR0LA49Imjf9DYLK8vtWhqBPA3Ya1ir8xCW0O2yjL9dsCVvI7pCodLC5q7smNpEtDR2yVulQxOg==
 
-ts-prelude@^0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/ts-prelude/-/ts-prelude-0.0.5.tgz#94268932f09335c5d441a4a2847812481a00c1a4"
-  integrity sha512-dW9oni9H4rMiOrgbBf/8WNB5/Kc+9HPSXL8aJuNrG6zV59HW+9XDX71L5Nwk5BRDhh05d1rhcGZSy0hQ36iqIQ==
+ts-prelude@^0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/ts-prelude/-/ts-prelude-0.0.7.tgz#ad60a30e2296b1555bfad1c2e08c76ba1353a862"
+  integrity sha512-htDsGA2l3x5khYLaQbks0iYlxux0yewPqr+acXUnwreTdGq2O+035xjbD1XWRBsi7KEvATdtOg9whvM2dhGlKQ==
 
 tslib@^2.0.3, tslib@^2.4.1:
   version "2.6.0"
