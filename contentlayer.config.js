@@ -1,3 +1,5 @@
+import GithubSlugger from 'github-slugger';
+
 import { defineDocumentType, defineNestedType, makeSource } from 'contentlayer/source-files';
 import remarkGfm from 'remark-gfm';
 import rehypePrettyCode from 'rehype-pretty-code';
@@ -15,6 +17,22 @@ const computedFields = {
   duration: {
     type: 'string',
     resolve: (doc) => readingTime(doc.body.raw).text
+  },
+  headings: {
+    type: 'json',
+    resolve: async (doc) => {
+      const regXHeader = /\n(?<flag>#{1,6})\s+(?<content>.+)/g;
+      const slugger = new GithubSlugger();
+      return Array.from(doc.body.raw.matchAll(regXHeader)).map(({ groups }) => {
+        const flag = groups?.flag;
+        const content = groups?.content;
+        return {
+          level: flag?.length,
+          content,
+          id: content ? slugger.slug(content) : undefined
+        };
+      });
+    }
   }
 };
 
@@ -67,6 +85,10 @@ export const Blog = defineDocumentType(() => ({
       type: 'list',
       of: { type: 'string' },
       default: []
+    },
+    showToc: {
+      type: 'boolean',
+      default: false
     }
   },
   computedFields

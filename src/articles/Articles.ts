@@ -56,6 +56,24 @@ export const MDX = Refined.Iterable.MinLength.refinement<MDX>(0);
 
 type Image = { src: Src; alt: Alt };
 
+export namespace Toc {
+  export type Enabled = Nominal<boolean, { readonly Enabled: unique symbol }>;
+  export const Enabled = Nominal<Enabled>();
+
+  export type Content = Nominal<string, { readonly Content: unique symbol }>;
+  export const Content = Refined.Iterable.MinLength.refinement<Content>(1);
+
+  export type Id = Nominal<string, { readonly Id: unique symbol }>;
+  export const Id = Refined.Iterable.MinLength.refinement<Id>(1);
+
+  export type Level = Nominal<number, { readonly Level: unique symbol }>;
+  export const Level = Refined.Number.GreaterEqual.refinement<Level>(1);
+
+  export type Heading = { content: Content; id: Id; level: Level };
+}
+
+export type Toc = { headings: Array<Toc.Heading>; enabled: Toc.Enabled };
+
 export type Article = {
   slug: Slug;
   mdx: MDX;
@@ -66,10 +84,11 @@ export type Article = {
   image: Image;
   tags: Array<Tag>;
   keywords: Array<Keyword>;
+  toc: Toc;
 };
 
 export namespace Article {
-  export type Preview = Omit.Strict<Article, 'keywords' | 'mdx' | 'tags'>;
+  export type Preview = Omit.Strict<Article, 'keywords' | 'mdx' | 'tags' | 'toc'>;
   export const toPreview = ({ description, duration, image, publishedAt, slug, title }: Article): Preview => ({
     description,
     duration,

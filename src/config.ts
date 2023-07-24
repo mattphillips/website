@@ -7,10 +7,10 @@ const twitterUser = 'mattphillipsio';
 const githubUser = 'mattphillips';
 
 export type Route = Nominal<string, { readonly Route: unique symbol }>;
-export const Route = Nominal<Route>();
+const Route = Nominal<Route>();
 
 export type ExternalRoute = Nominal<string, { readonly ExternalRoute: unique symbol }>;
-export const ExternalRoute = Nominal<ExternalRoute>();
+const ExternalRoute = Nominal<ExternalRoute>();
 
 export const config = {
   domain,
@@ -54,6 +54,7 @@ export const config = {
         return Route(`/?${query}`);
       }
     },
-    blog: (slug: Slug) => Route(`/blog/${slug}`)
+    blog: (slug: Slug) => Route(`/blog/${slug}`),
+    id: (id: string) => Route(`#${id}`)
   }
 };

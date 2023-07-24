@@ -19,9 +19,10 @@ import {
   MDX,
   PublishedAt,
   Tag,
-  Keyword
+  Keyword,
+  Toc
 } from './Articles';
-import { IterableToCodec } from 'src/codecs/Iterable';
+import { IterableToCodec, NumberToCodec } from 'src/codecs/Refined';
 
 const article = t.type({
   body: t.type({ code: IterableToCodec(MDX) }),
@@ -35,7 +36,15 @@ const article = t.type({
   }),
   duration: IterableToCodec(Duration),
   tags: t.array(IterableToCodec(Tag)),
-  keywords: t.array(IterableToCodec(Keyword))
+  keywords: t.array(IterableToCodec(Keyword)),
+  headings: t.array(
+    t.type({
+      id: IterableToCodec(Toc.Id),
+      content: IterableToCodec(Toc.Content),
+      level: NumberToCodec(Toc.Level)
+    })
+  ),
+  showToc: t.boolean
 });
 
 const readEnv = (key: string): IO<Error, string> =>
@@ -66,7 +75,8 @@ export class ContentLayerArticles implements Articles {
                   slug: a.slug,
                   duration: a.duration,
                   tags: a.tags.map(Tag.toLowerCase),
-                  keywords: a.keywords
+                  keywords: a.keywords,
+                  toc: { headings: a.headings, enabled: Toc.Enabled(a.showToc) }
                 })
             ),
           []

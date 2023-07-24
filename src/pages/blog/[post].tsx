@@ -17,18 +17,23 @@ import { ContentLayerArticles } from 'src/articles/ContentLayerArticles';
 import { MDX } from 'src/components/mdx';
 import { TagButton } from 'src/components/TagButton';
 import { Posts } from 'src/components/Posts';
+import { ScrollArea } from 'src/components/ScrollArea';
+import { Button } from 'src/components/Button';
+import { TableOfContents } from 'src/components/Toc';
+import { Github, Twitter } from 'src/components/icons';
 
 type Props = { article: Article; recommendations: Array<Article.Preview> };
 
 export default function Post({
-  article: { description, duration, image, mdx, publishedAt, slug, title, tags },
+  article: { description, duration, image, mdx, publishedAt, slug, title, tags, toc },
   recommendations
 }: Props) {
   return (
     <>
       <SEO title={Maybe.just(title)} slug={`/blog/${slug}`} description={description} image={image.src} />
       <Layout>
-        <div className="max-w-4xl mx-auto pt-16">
+        <div className="max-w-4xl mx-auto pt-16 relative">
+          {/* Article */}
           <div className="px-6 lg:px-0">
             <h1 className="font-display text-5xl md:text-7xl font-bold mb-8 leading-tight text-center">
               <Balancer>{title}</Balancer>
@@ -50,17 +55,44 @@ export default function Post({
             </article>
           </div>
 
+          {/* Share / edit */}
           <div className="px-6">
             <div className="border-y border-solid border-gray-200 dark:border-gray-500 py-6 md:px-6 my-12 grid md:grid-cols-2 gap-4 font-body font-semibold text-lg text-gray-600 dark:text-gray-300">
-              <ExternalLink href={config.interact.share(slug, title)}>Tweet this article</ExternalLink>
-              <div className="flex flex-row md:justify-end items-center flex-wrap">
-                <ExternalLink href={config.interact.discuss(slug)}>Discuss on Twitter</ExternalLink>
-                <span className="mx-2 md:mx-4">•</span>
-                <ExternalLink href={config.interact.edit(slug)}>Edit on Github</ExternalLink>
+              <Button
+                className="w-full md:w-1/2"
+                variant="outline"
+                size="sm"
+                tag="ExternalLink"
+                href={config.interact.share(slug, title)}
+              >
+                Share article <Twitter className="w-4 h-4 ml-2" />
+              </Button>
+              <div className="flex flex-row md:justify-end items-center flex-wrap space-y-4 md:space-y-0">
+                <Button
+                  className="w-full md:flex-1"
+                  variant="outline"
+                  size="sm"
+                  tag="ExternalLink"
+                  href={config.interact.share(slug, title)}
+                >
+                  Discuss article <Twitter className="w-4 h-4 ml-2" />
+                </Button>
+                <span className="hidden md:inline md:mx-4">•</span>
+                <Button
+                  className="w-full md:flex-1"
+                  variant="default"
+                  size="sm"
+                  tag="ExternalLink"
+                  href={config.interact.edit(slug)}
+                >
+                  Edit on GitHub
+                  <Github className="w-4 h-4 ml-2" />
+                </Button>
               </div>
             </div>
           </div>
 
+          {/* Author outro */}
           <div className="px-6">
             <div className="pb-12 md:px-6 border-b border-gray-200 dark:border-gray-500 grid items-center gap-6 md:grid-flow-col">
               <ProfileAvatar className="rounded-full h-40 w-40" />
@@ -82,7 +114,34 @@ export default function Post({
               </div>
             </div>
           </div>
+
+          {/* Sidebar */}
+          <div className="absolute top-16 -right-64 h-full hidden xl:block">
+            <div className="sticky top-16 w-56 shrink-0 overflow-y-hidden">
+              {toc.enabled && (
+                <>
+                  <ScrollArea>
+                    <TableOfContents headings={toc.headings} />
+                  </ScrollArea>
+                  <hr className="w-7 my-4" />
+                </>
+              )}
+
+              <div className="space-y-4 flex flex-col">
+                <Button variant="outline" size="sm" tag="ExternalLink" href={config.interact.share(slug, title)}>
+                  Share article <Twitter className="w-4 h-4 ml-2" />
+                </Button>
+
+                <Button variant="outline" size="sm" tag="ExternalLink" href={config.interact.edit(slug)}>
+                  Edit on GitHub
+                  <Github className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
+
+        {/* Recommended */}
         <div className="px-6">
           <div className="max-w-4xl mx-auto pt-16">
             <h3 className="text-center text-3xl font-display">Related posts that you may also enjoy</h3>

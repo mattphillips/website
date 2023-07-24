@@ -4,7 +4,7 @@ import * as t from 'io-ts';
 import { useRouter } from 'next/router';
 
 import { Tag } from 'src/articles/Articles';
-import { IterableToCodec } from 'src/codecs/Iterable';
+import { IterableToCodec } from 'src/codecs/Refined';
 
 const tagC = IterableToCodec(Tag);
 
