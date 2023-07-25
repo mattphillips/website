@@ -1,10 +1,11 @@
 import { Nominal } from 'ts-prelude/Nominal';
-import { Slug, Tag, Title } from './articles/Articles';
-import { useQueryTags } from './hooks/useQueryTags';
+import { Slug, Src, Tag, Title } from './articles/Articles';
 
 const domain = 'https://mattphillips.io';
 const twitterUser = 'mattphillipsio';
+const linkedInUser = 'mattphillipsio';
 const githubUser = 'mattphillips';
+const authorName = 'Matt Phillips';
 
 export type Route = Nominal<string, { readonly Route: unique symbol }>;
 const Route = Nominal<Route>();
@@ -13,41 +14,16 @@ export type ExternalRoute = Nominal<string, { readonly ExternalRoute: unique sym
 const ExternalRoute = Nominal<ExternalRoute>();
 
 export const config = {
-  domain,
-  twitterUser,
-  social: {
-    twitter: ExternalRoute('https://twitter.com/mattphillipsio'),
-    github: ExternalRoute('https://github.com/mattphillips'),
-    linkedIn: ExternalRoute('https://linkedin.com/in/mattphillipsio')
-  },
-
-  interact: {
-    share: (slug: Slug, title: Title) =>
-      ExternalRoute(
-        `https://twitter.com/intent/tweet?${new URLSearchParams({
-          url: `${config.domain}/blog/${slug}`,
-          text: `I just read ${title} by @${config.twitterUser}\n\n`
-        })}`
-      ),
-
-    edit: (slug: Slug) => ExternalRoute(`https://github.com/${githubUser}/website/edit/main/src/posts/${slug}.mdx`),
-
-    discuss: (slug: Slug) =>
-      ExternalRoute(
-        `https://twitter.com/search?${new URLSearchParams({
-          q: `${domain}/blog/${slug}`
-        })}`
-      )
+  author: {
+    name: authorName,
+    twitter: twitterUser,
+    github: githubUser,
+    linkedIn: linkedInUser
   },
 
   routes: {
     home: Route('/'),
-    tag: (tag: Tag) => {
-      const query = Tag.toQuery(Tag.unique(useQueryTags().concat(tag)));
-      return Route(`/?${query}`);
-    },
-    untag: (tag: Tag) => {
-      const query = Tag.toQuery(useQueryTags().filter((t) => t !== tag));
+    tag: (query: Tag.Query) => {
       if (query.length === 0) {
         return Route('/');
       } else {
@@ -56,5 +32,40 @@ export const config = {
     },
     blog: (slug: Slug) => Route(`/blog/${slug}`),
     id: (id: string) => Route(`#${id}`)
+  },
+
+  urls: {
+    home: domain,
+    blog: (slug: Slug) => `${domain}/blog/${slug}`,
+    ogImage: (src: Src) => `${domain}${src}`,
+    profileImage: `${domain}/profile.jpg`,
+    sitemap: `${domain}/sitemap.xml`,
+
+    external: {
+      social: {
+        twitter: ExternalRoute(`https://twitter.com/${twitterUser}`),
+        github: ExternalRoute(`https://github.com/${githubUser}`),
+        linkedIn: ExternalRoute(`https://linkedin.com/in/${linkedInUser}`)
+      },
+
+      interact: {
+        share: (slug: Slug, title: Title) =>
+          ExternalRoute(
+            `https://twitter.com/intent/tweet?${new URLSearchParams({
+              url: `${domain}/blog/${slug}`,
+              text: `I just read ${title} by @${twitterUser}\n\n`
+            })}`
+          ),
+
+        edit: (slug: Slug) => ExternalRoute(`https://github.com/${githubUser}/website/edit/main/src/posts/${slug}.mdx`),
+
+        discuss: (slug: Slug) =>
+          ExternalRoute(
+            `https://twitter.com/search?${new URLSearchParams({
+              q: `${domain}/blog/${slug}`
+            })}`
+          )
+      }
+    }
   }
 };

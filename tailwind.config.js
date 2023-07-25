@@ -1,11 +1,11 @@
 module.exports = {
   darkMode: 'class',
-  content: ['./src/pages/**/*.{js,ts,jsx,tsx}', './src/components/**/*.{js,ts,jsx,tsx}'],
+  content: ['./src/app/**/*.{js,ts,jsx,tsx}', './src/components/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       fontFamily: {
-        display: ['Playfair Display', 'sans-serif'],
-        body: ['Open Sans', 'sans-serif']
+        display: ['var(--display-font)', 'sans-serif'],
+        body: ['var(--body-font)', 'sans-serif']
       },
       colors: {
         link: '#0074de',

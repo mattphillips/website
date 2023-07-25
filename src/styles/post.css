@@ -1,7 +1,7 @@
 .post {
   font-size: 18px;
   line-height: 1.6;
-  font-family: 'Open Sans', sans-serif;
+  font-family: var(--body-font), sans-serif;
 }
 
 .post h1,
@@ -10,7 +10,7 @@
 .post h4,
 .post h5,
 .post h6 {
-  font-family: 'Playfair Display', sans-serif;
+  font-family: var(--display-font), sans-serif;
 }
 
 .post h1 {

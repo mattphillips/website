@@ -6,9 +6,9 @@ import { cn } from 'src/styles/cn';
 import { ExternalLink } from './ExternalLink';
 
 const links = [
-  { href: config.social.twitter, title: 'Twitter', icon: <Twitter /> },
-  { href: config.social.github, title: 'Github', icon: <Github /> },
-  { href: config.social.linkedIn, title: 'LinkedIn', icon: <LinkedIn /> }
+  { href: config.urls.external.social.twitter, title: 'Twitter', icon: <Twitter /> },
+  { href: config.urls.external.social.github, title: 'Github', icon: <Github /> },
+  { href: config.urls.external.social.linkedIn, title: 'LinkedIn', icon: <LinkedIn /> }
 ];
 
 export const SocialLinks: React.FC<{ className?: string }> = ({ className }) => (

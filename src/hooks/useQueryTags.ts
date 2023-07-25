@@ -1,25 +1,22 @@
+'use client';
+
 import * as E from 'fp-ts/Either';
-import { pipe } from 'fp-ts/lib/function';
+import { identity, pipe } from 'fp-ts/lib/function';
 import * as t from 'io-ts';
-import { useRouter } from 'next/router';
+import { useSearchParams } from 'next/navigation';
 
 import { Tag } from 'src/articles/Articles';
 import { IterableToCodec } from 'src/codecs/Refined';
 
-const tagC = IterableToCodec(Tag);
-
-const query = t.type({ t: t.union([tagC, t.array(tagC)]) });
+const query = t.array(IterableToCodec(Tag));
 
 export const useQueryTags = (): Array<Tag> => {
-  const router = useRouter();
-
+  const searchParams = useSearchParams();
   return Tag.unique(
     pipe(
-      query.decode(router.query),
-      E.fold(
-        () => [],
-        (a) => (typeof a.t === 'string' ? [a.t] : a.t)
-      )
+      searchParams?.getAll(Tag.queryName),
+      query.decode,
+      E.fold(() => [], identity)
     ).map(Tag.toLowerCase)
   );
 };

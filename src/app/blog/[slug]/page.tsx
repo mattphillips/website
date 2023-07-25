@@ -1,58 +1,88 @@
-import { GetStaticPaths, GetStaticProps } from 'next';
-import React from 'react';
-import { Maybe } from 'ts-prelude/Maybe';
-import { IO } from 'ts-prelude/IO/fluent';
-import Balancer from 'react-wrap-balancer';
-
-import { Article, Slug } from 'src/articles/Articles';
-import { Layout } from 'src/components/Layout';
-import { Thumbnail } from 'src/components/Thumbnail';
-import { SEO } from 'src/components/Seo';
-import { PostMeta } from 'src/components/PostMeta';
-import { ExternalLink } from 'src/components/ExternalLink';
-import { config } from 'src/config';
-import { ProfileAvatar } from 'src/components/ProfileAvatar';
-import { NotFound, Paths, Props } from 'src/next/Props';
-import { ContentLayerArticles } from 'src/articles/ContentLayerArticles';
-import { MDX } from 'src/components/mdx';
-import { TagButton } from 'src/components/TagButton';
-import { Posts } from 'src/components/Posts';
-import { ScrollArea } from 'src/components/ScrollArea';
+import { format } from 'date-fns';
+import { Metadata } from 'next';
+import { Balancer } from 'react-wrap-balancer';
+import { RSC } from 'src/app/next/RSC';
+import { Slug, Tag } from 'src/articles/Articles';
 import { Button } from 'src/components/Button';
+import { ExternalLink } from 'src/components/ExternalLink';
+import { PostMeta } from 'src/components/PostMeta';
+import { Posts } from 'src/components/Posts';
+import { ProfileAvatar } from 'src/components/ProfileAvatar';
+import { ScrollArea } from 'src/components/ScrollArea';
+import { Tags } from 'src/components/Tags';
+import { Thumbnail } from 'src/components/Thumbnail';
 import { TableOfContents } from 'src/components/Toc';
 import { Github, Twitter } from 'src/components/icons';
+import { MDX } from 'src/components/mdx';
+import { config } from 'src/config';
+import { IO } from 'ts-prelude/IO/fluent';
 
-type Props = { article: Article; recommendations: Array<Article.Preview> };
+export const generateStaticParams = RSC.withCapabilities(({ capabilities }) => capabilities.articles.list);
 
-export default function Post({
-  article: { description, duration, image, mdx, publishedAt, slug, title, tags, toc },
-  recommendations
-}: Props) {
-  return (
-    <>
-      <SEO title={Maybe.just(title)} slug={`/blog/${slug}`} description={description} image={image.src} />
-      <Layout>
+export const generateMetadata = RSC.withCapabilities<{ slug: string }, RSC.Exception, Metadata>(
+  ({ capabilities, params }) =>
+    capabilities.articles
+      .findBySlug(Slug.unsafeFrom(params.slug))
+      .flatMapW(IO.fromMaybe(RSC.Exception.NotFound))
+      .map<Metadata>((post) => {
+        const { title, publishedAt, description, image, slug } = post;
+
+        // Pull domain in from config
+        const ogImage = config.urls.ogImage(image.src);
+        return {
+          title,
+          description,
+          openGraph: {
+            title,
+            description,
+            type: 'article',
+            publishedTime: format(publishedAt, 'yyyy-MM-dd'),
+            url: config.urls.blog(slug),
+            images: [
+              {
+                url: ogImage
+              }
+            ]
+          },
+          twitter: {
+            card: 'summary',
+            title,
+            description,
+            images: [ogImage]
+          }
+        };
+      })
+);
+
+const Blog = RSC.withCapabilities<{ slug: string }>(({ capabilities, params }) =>
+  IO.do(function* ($) {
+    const slug = Slug.unsafeFrom(params.slug);
+    const post = yield* $(capabilities.articles.findBySlug(slug).flatMapW(IO.fromMaybe(RSC.Exception.NotFound)));
+    const recommendations = yield* $(capabilities.articles.findRecommendations(slug));
+
+    return (
+      <>
         <div className="max-w-4xl mx-auto pt-16 relative">
           {/* Article */}
           <div className="px-6 lg:px-0">
             <h1 className="font-display text-5xl md:text-7xl font-bold mb-8 leading-tight text-center">
-              <Balancer>{title}</Balancer>
+              <Balancer>{post.title}</Balancer>
             </h1>
-            <PostMeta className="mb-12" duration={duration} publishedAt={publishedAt} />
+            <PostMeta className="mb-8" duration={post.duration} publishedAt={post.publishedAt} />
 
-            {tags.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-2.5 my-10">
-                {tags.map((tag) => (
-                  <TagButton key={tag} type="Unselected" count={0} tag={tag} />
-                ))}
+            {post.tags.length > 0 && (
+              <div className="mb-8">
+                <Tags
+                  tags={post.tags.map((tag) => ({ tag, type: 'Unselected', count: 0 }))}
+                  onUnselected={(_) => config.routes.tag(Tag.toQuery([_]))}
+                  onSelected={() => config.routes.tag(Tag.toQuery([]))}
+                />
               </div>
             )}
 
-            <Thumbnail src={image.src} alt={image.alt} priority />
+            <Thumbnail src={post.image.src} alt={post.image.alt} priority />
 
-            <article className="post mt-12 max-w-4xl mx-auto md:px-6">
-              <MDX code={mdx} />
-            </article>
+            <article className="post mt-12 max-w-4xl mx-auto md:px-6">{<MDX code={post.mdx} />}</article>
           </div>
 
           {/* Share / edit */}
@@ -63,7 +93,7 @@ export default function Post({
                 variant="outline"
                 size="sm"
                 tag="ExternalLink"
-                href={config.interact.share(slug, title)}
+                href={config.urls.external.interact.share(slug, post.title)}
               >
                 Share article <Twitter className="w-4 h-4 ml-2" />
               </Button>
@@ -73,7 +103,7 @@ export default function Post({
                   variant="outline"
                   size="sm"
                   tag="ExternalLink"
-                  href={config.interact.share(slug, title)}
+                  href={config.urls.external.interact.discuss(slug)}
                 >
                   Discuss article <Twitter className="w-4 h-4 ml-2" />
                 </Button>
@@ -83,7 +113,7 @@ export default function Post({
                   variant="default"
                   size="sm"
                   tag="ExternalLink"
-                  href={config.interact.edit(slug)}
+                  href={config.urls.external.interact.edit(slug)}
                 >
                   Edit on GitHub
                   <Github className="w-4 h-4 ml-2" />
@@ -106,7 +136,7 @@ export default function Post({
                 <p className="font-body text-lg">
                   Don’t miss out on on future posts, projects and products I’m working on by following me over on
                   Twitter{' '}
-                  <ExternalLink className="font-bold" href={config.social.twitter}>
+                  <ExternalLink className="font-bold" href={config.urls.external.social.twitter}>
                     @mattphillipsio
                   </ExternalLink>
                   .
@@ -118,21 +148,26 @@ export default function Post({
           {/* Sidebar */}
           <div className="absolute top-16 -right-64 h-full hidden xl:block">
             <div className="sticky top-16 w-56 shrink-0 overflow-y-hidden">
-              {toc.enabled && (
+              {post.toc.enabled && (
                 <>
                   <ScrollArea>
-                    <TableOfContents headings={toc.headings} />
+                    <TableOfContents headings={post.toc.headings} />
                   </ScrollArea>
                   <hr className="w-7 my-4" />
                 </>
               )}
 
               <div className="space-y-4 flex flex-col">
-                <Button variant="outline" size="sm" tag="ExternalLink" href={config.interact.share(slug, title)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  tag="ExternalLink"
+                  href={config.urls.external.interact.share(slug, post.title)}
+                >
                   Share article <Twitter className="w-4 h-4 ml-2" />
                 </Button>
 
-                <Button variant="outline" size="sm" tag="ExternalLink" href={config.interact.edit(slug)}>
+                <Button variant="outline" size="sm" tag="ExternalLink" href={config.urls.external.interact.edit(slug)}>
                   Edit on GitHub
                   <Github className="w-4 h-4 ml-2" />
                 </Button>
@@ -142,30 +177,17 @@ export default function Post({
         </div>
 
         {/* Recommended */}
-        <div className="px-6">
-          <div className="max-w-4xl mx-auto pt-16">
+        <div className="px-6 my-10">
+          <div className="max-w-4xl mx-auto mb-12">
             <h3 className="text-center text-3xl font-display">
               <Balancer>Related posts that you may also enjoy</Balancer>
             </h3>
           </div>
           <Posts posts={recommendations} />
         </div>
-      </Layout>
-    </>
-  );
-}
-
-export const getStaticProps: GetStaticProps<Props, { slug: Slug }> = Props.getStatic((ctx) =>
-  IO.do(function* (_) {
-    const articles = new ContentLayerArticles();
-    const slug = ctx.params!.slug;
-    const article = yield* _(articles.findBySlug(slug).flatMapW(IO.fromMaybe(new NotFound())));
-    const recommendations = yield* _(articles.findRecommendations(slug));
-
-    return { article, recommendations };
+      </>
+    );
   })
 );
 
-export const getStaticPaths: GetStaticPaths<{ slug: Slug }> = Paths.getStatic(() =>
-  new ContentLayerArticles().list.map((articles) => articles.map((_) => ({ slug: _.slug })))
-);
+export default Blog;

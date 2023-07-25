@@ -30,6 +30,9 @@ export const Keyword = Refined.Iterable.MinLength.refinement<Keyword>(2);
 
 export type Tag = Nominal<string, { readonly Tag: unique symbol }>;
 export namespace Tag {
+  export type Query = Nominal<string, { readonly Query: unique symbol }>;
+  const Query = Nominal<Query>();
+
   const Tag = Refined.Iterable.MinLength.refinement<Tag>(2);
   export const from = Tag.from;
   export const handleError = Tag.handleError;
@@ -39,7 +42,9 @@ export namespace Tag {
 
   export const toLowerCase = (t: Tag): Tag => Tag.unsafeFrom(t.toLowerCase());
   export const unique = (tags: Array<Tag>): Array<Tag> => [...new Set(tags).values()];
-  export const toQuery = (tags: Array<Tag>): string => tags.map((t) => `t=${t}`).join('&');
+  export const toQuery = (tags: Array<Tag>): Query => Query(tags.map((t) => `${queryName}=${t}`).join('&'));
+
+  export const queryName = 't';
 }
 
 export type Summary = Nominal<string, { readonly Summary: unique symbol }>;

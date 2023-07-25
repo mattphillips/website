@@ -1,42 +1,26 @@
-import { GetStaticProps } from 'next';
 import React from 'react';
-import { useRouter } from 'next/router';
-import { Maybe } from 'ts-prelude/Maybe';
+import { IO } from 'ts-prelude/IO/fluent';
 
-import { Alt, Article, Summary, Src, Title } from 'src/articles/Articles';
-import { Layout } from 'src/components/Layout';
-import { Props } from 'src/next/Props';
-import { SEO } from 'src/components/Seo';
+import { Alt, Src } from 'src/articles/Articles';
 import { Posts } from 'src/components/Posts';
 import { Thumbnail } from 'src/components/Thumbnail';
-import { ContentLayerArticles } from 'src/articles/ContentLayerArticles';
 import { Action } from 'src/components/Action';
 import { config } from 'src/config';
+import { NotFoundPathTitle } from 'src/components/NotFoundPathTitle';
 
-type NotFound = { posts: Array<Article> };
+import { RSC } from './next/RSC';
 
-export default function NotFound({ posts }: NotFound) {
-  const description =
-    'Personal site by Matt Phillips where he write on all things related to code and careers in tech with a focus on Typescript, Testing and Functional Programming.';
+const NotFound = RSC.withCapabilities(({ capabilities }) =>
+  IO.do(function* ($) {
+    const posts = yield* $(capabilities.articles.list.map((_) => _.slice(0, 3)));
 
-  const { asPath } = useRouter();
-
-  return (
-    <>
-      <SEO
-        title={Maybe.just(Title.unsafeFrom('Not Found'))}
-        slug={asPath}
-        description={Summary.unsafeFrom(description)}
-        image={Src.unsafeFrom('/profile.jpg')}
-      />
-      <Layout>
+    return (
+      <>
         <div className="max-w-4xl mx-auto pt-16">
           <div className="px-6 lg:px-0 border-b border-gray-200 dark:border-gray-500 text-center">
             <h1 className="font-display text-5xl md:text-7xl font-bold mb-8">Page not found</h1>
 
-            <p className="font-body text-lg md:text-xl mb-4">
-              <code>{asPath}</code> does not exist
-            </p>
+            <NotFoundPathTitle />
 
             <Action
               tag="Link"
@@ -57,15 +41,14 @@ export default function NotFound({ posts }: NotFound) {
             </div>
           </div>
         </div>
-        <div className="mt-12 max-w-4xl mx-auto px-6">
+        <div className="my-12 max-w-4xl mx-auto px-6">
           <h2 className="font-display text-4xl font-bold">Latest articles:</h2>
         </div>
-        <Posts posts={posts} />
-      </Layout>
-    </>
-  );
-}
 
-export const getStaticProps: GetStaticProps<NotFound> = Props.getStatic(() =>
-  new ContentLayerArticles().list.map((as) => as.slice(0, 3)).map((posts) => ({ posts }))
+        <Posts posts={posts} />
+      </>
+    );
+  })
 );
+
+export default NotFound;
