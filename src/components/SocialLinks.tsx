@@ -16,7 +16,10 @@ export const SocialLinks: React.FC<{ className?: string }> = ({ className }) => 
   <div className={cn('flex flex-row justify-center', className)}>
     {links.map(({ href, icon, title }) => (
       <ExternalLink href={href} key={title}>
-        <div className="p-3 transition-transform transform hover:scale-125">{icon}</div>
+        <div className="p-3 transition-transform transform hover:scale-125">
+          {icon}
+          <span className="sr-only">{title}</span>
+        </div>
       </ExternalLink>
     ))}
   </div>
