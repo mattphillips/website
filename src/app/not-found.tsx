@@ -8,9 +8,9 @@ import { Action } from 'src/components/Action';
 import { config } from 'src/config';
 import { NotFoundPathTitle } from 'src/components/NotFoundPathTitle';
 
-import { RSC } from './next/RSC';
+import { Next } from './next/Next';
 
-const NotFound = RSC.withCapabilities(({ capabilities }) =>
+const NotFound = Next.rsc(({ capabilities }) =>
   IO.do(function* ($) {
     const posts = yield* $(capabilities.articles.list.map((_) => _.slice(0, 3)));
 

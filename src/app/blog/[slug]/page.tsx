@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import { Metadata } from 'next';
 import { Balancer } from 'react-wrap-balancer';
-import { RSC } from 'src/app/next/RSC';
+import { Next } from 'src/app/next/Next';
 import { Slug, Tag } from 'src/articles/Articles';
 import { Button } from 'src/components/Button';
 import { ExternalLink } from 'src/components/ExternalLink';
@@ -17,47 +17,48 @@ import { MDX } from 'src/components/mdx';
 import { config } from 'src/config';
 import { IO } from 'ts-prelude/IO/fluent';
 
-export const generateStaticParams = RSC.withCapabilities(({ capabilities }) => capabilities.articles.list);
+export const generateStaticParams = () => Next.withCapabilities((capabilities) => capabilities.articles.list);
 
-export const generateMetadata = RSC.withCapabilities<{ slug: string }, RSC.Exception, Metadata>(
-  ({ capabilities, params }) =>
-    capabilities.articles
-      .findBySlug(Slug.unsafeFrom(params.slug))
-      .flatMapW(IO.fromMaybe(RSC.Exception.NotFound))
-      .map<Metadata>((post) => {
-        const { title, publishedAt, description, image, slug } = post;
+export const generateMetadata = Next.generateMetadata<{ slug: string }>(({ capabilities, params }) =>
+  capabilities.articles
+    .findBySlug(Slug.unsafeFrom(params.slug))
+    .flatMapW(IO.fromMaybe(Next.Exception.of.NotFound({})))
+    .map<Metadata>((post) => {
+      const { title, publishedAt, description, image, slug } = post;
 
-        // Pull domain in from config
-        const ogImage = config.urls.ogImage(image.src);
-        return {
+      // Pull domain in from config
+      const ogImage = config.urls.ogImage(image.src);
+      return {
+        title,
+        description,
+        openGraph: {
           title,
           description,
-          openGraph: {
-            title,
-            description,
-            type: 'article',
-            publishedTime: format(publishedAt, 'yyyy-MM-dd'),
-            url: config.urls.blog(slug),
-            images: [
-              {
-                url: ogImage
-              }
-            ]
-          },
-          twitter: {
-            card: 'summary',
-            title,
-            description,
-            images: [ogImage]
-          }
-        };
-      })
+          type: 'article',
+          publishedTime: format(publishedAt, 'yyyy-MM-dd'),
+          url: config.urls.blog(slug),
+          images: [
+            {
+              url: ogImage
+            }
+          ]
+        },
+        twitter: {
+          card: 'summary',
+          title,
+          description,
+          images: [ogImage]
+        }
+      };
+    })
 );
 
-const Blog = RSC.withCapabilities<{ slug: string }>(({ capabilities, params }) =>
+const Blog = Next.rsc<{ slug: string }>(({ capabilities, params }) =>
   IO.do(function* ($) {
     const slug = Slug.unsafeFrom(params.slug);
-    const post = yield* $(capabilities.articles.findBySlug(slug).flatMapW(IO.fromMaybe(RSC.Exception.NotFound)));
+    const post = yield* $(
+      capabilities.articles.findBySlug(slug).flatMapW(IO.fromMaybe(Next.Exception.of.NotFound({})))
+    );
     const recommendations = yield* $(capabilities.articles.findRecommendations(slug));
 
     return (

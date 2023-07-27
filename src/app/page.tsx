@@ -1,10 +1,10 @@
 import { IO } from 'ts-prelude/IO/fluent';
 
-import { RSC } from 'src/app/next/RSC';
 import { ProfileAvatar } from 'src/components/ProfileAvatar';
 import { FilterablePosts } from '../components/FilterablePosts';
+import { Next } from './next/Next';
 
-const Home = RSC.withCapabilities(({ capabilities }) =>
+const Home = Next.rsc(({ capabilities }) =>
   IO.do(function* ($) {
     const posts = yield* $(capabilities.articles.list);
 
