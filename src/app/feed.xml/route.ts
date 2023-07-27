@@ -1,5 +1,7 @@
 import RSS from 'rss';
+
 import { config } from 'src/config';
+
 import { Next } from '../next/Next';
 
 export const GET = Next.route(({ capabilities }) => {

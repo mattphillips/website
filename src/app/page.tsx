@@ -1,7 +1,9 @@
 import { IO } from 'ts-prelude/IO/fluent';
 
 import { ProfileAvatar } from 'src/components/ProfileAvatar';
+
 import { FilterablePosts } from '../components/FilterablePosts';
+
 import { Next } from './next/Next';
 
 const Home = Next.rsc(({ capabilities }) =>
@@ -15,7 +17,7 @@ const Home = Next.rsc(({ capabilities }) =>
           <div className="max-w-5xl mx-auto pt-4 pb-12 md:py-12 flex flex-col-reverse md:flex-row items-center justify-center border-b border-gray-200 dark:border-gray-500">
             <div className="mt-4 md:mt-0 md:mr-8 md:w-1/2">
               <span className="text-3xl md:text-5xl font-display font-bold">
-                Hi <span className="animate-wave inline-block origin-[70%_70%]">👋</span>, I'm
+                Hi <span className="animate-wave inline-block origin-[70%_70%]">👋</span>, I&apos;m
               </span>
               <h1 className="text-5xl md:text-7xl mt-4 mb-4 md:mb-8 font-display font-bold">Matt Phillips</h1>
 

@@ -1,28 +1,28 @@
+import { allBlogs, Blog } from 'contentlayer/generated';
+import * as A from 'fp-ts/Array';
 import * as t from 'io-ts';
 import * as tt from 'io-ts-types';
-import * as A from 'fp-ts/Array';
-import reading from 'reading-time';
+import { eitherToResult } from 'ts-prelude/fp-ts-interop';
 import { IO, UIO } from 'ts-prelude/IO/fluent';
 import { Maybe } from 'ts-prelude/Maybe';
-import { eitherToResult } from 'ts-prelude/fp-ts-interop';
 
-import { allBlogs, Blog } from 'contentlayer/generated';
+import { IterableToCodec, NumberToCodec } from 'src/codecs/Refined';
+
 import {
-  Articles,
-  Article,
-  Title,
-  Summary,
-  Src,
   Alt,
-  Slug,
+  Article,
+  Articles,
   Duration,
+  Keyword,
   MDX,
   PublishedAt,
+  Slug,
+  Src,
+  Summary,
   Tag,
-  Keyword,
+  Title,
   Toc
 } from './Articles';
-import { IterableToCodec, NumberToCodec } from 'src/codecs/Refined';
 
 const article = t.type({
   body: t.type({ code: IterableToCodec(MDX) }),

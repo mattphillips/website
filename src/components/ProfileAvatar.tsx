@@ -1,8 +1,9 @@
 import Image from 'next/image';
 import React from 'react';
 
-import me from '../../public/profile.webp';
 import { cn } from 'src/styles/cn';
+
+import me from '../../public/profile.webp';
 
 type ProfileAvatar = { className?: string; priority?: boolean };
 

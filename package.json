@@ -5,6 +5,12 @@
   "repository": "git@github.com:mattphillips/website.git",
   "author": "Matt Phillips <matt@mattphillips.io>",
   "license": "MIT",
+  "scripts": {
+    "dev": "next dev -p 4000",
+    "build": "contentlayer build && next build",
+    "lint": "next lint",
+    "start": "next start -p 4000"
+  },
   "dependencies": {
     "@radix-ui/react-icons": "^1.3.0",
     "@radix-ui/react-scroll-area": "^1.0.4",
@@ -40,14 +46,16 @@
     "@types/mdx": "^2.0.5",
     "@types/react": "^17.0.38",
     "@types/rss": "^0.0.29",
+    "@typescript-eslint/eslint-plugin": "^6.2.0",
+    "@typescript-eslint/parser": "^6.2.0",
     "autoprefixer": "^10.4.1",
+    "eslint": "8.45.0",
+    "eslint-config-next": "13.4.12",
+    "eslint-config-prettier": "^8.9.0",
+    "eslint-plugin-simple-import-sort": "^10.0.0",
     "github-slugger": "^2.0.0",
     "postcss": "^8.4.5",
+    "prettier": "^3.0.0",
     "typescript": "^5.1.6"
-  },
-  "scripts": {
-    "dev": "next dev -p 4000",
-    "build": "contentlayer build && next build",
-    "start": "next start -p 4000"
   }
 }

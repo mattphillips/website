@@ -2,14 +2,15 @@ import '../styles/globals.css';
 import '../styles/post.css';
 
 import { getYear } from 'date-fns';
-import { Playfair_Display, Open_Sans } from 'next/font/google';
+import { Metadata } from 'next';
+import { Open_Sans, Playfair_Display } from 'next/font/google';
+
+import { Action } from 'src/components/Action';
+import { SocialLinks } from 'src/components/SocialLinks';
+import { ThemeButton } from 'src/components/ThemeButton';
+import { config } from 'src/config';
 
 import { Providers } from './Providers';
-import { Action } from 'src/components/Action';
-import { config } from 'src/config';
-import { ThemeButton } from 'src/components/ThemeButton';
-import { SocialLinks } from 'src/components/SocialLinks';
-import { Metadata } from 'next';
 
 const playfairDispaly = Playfair_Display({
   subsets: ['latin'],

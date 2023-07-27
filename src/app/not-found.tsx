@@ -2,11 +2,11 @@ import React from 'react';
 import { IO } from 'ts-prelude/IO/fluent';
 
 import { Alt, Src } from 'src/articles/Articles';
+import { Action } from 'src/components/Action';
+import { NotFoundPathTitle } from 'src/components/NotFoundPathTitle';
 import { Posts } from 'src/components/Posts';
 import { Thumbnail } from 'src/components/Thumbnail';
-import { Action } from 'src/components/Action';
 import { config } from 'src/config';
-import { NotFoundPathTitle } from 'src/components/NotFoundPathTitle';
 
 import { Next } from './next/Next';
 

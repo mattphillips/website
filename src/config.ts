@@ -1,4 +1,7 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+
 import { Nominal } from 'ts-prelude/Nominal';
+
 import { Slug, Src, Tag, Title } from './articles/Articles';
 
 const domain = 'https://mattphillips.io';

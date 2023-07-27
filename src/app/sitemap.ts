@@ -1,6 +1,8 @@
 import { format } from 'date-fns';
-import { Next } from './next/Next';
+
 import { config } from 'src/config';
+
+import { Next } from './next/Next';
 
 const sitemap = () =>
   Next.withCapabilities((capabilities) =>

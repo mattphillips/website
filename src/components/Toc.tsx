@@ -1,10 +1,11 @@
 'use client';
-import React from 'react';
 import { ArrowUpIcon } from '@radix-ui/react-icons';
+import React from 'react';
 
 import { Toc } from 'src/articles/Articles';
-import { cn } from 'src/styles/cn';
 import { config } from 'src/config';
+import { cn } from 'src/styles/cn';
+
 import { Action } from './Action';
 import { Button } from './Button';
 

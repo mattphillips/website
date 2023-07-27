@@ -1,7 +1,7 @@
 import * as t from 'io-ts';
 import { TagUnion } from 'ts-prelude/match';
-import { Refined } from 'ts-prelude/Refined';
 import { SimpleNominal } from 'ts-prelude/Nominal';
+import { Refined } from 'ts-prelude/Refined';
 
 export const IterableToCodec = <A extends SimpleNominal<unknown>, Tag extends TagUnion>(
   refinement: Refined<A, Tag>

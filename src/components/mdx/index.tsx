@@ -1,8 +1,9 @@
 'use client';
 
 import { useMDXComponent } from 'next-contentlayer/hooks';
-import { Pre } from './Pre';
+
 import { Callout } from './Callout';
+import { Pre } from './Pre';
 
 type Props = { code: string };
 

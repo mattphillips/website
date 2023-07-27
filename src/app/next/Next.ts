@@ -31,21 +31,19 @@ export namespace Next {
   });
 
   export const rsc =
-    <P extends PathParams, E extends Exception | never = Exception>(
-      f: (p: CapabilitiesProps<P>) => IO<E, JSX.Element>
-    ) =>
+    <P extends PathParams, E extends Exception = Exception>(f: (p: CapabilitiesProps<P>) => IO<E, JSX.Element>) =>
     (p: Props<P>): Promise<JSX.Element> =>
       withCapabilities((capabilities) => f({ capabilities, ...p }).mapError(genericExceptionHandler));
 
   export const route =
-    <P extends PathParams, R extends Request, E extends Exception | never = Exception>(
+    <P extends PathParams, R extends Request, E extends Exception = Exception>(
       f: (p: CapabilitiesProps<P> & { request: R }) => IO<E, Response>
     ) =>
     (request: R, p: Props<P>): Promise<Response> =>
       withCapabilities((capabilities) => f({ capabilities, request, ...p }).mapError(genericExceptionHandler));
 
   export const generateMetadata =
-    <P extends PathParams, E extends Exception | never = Exception>(f: (p: CapabilitiesProps<P>) => IO<E, Metadata>) =>
+    <P extends PathParams, E extends Exception = Exception>(f: (p: CapabilitiesProps<P>) => IO<E, Metadata>) =>
     (p: Props<P>): Promise<Metadata> =>
       withCapabilities((capabilities) => f({ capabilities, ...p }).mapError(genericExceptionHandler));
 

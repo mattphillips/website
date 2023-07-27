@@ -1,9 +1,10 @@
 import React from 'react';
 
 import { config } from 'src/config';
-import { Github, LinkedIn, Twitter } from './icons';
 import { cn } from 'src/styles/cn';
+
 import { ExternalLink } from './ExternalLink';
+import { Github, LinkedIn, Twitter } from './icons';
 
 const links = [
   { href: config.urls.external.social.twitter, title: 'Twitter', icon: <Twitter /> },

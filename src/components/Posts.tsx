@@ -1,9 +1,11 @@
 import React from 'react';
+
 import { Article } from 'src/articles/Articles';
+import { config } from 'src/config';
+
+import { Action } from './Action';
 import { PostMeta } from './PostMeta';
 import { Thumbnail } from './Thumbnail';
-import { Action } from './Action';
-import { config } from 'src/config';
 
 type Posts = { posts: Array<Article.Preview> };
 

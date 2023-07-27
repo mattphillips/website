@@ -1,10 +1,14 @@
 import { format } from 'date-fns';
 import { Metadata } from 'next';
 import { Balancer } from 'react-wrap-balancer';
+import { IO } from 'ts-prelude/IO/fluent';
+
 import { Next } from 'src/app/next/Next';
 import { Slug, Tag } from 'src/articles/Articles';
 import { Button } from 'src/components/Button';
 import { ExternalLink } from 'src/components/ExternalLink';
+import { Github, Twitter } from 'src/components/icons';
+import { MDX } from 'src/components/mdx';
 import { PostMeta } from 'src/components/PostMeta';
 import { Posts } from 'src/components/Posts';
 import { ProfileAvatar } from 'src/components/ProfileAvatar';
@@ -12,10 +16,7 @@ import { ScrollArea } from 'src/components/ScrollArea';
 import { Tags } from 'src/components/Tags';
 import { Thumbnail } from 'src/components/Thumbnail';
 import { TableOfContents } from 'src/components/Toc';
-import { Github, Twitter } from 'src/components/icons';
-import { MDX } from 'src/components/mdx';
 import { config } from 'src/config';
-import { IO } from 'ts-prelude/IO/fluent';
 
 export const generateStaticParams = () => Next.withCapabilities((capabilities) => capabilities.articles.list);
 

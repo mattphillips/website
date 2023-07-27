@@ -1,6 +1,7 @@
-import React from 'react';
-import { Alt, Src } from 'src/articles/Articles';
 import Image from 'next/image';
+import React from 'react';
+
+import { Alt, Src } from 'src/articles/Articles';
 
 type Thumbnail = { className?: string; src: Src; alt: Alt; priority?: boolean };
 

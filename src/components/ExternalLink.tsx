@@ -1,5 +1,7 @@
 import React from 'react';
+
 import { ExternalRoute } from 'src/config';
+
 import { Action } from './Action';
 
 type ExternalLink = Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'target' | 'rel' | 'href'> & {
