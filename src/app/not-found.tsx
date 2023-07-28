@@ -45,7 +45,9 @@ const NotFound = Next.rsc(({ capabilities }) =>
           <h2 className="font-display text-4xl font-bold">Latest articles:</h2>
         </div>
 
-        <Posts posts={posts} />
+        <div className="mx-auto max-w-7xl px-6">
+          <Posts posts={posts} />
+        </div>
       </>
     );
   })
