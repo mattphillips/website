@@ -6,7 +6,6 @@ import { IO } from 'ts-prelude/IO/fluent';
 import { Next } from 'src/app/next/Next';
 import { Slug, Tag } from 'src/articles/Articles';
 import { Button } from 'src/components/Button';
-import { ExternalLink } from 'src/components/ExternalLink';
 import { Github, Twitter } from 'src/components/icons';
 import { MDX } from 'src/components/mdx';
 import { PostMeta } from 'src/components/PostMeta';
@@ -128,19 +127,19 @@ const Blog = Next.rsc<{ slug: string }>(({ capabilities, params }) =>
           <div className="px-6">
             <div className="pb-12 md:px-6 border-b border-gray-200 dark:border-gray-500 grid items-center gap-6 md:grid-flow-col">
               <ProfileAvatar className="rounded-full h-40 w-40" />
-              <div>
-                <p className="text-4xl mb-4 font-display font-bold">Matt Phillips</p>
+              <div className="space-y-4 text-lg">
+                <p className="text-4xl font-display font-bold">Matt Phillips</p>
 
-                <p className="font-body text-lg mb-4">
-                  Open-source software engineer and tech founder with a passion for teaching all things software
-                  related, career development and building products.
+                <p>
+                  Software engineer and founder from the UK with a passion for teaching all things software related,
+                  career development and building products.
                 </p>
-                <p className="font-body text-lg">
-                  Don’t miss out on on future posts, projects and products I’m working on by following me over on
-                  Twitter{' '}
-                  <ExternalLink className="font-bold" href={config.urls.external.social.twitter}>
-                    @mattphillipsio
-                  </ExternalLink>
+                <p>
+                  Want to keep up to date with everything I&apos;m working on? Then follow me over on{' '}
+                  <Button tag="ExternalLink" variant="outline" size="link" href={config.urls.external.interact.follow}>
+                    <Twitter className="w-4 h-4 mr-1" />
+                    Twitter
+                  </Button>
                   .
                 </p>
               </div>
@@ -179,12 +178,10 @@ const Blog = Next.rsc<{ slug: string }>(({ capabilities, params }) =>
         </div>
 
         {/* Recommended */}
-        <div className="px-6 my-10">
-          <div className="max-w-4xl mx-auto mb-12">
-            <h3 className="text-center text-3xl font-display">
-              <Balancer>Related posts that you may also enjoy</Balancer>
-            </h3>
-          </div>
+        <div className="px-6 my-10 max-w-7xl mx-auto">
+          <h2 className="text-center text-3xl font-display mb-12">
+            <Balancer>Related posts that you may also enjoy</Balancer>
+          </h2>
           <Posts posts={recommendations} />
         </div>
       </>

@@ -24,7 +24,7 @@ const openSans = Open_Sans({
   variable: '--body-font'
 });
 
-const description = `Open-source software engineer and tech founder with a passion for teaching all things software related, career development and building products.`;
+const description = `Software engineer and founder from the UK with a passion for teaching all things software related, career development and building products.`;
 const ogImage = config.urls.profileImage;
 export const metadata: Metadata = {
   metadataBase: new URL(config.urls.home),

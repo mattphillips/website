@@ -1,6 +1,10 @@
+import { Balancer } from 'react-wrap-balancer';
 import { IO } from 'ts-prelude/IO/fluent';
 
+import { Button } from 'src/components/Button';
+import { Github } from 'src/components/icons';
 import { ProfileAvatar } from 'src/components/ProfileAvatar';
+import { config } from 'src/config';
 
 import { FilterablePosts } from '../components/FilterablePosts';
 
@@ -11,35 +15,62 @@ const Home = Next.rsc(({ capabilities }) =>
     const posts = yield* $(capabilities.articles.list);
 
     return (
-      <>
-        {/* Profile intro */}
-        <div className="px-6">
-          <div className="max-w-5xl mx-auto pt-4 pb-12 md:py-12 flex flex-col-reverse md:flex-row items-center justify-center border-b border-gray-200 dark:border-gray-500">
-            <div className="mt-4 md:mt-0 md:mr-8 md:w-1/2">
-              <span className="text-3xl md:text-5xl font-display font-bold">
-                Hi <span className="animate-wave inline-block origin-[70%_70%]">👋</span>, I&apos;m
-              </span>
-              <h1 className="text-5xl md:text-7xl mt-4 mb-4 md:mb-8 font-display font-bold">Matt Phillips</h1>
-
-              <p className="font-body text-lg mb-4">
-                Experienced software engineer in open-source, managing teams and building products. I help to maintain
-                Jest and Jest Community packages and have recently founded a learn-to-drive startup.
+      <div className="px-6">
+        <div className="max-w-7xl mx-auto pt-4 pb-12 md:py-12 flex flex-col-reverse md:flex-row items-center justify-center border-b border-gray-200 dark:border-gray-500">
+          <div className="mt-4 md:mt-0 md:mr-8 md:w-1/2">
+            <span className="text-3xl md:text-5xl font-display font-bold">
+              Hey there <span className="animate-wave inline-block origin-[70%_70%]">👋</span>, I&apos;m
+            </span>
+            <h1 className="text-5xl md:text-7xl mt-4 mb-4 md:mb-8 font-display font-bold">Matt Phillips.</h1>
+            <div className="space-y-4 text-lg font-medium">
+              <p>Software engineer, founder, perpetual learner, and mentor from the UK.</p>
+              <p>
+                If I&apos;m not tinkering on my own products, I&apos;m working on open-source. I&apos;ve published
+                multiple successful packages and most notably helped maintain{' '}
+                <Button
+                  tag="ExternalLink"
+                  variant="link"
+                  size="link"
+                  href={config.urls.external.openSource.jest.website}
+                >
+                  Jest
+                </Button>{' '}
+                and the{' '}
+                <Button
+                  tag="ExternalLink"
+                  variant="link"
+                  size="link"
+                  href={config.urls.external.openSource.jestCommunity.github}
+                >
+                  Jest Community
+                </Button>
+                .
               </p>
-
-              <p className="font-body text-lg">
+              <p>
                 Here I write about all things code. You can expect to learn more about Typescript, Node, React, Testing
                 and Functional Programming – with some content on career development and founding products thrown in
                 too.
               </p>
+              <p>
+                If you want to help support my work please consider sponsoring me over on{' '}
+                <Button tag="ExternalLink" variant="link" size="link" href={config.urls.external.sponsor}>
+                  <Github className="w-4 h-4 mr-1" />
+                  GitHub
+                </Button>
+                .
+              </p>
             </div>
-            <ProfileAvatar className="rounded-full h-56 w-56 md:h-72 md:w-72" priority />
           </div>
+          <ProfileAvatar className="rounded-full h-56 w-56 md:h-72 md:w-72" priority />
         </div>
 
-        <div className="my-10">
+        <div className="my-10 max-w-7xl mx-auto">
+          <h2 className="text-center text-3xl font-display mb-8">
+            <Balancer>Read my blog</Balancer>
+          </h2>
           <FilterablePosts posts={posts} />
         </div>
-      </>
+      </div>
     );
   })
 );

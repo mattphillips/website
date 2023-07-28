@@ -10,7 +10,7 @@ import { Thumbnail } from './Thumbnail';
 type Posts = { posts: Array<Article.Preview> };
 
 export const Posts: React.FC<Posts> = ({ posts }) => (
-  <div className="grid grid-cols-1 px-6 xl:px-4 md:grid-cols-2 xl:grid-cols-3 gap-12 max-w-7xl mx-auto">
+  <div className="grid grid-cols-1 xl:px-4 md:grid-cols-2 xl:grid-cols-3 gap-12">
     {posts.map(({ publishedAt, slug, title, description, image, duration }) => (
       <article
         className="transition-transform transform ease-in-out delay-75 md:hover:scale-110 rounded-lg flex justify-center"
@@ -23,7 +23,7 @@ export const Posts: React.FC<Posts> = ({ posts }) => (
               <div className="mt-4">
                 <PostMeta className="text-sm" duration={duration} publishedAt={publishedAt} />
                 <div className="p-4">
-                  <h2 className="text-3xl font-display font-semibold mb-4">{title}</h2>
+                  <h3 className="text-3xl font-display font-semibold mb-4">{title}</h3>
                   <p className="text-lg font-body">{description}</p>
                 </div>
               </div>

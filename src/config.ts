@@ -52,7 +52,25 @@ export const config = {
         linkedIn: ExternalRoute(`https://linkedin.com/in/${linkedInUser}`)
       },
 
+      openSource: {
+        jest: {
+          website: ExternalRoute('https://jestjs.io'),
+          github: ExternalRoute('https://github.com/jestjs/jest')
+        },
+        jestCommunity: {
+          github: ExternalRoute('https://github.com/jest-community')
+        }
+      },
+
+      sponsor: ExternalRoute(`https://github.com/sponsors/${githubUser}`),
+
       interact: {
+        follow: ExternalRoute(
+          `https://twitter.com/intent/follow?${new URLSearchParams({
+            screen_name: twitterUser
+          })}`
+        ),
+
         share: (slug: Slug, title: Title) =>
           ExternalRoute(
             `https://twitter.com/intent/tweet?${new URLSearchParams({
