@@ -43,7 +43,7 @@ export const config = {
     ogImage: (src: Src) => `${domain}${src}`,
     profileImage: `${domain}/profile.jpg`,
     sitemap: `${domain}/sitemap.xml`,
-    rss: `${domain}/feed.xml`,
+    rss: ExternalRoute(`${domain}/feed.xml`),
 
     external: {
       social: {

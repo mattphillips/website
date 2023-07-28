@@ -3,7 +3,7 @@ import React from 'react';
 import { config } from 'src/config';
 import { cn } from 'src/styles/cn';
 
-import { ExternalLink } from './ExternalLink';
+import { Button } from './Button';
 import { Github, LinkedIn, Twitter } from './icons';
 
 const links = [
@@ -13,14 +13,12 @@ const links = [
 ];
 
 export const SocialLinks: React.FC<{ className?: string }> = ({ className }) => (
-  <div className={cn('flex flex-row justify-center', className)}>
+  <div className={cn('flex flex-row items-center space-x-2', className)}>
     {links.map(({ href, icon, title }) => (
-      <ExternalLink href={href} key={title}>
-        <div className="p-3 transition-transform transform hover:scale-125">
-          {icon}
-          <span className="sr-only">{title}</span>
-        </div>
-      </ExternalLink>
+      <Button size="grow" variant="ghost" tag="ExternalLink" href={href} key={title}>
+        {icon}
+        <span className="sr-only">{title}</span>
+      </Button>
     ))}
   </div>
 );

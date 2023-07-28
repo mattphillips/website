@@ -6,6 +6,8 @@ import { Metadata } from 'next';
 import { Open_Sans, Playfair_Display } from 'next/font/google';
 
 import { Action } from 'src/components/Action';
+import { Button } from 'src/components/Button';
+import { Rss } from 'src/components/icons';
 import { SocialLinks } from 'src/components/SocialLinks';
 import { ThemeButton } from 'src/components/ThemeButton';
 import { config } from 'src/config';
@@ -81,7 +83,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   </span>
                 </Action>
 
-                <ThemeButton />
+                <div className="md:absolute md:top-1 md:right-1/2">
+                  <ThemeButton />
+                </div>
 
                 <SocialLinks className="hidden md:flex" />
               </div>
@@ -90,13 +94,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <main className="flex-1">{children}</main>
 
             {/* Todo: pull into a component */}
-            <footer className="p-4 sm:p-6">
+            <footer className="p-4 sm:p-6 text-gray-600 dark:text-gray-300">
               <div className="max-w-5xl mx-auto md:flex md:items-center md:justify-between">
-                <div className="order-2">
-                  <SocialLinks className="text-gray-500 dark:text-gray-400" />
+                <div className="order-2 flex items-center justify-center space-x-2">
+                  <Button tag="ExternalLink" variant="ghost" size="grow" href={config.urls.rss}>
+                    <Rss className="w-6 h-6" />
+                    <span className="sr-only">rss feed</span>
+                  </Button>
+
+                  <SocialLinks />
                 </div>
                 <div className="mt-4 md:mt-0 md:order-1">
-                  <p className="text-center text-base text-gray-500 dark:text-gray-400">
+                  <p className="text-center text-base">
                     &copy; {getYear(new Date())} Matt Phillips. All rights reserved.
                   </p>
                 </div>
