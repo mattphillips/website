@@ -54,7 +54,7 @@ const Home = Next.rsc(({ capabilities }) =>
               <p>
                 If you want to help support my work please consider sponsoring me over on{' '}
                 <Button tag="ExternalLink" variant="link" size="link" href={config.urls.external.sponsor}>
-                  <Github className="w-4 h-4 mr-1" />
+                  <Github className="w-3 h-3 mr-1" />
                   GitHub
                 </Button>
                 .

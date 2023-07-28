@@ -86,66 +86,6 @@ const Blog = Next.rsc<{ slug: string }>(({ capabilities, params }) =>
             <article className="post mt-12 max-w-4xl mx-auto md:px-6">{<MDX code={post.mdx} />}</article>
           </div>
 
-          {/* Share / edit */}
-          <div className="px-6">
-            <div className="border-y border-solid border-gray-200 dark:border-gray-500 py-6 md:px-6 my-12 grid md:grid-cols-2 gap-4 font-body font-semibold text-lg text-gray-600 dark:text-gray-300">
-              <Button
-                className="w-full md:w-1/2"
-                variant="outline"
-                size="sm"
-                tag="ExternalLink"
-                href={config.urls.external.interact.share(slug, post.title)}
-              >
-                Share article <Twitter className="w-4 h-4 ml-2" />
-              </Button>
-              <div className="flex flex-row md:justify-end items-center flex-wrap space-y-4 md:space-y-0">
-                <Button
-                  className="w-full md:flex-1"
-                  variant="outline"
-                  size="sm"
-                  tag="ExternalLink"
-                  href={config.urls.external.interact.discuss(slug)}
-                >
-                  Discuss article <Twitter className="w-4 h-4 ml-2" />
-                </Button>
-                <span className="hidden md:inline md:mx-4">•</span>
-                <Button
-                  className="w-full md:flex-1"
-                  variant="default"
-                  size="sm"
-                  tag="ExternalLink"
-                  href={config.urls.external.interact.edit(slug)}
-                >
-                  Edit on GitHub
-                  <Github className="w-4 h-4 ml-2" />
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Author outro */}
-          <div className="px-6">
-            <div className="pb-12 md:px-6 border-b border-gray-200 dark:border-gray-500 grid items-center gap-6 md:grid-flow-col">
-              <ProfileAvatar className="rounded-full h-40 w-40" />
-              <div className="space-y-4 text-lg">
-                <p className="text-4xl font-display font-bold">Matt Phillips</p>
-
-                <p>
-                  Software engineer and founder from the UK with a passion for teaching all things software related,
-                  career development and building products.
-                </p>
-                <p>
-                  Want to keep up to date with everything I&apos;m working on? Then follow me over on{' '}
-                  <Button tag="ExternalLink" variant="outline" size="link" href={config.urls.external.interact.follow}>
-                    <Twitter className="w-4 h-4 mr-1" />
-                    Twitter
-                  </Button>
-                  .
-                </p>
-              </div>
-            </div>
-          </div>
-
           {/* Sidebar */}
           <div className="absolute top-16 -right-64 h-full hidden xl:block">
             <div className="sticky top-16 w-56 shrink-0 overflow-y-hidden">
@@ -165,15 +105,99 @@ const Blog = Next.rsc<{ slug: string }>(({ capabilities, params }) =>
                   tag="ExternalLink"
                   href={config.urls.external.interact.share(slug, post.title)}
                 >
-                  Share article <Twitter className="w-4 h-4 ml-2" />
+                  <Twitter className="w-4 h-4 mr-2" />
+                  Share article
                 </Button>
 
                 <Button variant="outline" size="sm" tag="ExternalLink" href={config.urls.external.interact.edit(slug)}>
+                  <Github className="w-4 h-4 mr-2" />
                   Edit on GitHub
-                  <Github className="w-4 h-4 ml-2" />
+                </Button>
+
+                <Button variant="outline" size="sm" tag="ExternalLink" href={config.urls.external.sponsor}>
+                  <Github className="w-4 h-4 mr-2" />
+                  Sponsor author
                 </Button>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div className="max-w-4xl mx-auto my-12 px-6">
+          {/* Share / edit */}
+          <div className="border-y border-solid border-gray-200 dark:border-gray-500 py-6 md:px-6 my-12 grid md:grid-cols-2 gap-4 font-body font-semibold text-lg text-gray-600 dark:text-gray-300">
+            <Button
+              className="w-full md:w-1/2"
+              variant="outline"
+              size="sm"
+              tag="ExternalLink"
+              href={config.urls.external.interact.share(slug, post.title)}
+            >
+              <Twitter className="w-4 h-4 mr-2" />
+              Share article
+            </Button>
+            <div className="flex flex-row md:justify-end items-center flex-wrap space-y-4 md:space-y-0">
+              <Button
+                className="w-full md:flex-1"
+                variant="outline"
+                size="sm"
+                tag="ExternalLink"
+                href={config.urls.external.interact.discuss(slug)}
+              >
+                <Twitter className="w-4 h-4 mr-2" />
+                Discuss article
+              </Button>
+              <span className="hidden md:inline md:mx-4">•</span>
+              <Button
+                className="w-full md:flex-1"
+                variant="default"
+                size="sm"
+                tag="ExternalLink"
+                href={config.urls.external.interact.edit(slug)}
+              >
+                <Github className="w-4 h-4 mr-2" />
+                Edit on GitHub
+              </Button>
+            </div>
+          </div>
+
+          {/* Author outro */}
+          <div className="md:px-6 grid items-center gap-6 md:grid-flow-col">
+            <ProfileAvatar className="rounded-full h-40 w-40" />
+            <div className="space-y-4 text-lg">
+              <p className="text-4xl font-display font-bold">Matt Phillips</p>
+
+              <p>
+                Software engineer and founder from the UK with a passion for teaching all things software related,
+                career development and building products.
+              </p>
+              <p>
+                Want to keep up to date with everything I&apos;m working on? Then follow me over on{' '}
+                <Button tag="ExternalLink" variant="outline" size="link" href={config.urls.external.interact.follow}>
+                  <Twitter className="w-3 h-3 mr-1" />
+                  Twitter
+                </Button>
+                .
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="my-12 bg-gray-50 dark:bg-gray-900 text-foreground py-8 px-6">
+          <div className="max-w-4xl mx-auto text-center space-y-4">
+            <p className="font-medium text-lg">
+              If you&apos;ve enjoyed this article, please consider sponsoring me on GitHub
+            </p>
+            <Button
+              tag="ExternalLink"
+              variant="default"
+              size="default"
+              href={config.urls.external.sponsor}
+              className="ml-2"
+            >
+              <Github className="w-4 h-4 mr-1" />
+              Sponsor
+            </Button>
           </div>
         </div>
 
