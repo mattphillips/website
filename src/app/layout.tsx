@@ -88,6 +88,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </div>
 
                 <SocialLinks className="hidden md:flex" />
+
+                <Button
+                  tag="Link"
+                  href={config.routes.id(config.ids.blog)}
+                  variant="ghost"
+                  className="md:hidden font-semibold"
+                >
+                  Blog
+                </Button>
               </div>
             </header>
 

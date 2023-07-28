@@ -24,6 +24,10 @@ export const config = {
     linkedIn: linkedInUser
   },
 
+  ids: {
+    blog: 'blog'
+  },
+
   routes: {
     home: Route('/'),
     tag: (query: Tag.Query) => {

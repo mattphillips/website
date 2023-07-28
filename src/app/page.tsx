@@ -65,15 +65,15 @@ const Home = Next.rsc(({ capabilities }) =>
         </div>
 
         <div className="my-10 max-w-7xl mx-auto">
-          <h2 className="text-center text-3xl font-display mb-8">
-            <Balancer>Read my blog</Balancer>
+          <h2 className="text-center text-3xl font-display mb-8" id={config.ids.blog}>
+            <Balancer>Blog</Balancer>
           </h2>
           <FilterablePosts posts={posts} />
         </div>
 
         <div className="my-10 max-w-7xl mx-auto border-y border-gray-200 dark:border-gray-500 py-8">
-          <div className="flex justify-center items-center flex-wrap">
-            <p className="font-medium text-lg text-center mb-4 lg:mr-4 lg:mb-0">
+          <div className="mx-auto text-center">
+            <p className="font-medium text-lg text-center mb-4">
               <Balancer>
                 Want to keep up to date with everything I&apos;m working on? Then follow me over on Twitter.
               </Balancer>
