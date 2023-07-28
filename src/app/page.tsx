@@ -2,7 +2,7 @@ import { Balancer } from 'react-wrap-balancer';
 import { IO } from 'ts-prelude/IO/fluent';
 
 import { Button } from 'src/components/Button';
-import { Github } from 'src/components/icons';
+import { Github, Twitter } from 'src/components/icons';
 import { ProfileAvatar } from 'src/components/ProfileAvatar';
 import { config } from 'src/config';
 
@@ -69,6 +69,20 @@ const Home = Next.rsc(({ capabilities }) =>
             <Balancer>Read my blog</Balancer>
           </h2>
           <FilterablePosts posts={posts} />
+        </div>
+
+        <div className="my-10 max-w-7xl mx-auto border-y border-gray-200 dark:border-gray-500 py-8">
+          <div className="flex justify-center items-center flex-wrap">
+            <p className="font-medium text-lg text-center mb-4 lg:mr-4 lg:mb-0">
+              <Balancer>
+                Want to keep up to date with everything I&apos;m working on? Then follow me over on Twitter.
+              </Balancer>
+            </p>
+            <Button size="lg" variant="default" tag="ExternalLink" href={config.urls.external.interact.follow}>
+              <Twitter className="w-4 h-4 mr-2" />
+              Follow me
+            </Button>
+          </div>
         </div>
       </div>
     );
