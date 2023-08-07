@@ -183,7 +183,7 @@ const Blog = Next.rsc<{ slug: string }>(({ capabilities, params }) =>
           </div>
         </div>
 
-        <div className="my-12 bg-gray-50 dark:bg-gray-900 text-foreground py-8 px-6">
+        <div className="my-12 bg-gray-50 dark:bg-gray-50/10 text-foreground py-8 px-6">
           <div className="max-w-4xl mx-auto text-center space-y-4">
             <p className="font-medium text-lg">
               If you&apos;ve enjoyed this article, please consider sponsoring me on GitHub

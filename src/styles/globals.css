@@ -224,16 +224,16 @@ code[data-line-numbers-max-digits='3'] > [data-line]::before {
 }
 
 /* Inline code blocks */
-.dark :not(pre) > code {
-  background: #011627;
+:not(pre) > code {
   padding: 0.2em 0.4em;
   border-radius: 3px;
-  font-size: 90%;
+  font-size: 80% !important;
 }
 
 .light :not(pre) > code {
-  background-color: #f6f8fa;
-  padding: 0.2em 0.4em;
-  border-radius: 3px;
-  font-size: 90%;
+  @apply bg-gray-200;
+}
+
+.dark :not(pre) > code {
+  @apply bg-gray-600;
 }

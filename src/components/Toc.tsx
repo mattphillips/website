@@ -54,7 +54,7 @@ export const TableOfContents = ({ headings }: Props) => {
 
   return (
     <nav className="text-sm text-foreground/80 hover:text-foreground transition-colors">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-2">
         <span className="text-foreground font-medium">On this page</span>
         <Button tag="Button" variant="ghost" size="icon" onClick={scrollToTop}>
           <span className="sr-only">Scroll to top</span>
