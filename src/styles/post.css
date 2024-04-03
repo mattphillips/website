@@ -62,6 +62,10 @@
   margin-left: -25px;
 }
 
+.post p ~ ul {
+  margin-top: -1rem;
+}
+
 .post blockquote,
 .post dd,
 .post dl,
@@ -98,45 +102,13 @@
 }
 
 .post a {
-  @apply text-link dark:text-blue-300;
+  @apply text-link dark:text-blue-400;
   text-decoration: none;
 }
 
 .post img {
   height: 100%;
   width: 100%;
-}
-
-.container {
-  max-width: 42rem;
-  margin: 0 auto;
-  padding: 3rem 1.5rem;
-}
-
-.title {
-  font-size: 36px !important;
-  margin: 0 !important;
-}
-
-.date {
-  font-size: 14px;
-}
-
-.bioImage {
-  border-radius: 99999px;
-  height: 6rem !important;
-  width: 6rem !important;
-  margin-right: 1rem;
-}
-
-.bioContainer {
-  border-top: 2px solid #efefef;
-  border-bottom: 2px solid #efefef;
-  display: flex;
-  align-items: center;
-  flex-direction: row;
-  margin-bottom: 1rem;
-  padding: 1rem 0;
 }
 
 .post .heading-anchor {

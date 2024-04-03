@@ -1,31 +1,32 @@
 ---
-draft: true
-showToc: true
-title: TypeScript from stringly typed to strongly typed
-publishedAt: '2023-08-08T22:12:03.284Z'
-summary: Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+title: 'TypeScript: from Stringly Typed to Strongly Typed'
+publishedAt: '2024-04-03T18:12:03.284Z'
+summary: TypeScript is often referred to as being "strongly typed" when in reality most TypeScript codebases are actually "stringly typed". In this article we will take a closer look at the effects of overusing strings and how to make them strongly typed with nominal typing.
 image:
   src: /images/blog/stringly.jpeg
-  alt: String theory inspired strings
+  alt: A black background with three white sqiggle outlines each with decreasing opacity. Depicting strings from string theory
 tags: [typescript]
 keywords: [newtype, opaque, branded, nominal]
+showToc: true
 ---
 
-TypeScript is often referred to as being "strongly" typed, usually based on the fact that it is a typed language containing primitives like `string`, `number`, and `boolean` to name a few. In this article I will explain why this notion is wrong, and largely speaking why most TypeScript codebases are actually "stringly" typed. We'll take a look at the absurdity of modelling all text based values as a `string`, examples of where this can cause problems in your domain model and functions, and finally look at our options for making our code **strongly** typed.
+TypeScript is often referred to as being "strongly typed", usually based on the fact that it is a typed language containing primitives like `string`, `number`, and `boolean`. Here I will explain why this idea is wrong, and largely speaking why most TypeScript codebases are actually "stringly typed". We'll take a look at why it's not ideal to model all text based values as a string, examples of where this can cause problems in your domain model and functions, and finally look at our options for making our code **strongly** typed.
 
-## What is a string?
+**TL;DR** if you're already familiar with "stringly typed" codebases feel free to jump to the [solution](#solution).
 
-A `string` is a primitive data type that is used to store text, in many languages under the hood it is an array of characters. It's often overused for all different types of text data, which can lead to what is known as "stringly typed" code, where variables are only distinguished by the values they hold rather than the type of those values.
+## What is Stringly Typed?
 
-Using the `string` type in this way can lead to a number of issues. It can make it difficult to know the expected format or content of a variable. Is this string a URL? An Email? A Password? It's not clear from the type.
+A string is a primitive data type used to represent text data. It's often overused for all different types of text, which can lead to "stringly typed" code — where variables are only distinguished by the values they hold rather than their type.
 
-To take this overusage to an absurd extreme, why don't we represent all types as a byte array instead of distinguishing between strings, numbers, booleans and so on? The reason we don't do this is because we'd end up with a dynamic language meaning everything is a runtime error rather than compile time.
+Overusing strings in this way can lead to many issues. It can make it difficult to know the expected format or content of a variable. Is this string a URL? An Email? A Password? It's not clear from the type.
 
-This overusage of `string` type undermines being in a static language and having compile time checks. The question becomes how do we make `string` a stronger type to allow the compiler to distinguish between different types of textual data and not treat everything that "looks" the same as being the same type?
+Let's take typing as whole to its extreme. If we're happy to store all text as strings regardless of their type. Why stop there? Why not represent all types as a byte array instead? The reason we don't do this is because we'd end up with a dynamic language, meaning everything is a runtime error rather than compile time.
+
+This over-usage of the string type undermines being in a static language and having compile time checks. So how do we make a stronger string type? One that allows the compiler to distinguish between different types of textual data.
 
 ## Domain modelling with primitive types
 
-Let's look at an example of when you might currently use a `string`, by modelling a simple `User` type.
+Let's look at an example of when you might currently use a string, by modelling a simple `User` type.
 
 ```ts /string/
 type User = {
@@ -35,7 +36,7 @@ type User = {
 };
 ```
 
-This looks fairly typical of a TypeScript project right? Let's start trying to work with this model, maybe we need a function that can convert a user's name to their initials. i.e. `Matt Phillips` &rarr; `MP`.
+This looks typical of a TypeScript project right? Let's start trying to work with this model, we need a function that can convert a user's name to their initials. i.e. `Matt Phillips` &rarr; `MP`.
 
 ```ts
 const getInitials = (firstName: string, lastName: string): string => {
@@ -43,13 +44,13 @@ const getInitials = (firstName: string, lastName: string): string => {
 };
 ```
 
-Now let's use our `getInitials` function and see why `string` isn't the best type option.
+Now let's use our `getInitials` function and see why string isn't the best type option here.
 
-```ts
+```ts /^ "PM"/
 const user: User = {
   firstName: 'Matt',
   lastName: 'Phillips',
-  email: ''
+  email: 'hello@example.com'
 };
 
 const initials = getInitials(user.lastName, user.firstName);
@@ -61,19 +62,19 @@ const initials = getInitials(user.lastName, user.firstName);
   correct.
 </Callout>
 
-How might we fix this sort of problem? We could instead pass the whole `User` object to the `getInitials` function so that it can index the user on the `firstName` and `lastName` keys. But now we are exposing all properties of a user to a function that only cares about the first and last names. If we want to write a unit test for this function we need to generate more data than is necessary as it's never used inside of the function.
+How might we fix this sort of problem? We could instead pass the whole `User` to `getInitials` so that it can index on the `firstName` and `lastName` keys. But now we are exposing all properties of a user to a function that only cares about the first and last names. If we want to write a unit test for this function, we need to generate unnecessary data that's never used.
 
-This solution also ignores the fact that TypeScript is happy to compile this code because it thinks that a `firstName` is equal to a `lastName` (or even an `email`!). This means the compiler can never catch accidental usage of a value in the wrong context.
+This solution also ignores the fact that TypeScript is happy to compile this code because it thinks that a firstName is equal to a lastName (or even an email!). This means the compiler can never catch accidental usage of a value in the wrong context.
 
 ## FirstName !== LastName
 
-As discussed above, not all text based data should be the same type and in this case sementically a user's first name is not the same type as their last name. How do we make it so that TypeScript treats the first and last name as different types? Let's try a few options:
+Not all text based data should be the same type, and in this case a user's first name is not the same type as their last name. How do we make it so that TypeScript treats the first and last name differently? Let's try a few options:
 
 ### Type Aliases
 
 What about if we use a type alias to create a `FirstName` and `LastName` type?
 
-```ts
+```ts /^ true/
 type FirstName = string;
 type LastName = string;
 
@@ -87,9 +88,9 @@ Here we can see that type aliases are what they say on the tin, aliases. They ar
 
 ### Class / object boxing
 
-What if we wrap a primitive inside of a `class` / `object`?
+What if we wrap a string inside of a `class` / `object`?
 
-```ts
+```ts /^ true/
 class FirstName {
   constructor(public value: string) {}
 }
@@ -102,24 +103,39 @@ type Test = Equals<FirstName, LastName>;
 //   ^ true
 ```
 
-Unfortunately with TypeScript being structually typed, `FirstName` and `LastName` are still equal in terms of their structure. We could change thier structure not be identical but that doesn't prevent us from acidentally re-creating an object of the same structure elsewhere which would bring us back to our original problem.
+With TypeScript being _structurally typed_, `FirstName` and `LastName` are still equal in shape. We could change their structure to not be identical. But this doesn't prevent us from re-creating the same structure elsewhere, bringing us back to the original problem.
 
-This encoding also comes with the problem of adding a small overhead of creating an object anywhere we want a primitive and any code using this object needs to now call `.value` to access the primitive to do anything with it.
+This encoding also comes with the problem of adding a small overhead of creating an object anywhere we want a string. Any code using this object now needs to call `.value` to access the string.
+
+<Callout tag="info" title="What is structural typing?">
+Structural typing is a way of relating types based on their properties. This means that TypeScript only takes into account the properties of the type for equality.
+
+For example: if the type is shaped like a pet, then it's a pet. If a cat has at least all properties of a pet, then it's also a pet.
+
+</Callout>
 
 ### Solution
 
-How do we make it so that our `firstName` and `lastName` have different nominal types? If we look at other languages we will see techniques for this exact problem. The solution has different names depending on the language but to name a couple there is: Haskell's `newtype` or Flow's `opaque type`.
+Given TypeScript is structurally typed we need a way to make it support _nominal types_. How do we make it so that our firstName and lastName have different nominal types? If we look at other languages we will see techniques for this exact problem. The solution has different names depending on the language. To name a couple: Haskell's `newtype` or Flow's `opaque type`. These are nominal type aliases that do not allow access to their underlying type.
 
-These encodings are nominal type aliases that do not allow access to their underlying type.
+<Callout tag="info" title="What is nominal typing?">
+Within a type system it's how types are uniquely related based on their declaration and / or name. This means that even if two types have the exact same properties, they'd be considered different.
+
+For example: if the nominal type is shaped like a
+pet, then it is a pet. If a cat has at least all properties of a pet, then it is not a pet but only a cat.
+
+</Callout>
 
 Ideally we want the best of both worlds so that we can:
 
 - Operate over our nominal types as if they were the underlying type to access properties on them
-- Get compile time checks that distinguishes two nominal types of the same underlying type to be different.
+- Get compile time errors that verify nominal types of the same underlying type to be different.
 
-The TypeScript solution is to lean on [`unique symbol`](https://www.typescriptlang.org/docs/handbook/symbols.html#unique-symbol) for our encoding.
+The solution is to brand our primitives using an intersection (`&`) with a [`unique symbol`](https://www.typescriptlang.org/docs/handbook/symbols.html#unique-symbol). In TypeScript each unique symbol has a completely separate identity. We can lean on this uniqueness to brand our primitives to make them nominally typed.
 
-```ts
+Let's take a look at what this might look like:
+
+```ts /^ false 🎉🎉🎉🎉🎉/
 type FirstName = string & { readonly unique symbol: FirstName };
 type LastName = string & { readonly unique symbol: LastName };
 
@@ -127,16 +143,19 @@ type Test = Equals<FirstName, LastName>;
 //   ^ false 🎉🎉🎉🎉🎉
 ```
 
-We've finally done it, our `FirstName` and `LastName` are different types! The beauty of this solution is that you can have two unique symbols with the same label and TypeScript will treat them as being completely unique.
+<Callout tag="success" title="Success! We have nominal types" emoji="🎉">
+We've finally done it, our `FirstName` and `LastName` are different types! The beauty of this solution is that we can have two unique symbols with the same description and they'll still be completely unique.
 
-<Callout tag="info" title="Accessing properties of the underlying type">
-  We can still acess the properties as if they were the underlying type. This technique can work for any type too not
-  just `string`, so we could use it with a `boolean` or `number` etc.
+We can still access the properties as if they are the underlying type. This means there is no performance overhead to consider. This technique can work for any type too, not just for strings.
+
 </Callout>
 
-Now I'm sure you're wondering this is all great and everything, but how do I construct a value of `FirstName` etc? Let's build ourselves a `Nominal` type constructor. It should allow us to define a primitve as a nominal type based on some unique symbol and give us a function to construct an instance of our nominal type.
+Now I'm sure you're wondering this is great and all, but how do I construct a value of a nominal type? Let's build ourselves a `Nominal` type constructor. It should allow us to:
 
-```ts
+- Define a primitive as a nominal type based on some unique symbol.
+- Give us a function to construct an instance of our nominal type from its underlying type.
+
+```ts /__brand/ /__original/
 type Nominal<A, Brand extends symbol> = A & {
   __brand: Brand;
   __original: A;
@@ -148,13 +167,18 @@ const Nominal =
     a as N;
 ```
 
-Don't be alarmed by the definition here, by creating a generic version of `Nominal` we just need to track the original underlying type so that our constructor knows which type argument to expect and the unique symbol that brands our type to make it unique.
+Don't be alarmed by this definition, it's actually pretty simple. We have created a generic `Nominal` type that intersects our underlying type with a branding object.
+
+This branding object is a place for us to do two things:
+
+- To store the symbol identifier which which will provide us with uniqueness. This is what will allow TypeScript to type check for nominal differences.
+- To store the underlying type, so that we can then use this to create a generic constructor function. This function will lookup the underlying type so that the compiler knows which type to expect when creating a nominal value.
 
 ## Domain modelling with nominal types
 
-Here's how we can write our `User` type from before in terms of nominal values.
+Here's how we can re-write our `User` type.
 
-```ts
+```ts /unique symbol/
 type FirstName = Nominal<string, { readonly FirstName: unique symbol }['FirstName']>;
 const FirstName = Nominal<FirstName>();
 
@@ -171,13 +195,13 @@ type User = {
 };
 ```
 
-Now, the type of each variable clearly indicates its intended use. Assigning a value of the wrong type will result in a compile-time error, rather than a runtime error. When we write our `getInitials` function using our nominal types we will be able to prevent values being used in the wrong context as the compiler will catch it for us.
+Now the type of each variable indicates its intended use. Assigning a value of the wrong type will result in a compile time error. Let's re-write our `getInitials` function using our nominal types.
 
-```ts
+```ts /Compile Error/
 const user: User = {
   firstName: FirstName('Matt'),
   lastName: LastName('Phillips'),
-  email: Email('')
+  email: Email('hello@example.com')
 };
 
 const getInitials = (firstName: FirstName, lastName: LastName): string => {
@@ -188,16 +212,16 @@ const initials = getInitials(user.lastName, user.firstName);
 //    ^ Compile Error: Argument of type 'LastName' is not assignable to parameter of type 'FirstName'.
 ```
 
-<Callout tag="success">
-  Initials is no longer compiling! Instead TypeScript can see that our types are different so they can no longer be
-  mixed up.
+<Callout tag="success" title="Compile errors FTW">
+  `initials` is no longer compiling! Instead TypeScript can see that our types are different so the parameters can no
+  longer be mixed up.
 </Callout>
 
 ### Open Source Solutions
 
-In this article we've examined how we can build a `Nominal` type so that we have a deeper understanding of what it is doing and how it works. However ideally we wouldn't write `Nominal` ourselves and copy to / from each project. And thankfully we don't need to, we can instead lean on open-source solutions. In particular Effect's [nominal branded type](https://www.effect.website/docs/style/brands#2-nominal-branded-types) provides exactly what we need, without maintaining the definition ourselves.
+We've built a Nominal type to give us a deeper understanding of what it is doing and how it works. But ideally we wouldn't write Nominal ourselves and copy it to / from each project. And thankfully we don't need to! We can instead lean on open-source solutions. In particular Effect's [`Nominal Branded Type`](https://www.effect.website/docs/style/brands#2-nominal-branded-types). It provides exactly what we need, without maintaining the definition ourselves.
 
-They have a slightly different syntax, with the ability to brand primitives with a string as well as a unique symbol.
+It has a slightly different syntax requiring us to write the intersection ourselves. It also has the ability to brand primitives with a string literal as well as a unique symbol. It's extremely close to our encoding and well worth trying out.
 
 ```ts
 import { Brand } from 'effect';
@@ -217,12 +241,10 @@ const lastName = LastName('Phillips');
 
 ## Closing thoughts
 
-{/* TODO: This needs a bit more work */}
+In this article we've examined what a string is, why it's not the best type for your domain model and, how we can make our code strongly typed with nominals. They're easier to understand, serving as documentation for other developers on the expected use of each variable. They will help catch accidental bugs at compile time.
 
-In this article we've examined what a string is, why it's probably not the best choice of type for your domain models and how we can make our code strongly typed with nominal typing.
+It's worth reiterating that this article can be applied to all primitives. I have focussed on strings because they are most commonly overused.
 
-Using nominal types helps make your code more strongly typed and easier to understand, also serving as documentation for other developers on the expected use of each variable.
-
-To be clear this article can be applied to any primitive, I am focussing on `string` because it is the one I see used the most. There is nothing wrong with using primitive types, just not everywhere. Of course, nominals are not a silver bullet but should be used to model your domain at the very least.
+Of course, nominals are not a silver bullet either. As with everything there isn't a right and wrong way to do things, and using nominal values is no different. You might not need to use a nominal value everywhere that you may use a primitive. With that said at the very least I would recommend using them for your core domain models.
 
 In the next article we'll build on top of this to make our types even stronger using refinement types.
