@@ -219,7 +219,7 @@ const initials = getInitials(user.lastName, user.firstName);
 
 ### Open Source Solutions
 
-We've built a Nominal type to give us a deeper understanding of what it is doing and how it works. But ideally we wouldn't write Nominal ourselves and copy it to / from each project. And thankfully we don't need to! We can instead lean on open-source solutions. In particular Effect's [`Nominal Branded Type`](https://www.effect.website/docs/style/brands#2-nominal-branded-types). It provides exactly what we need, without maintaining the definition ourselves.
+We've built a Nominal type to give us a deeper understanding of what it is doing and how it works. But ideally we wouldn't write Nominal ourselves and copy it to / from each project. And thankfully we don't need to! We can instead lean on open-source solutions. In particular Effect's [`Nominal Branded Type`](https://effect.website/docs/guides/style/branded-types#2-nominal-branded-types). It provides exactly what we need, without maintaining the definition ourselves.
 
 It has a slightly different syntax requiring us to write the intersection ourselves. It also has the ability to brand primitives with a string literal as well as a unique symbol. It's extremely close to our encoding and well worth trying out.
 
