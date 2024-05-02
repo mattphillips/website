@@ -7,6 +7,7 @@ import { Open_Sans, Playfair_Display } from 'next/font/google';
 
 import { Action } from 'src/components/Action';
 import { Button } from 'src/components/Button';
+import { Fathom } from 'src/components/Fathom';
 import { Rss } from 'src/components/icons';
 import { SocialLinks } from 'src/components/SocialLinks';
 import { ThemeButton } from 'src/components/ThemeButton';
@@ -72,6 +73,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${playfairDispaly.variable} ${openSans.variable} h-full min-h-full antialiased`}
     >
       <body className="font-body flex h-full min-h-full flex-col">
+        <Fathom />
         <Providers>
           <div className="flex flex-col h-full">
             {/* TODO: Pull out into a component */}
